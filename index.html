@@ -16675,7 +16675,8 @@
     let readingVadCooldownUntil = 0;
     let readingSpeechGuardUntil = 0;
     let readingSpeechRestartTimer = null;
-    let readingSpeechTokenOffsets = {};
+    let readingSpeechStates = {};
+    let isReadingRecognizerRunning = false;
     let readingMismatchTimer = null;
     let readingLastMismatchHint = '';
     let readingSpeechPulseTimer = null;
@@ -16685,16 +16686,16 @@
 
     // Kamus variasi transkrip SpeechRecognition bebas bentrok untuk seluruh 50 suku kata kurikulum (Lembar 1 - 10)
     const READING_PHONETIC_ALIASES = {
-      a: ['a', 'ah', 'aa', 'aaa', 'ea'],
-      i: ['i', 'ih', 'ii', 'iii', 'ei'],
-      u: ['u', 'uh', 'uu', 'uuu', 'wu'],
-      ba: ['ba', 'bah', 'baa', 'mbak', 'mbah', 'baba', 'bak'],
+      a: ['a', 'ah', 'aa', 'aaa', 'ea', 'ak', 'eh'],
+      i: ['i', 'ih', 'ii', 'iii', 'ei', 'ik', 'iy'],
+      u: ['u', 'uh', 'uu', 'uuu', 'wu', 'uk', 'uw'],
+      ba: ['ba', 'bah', 'baa', 'mbak', 'mbah', 'mba', 'baba', 'bak'],
       bi: ['bi', 'bih', 'bii', 'bibi', 'bee'],
       bu: ['bu', 'buh', 'buu', 'bubu', 'buk'],
       ca: ['ca', 'cha', 'cah', 'caa', 'cak', 'caca', 'chacha'],
       ci: ['ci', 'chi', 'cih', 'cii', 'cici'],
       cu: ['cu', 'chu', 'cuh', 'cuu', 'cucu'],
-      da: ['da', 'dah', 'daa', 'ndak', 'dak', 'dada'],
+      da: ['da', 'dah', 'daa', 'ndak', 'nda', 'dak', 'dada'],
       di: ['di', 'dih', 'dii', 'didi'],
       du: ['du', 'duh', 'duu', 'dudu'],
       sa: ['sa', 'sah', 'saa', 'sak', 'sasa'],
@@ -16873,7 +16874,7 @@
     }
 
     function pilihLembarMembaca(id) {
-      readingSpeechTokenOffsets = {};
+      readingSpeechStates = {};
       renderReadingBoard(id);
       bunyikanContohEjaan();
     }
@@ -17373,16 +17374,21 @@
         clearTimeout(readingSpeechPulseTimer);
         readingSpeechPulseTimer = null;
       }
-      readingSpeechTokenOffsets = {};
+      readingSpeechStates = {};
       isReadingListening = false;
       setReadingMicMeter_(0);
       if (readingSpeechRecognizer) {
-        try { readingSpeechRecognizer.stop(); } catch (err) { }
+        try {
+          readingSpeechRecognizer.stop();
+        } catch (err) {
+          isReadingRecognizerRunning = false;
+        }
+      } else {
+        isReadingRecognizerRunning = false;
       }
     }
 
     function startReadingSpeechRecognition_() {
-      stopReadingSpeechRecognition_();
       if (!readingSpeechRecognizer) {
         readingSpeechRecognizer = initReadingSpeechRecognition();
       }
@@ -17391,12 +17397,83 @@
         showToast('Browser ini tidak mendukung Mode Wajib Benar. Beralih ke Mode Suara Bebas.', 'warning');
         return;
       }
-      try {
-        readingSpeechRecognizer.start();
+      if (readingSpeechRestartTimer) {
+        clearTimeout(readingSpeechRestartTimer);
+        readingSpeechRestartTimer = null;
+      }
+      readingSpeechStates = {};
+      if (isReadingRecognizerRunning) {
+        try { readingSpeechRecognizer.stop(); } catch (err) { isReadingRecognizerRunning = false; }
+        readingSpeechRestartTimer = setTimeout(function () {
+          if (isReadingMicActive && readingMicMode === 'lafal' && !isReadingRecognizerRunning) {
+            startReadingSpeechRecognition_();
+          }
+        }, 60);
         updateReadingMicUI(true, 'Menghubungkan Mode Wajib Benar...');
+        return;
+      }
+      try {
+        isReadingRecognizerRunning = true;
+        readingSpeechRecognizer.start();
+        updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
       } catch (err) {
+        isReadingRecognizerRunning = false;
         console.warn('Gagal start SpeechRecognition:', err);
       }
+    }
+
+    function extractUnconsumedSpeechTail_(candidateTok, state, targetSound, now) {
+      const tokClean = String(candidateTok || '').toLowerCase().trim();
+      if (!tokClean || !state || !state.lastMatchedSound) return '';
+
+      const lastSound = String(state.lastMatchedSound).toLowerCase();
+      const lastAliases = READING_PHONETIC_ALIASES[lastSound] || [lastSound];
+
+      const prefixes = [];
+      if (state.consumedPrefix && tokClean.startsWith(state.consumedPrefix) && tokClean.length > state.consumedPrefix.length) {
+        prefixes.push(state.consumedPrefix);
+      } else if (lastSound && tokClean.startsWith(lastSound) && tokClean.length > lastSound.length) {
+        if (lastAliases.indexOf(tokClean) === -1 || tokClean === (lastSound + lastSound)) {
+          prefixes.push(lastSound);
+        }
+      }
+
+      for (let p = 0; p < prefixes.length; p++) {
+        const tail = tokClean.slice(prefixes[p].length);
+        if (!tail) continue;
+        if (tail.length === 1 && tail === lastSound && (now - state.lastMatchedAt) < 180) {
+          continue;
+        }
+        if (lastAliases.indexOf(tokClean) > -1 && tail !== lastSound) {
+          continue;
+        }
+        if (isReadingSoundMatch(tail, targetSound)) {
+          return tail;
+        }
+      }
+
+      // Tangani revisi kata pada posisi yang sama (mis. interim 'a' terganti langsung menjadi 'ba')
+      if ((now - state.lastMatchedAt) >= 160 && !isReadingSoundMatch(tokClean, lastSound)) {
+        if (isReadingSoundMatch(tokClean, targetSound)) {
+          return tokClean;
+        }
+      }
+
+      return '';
+    }
+
+    function getUnconsumedWrongHint_(primaryTokens, state, fallbackText) {
+      if (!primaryTokens || primaryTokens.length === 0) return fallbackText || '';
+      if (state && state.lastMatchedIdx >= 0 && primaryTokens.length <= state.tokenOffset) {
+        const prevTok = primaryTokens[state.lastMatchedIdx] || '';
+        if (state.consumedPrefix && prevTok.startsWith(state.consumedPrefix) && prevTok.length > state.consumedPrefix.length) {
+          return prevTok.slice(state.consumedPrefix.length);
+        }
+        if (prevTok === state.consumedPrefix) return '';
+        return prevTok;
+      }
+      const newWords = primaryTokens.slice(state ? state.tokenOffset : 0);
+      return newWords.length > 0 ? newWords.join(' ') : (fallbackText || '');
     }
 
     function initReadingSpeechRecognition() {
@@ -17414,7 +17491,8 @@
         recognizer.maxAlternatives = 5;
 
         recognizer.onstart = function () {
-          readingSpeechTokenOffsets = {};
+          isReadingRecognizerRunning = true;
+          readingSpeechStates = {};
           isReadingListening = true;
           updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
         };
@@ -17469,15 +17547,52 @@
             const altTokenLists = alts.map(function (txt) {
               return txt.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim().split(/\s+/).filter(Boolean);
             });
-            let offset = readingSpeechTokenOffsets[i] || 0;
+
+            if (!readingSpeechStates[i]) {
+              readingSpeechStates[i] = { tokenOffset: 0, lastMatchedIdx: -1, consumedPrefix: '', lastMatchedSound: '', lastMatchedAt: 0 };
+            }
+            const itemState = readingSpeechStates[i];
 
             if (currentReadingIndex >= READING_STEPS.length) continue;
 
             const label = document.getElementById('detectedReadingSpeech');
             let advancedInItem = false;
 
+            // 1. Cek jika token terakhir yang sudah lulus mengalami penggabungan (mis. "ba" -> "baca", "a" -> "aa") atau revisi langsung
+            if (itemState.lastMatchedIdx >= 0) {
+              for (let stepGuard = 0; stepGuard < 4; stepGuard++) {
+                if (currentReadingIndex >= READING_STEPS.length) break;
+                const currentTgt = READING_STEPS[currentReadingIndex].sound;
+                let matchedTail = null;
+                let fullTokenAtIdx = '';
+
+                for (let altIdx = 0; altIdx < altTokenLists.length; altIdx++) {
+                  const tokAtIdx = altTokenLists[altIdx][itemState.lastMatchedIdx];
+                  if (!tokAtIdx) continue;
+                  const extracted = extractUnconsumedSpeechTail_(tokAtIdx, itemState, currentTgt, now);
+                  if (extracted) {
+                    matchedTail = extracted;
+                    fullTokenAtIdx = tokAtIdx;
+                    break;
+                  }
+                }
+
+                if (matchedTail) {
+                  advanceReadingStep_('✓ "' + matchedTail + '"');
+                  itemState.consumedPrefix = fullTokenAtIdx;
+                  itemState.lastMatchedSound = currentTgt;
+                  itemState.lastMatchedAt = now;
+                  itemState.tokenOffset = Math.max(itemState.tokenOffset, itemState.lastMatchedIdx + 1);
+                  advancedInItem = true;
+                } else {
+                  break;
+                }
+              }
+            }
+
+            // 2. Cek per token kata baru setelah tokenOffset
             const maxTokenLen = Math.max.apply(null, altTokenLists.map(function (tks) { return tks.length; }));
-            for (let t = offset; t < maxTokenLen; t++) {
+            for (let t = itemState.tokenOffset; t < maxTokenLen; t++) {
               if (currentReadingIndex >= READING_STEPS.length) break;
               const targetSound = READING_STEPS[currentReadingIndex].sound;
               let matchedWord = null;
@@ -17492,40 +17607,48 @@
 
               if (matchedWord) {
                 advanceReadingStep_('✓ "' + matchedWord + '"');
-                offset = t + 1;
-                readingSpeechTokenOffsets[i] = offset;
+                itemState.tokenOffset = t + 1;
+                itemState.lastMatchedIdx = t;
+                itemState.consumedPrefix = matchedWord;
+                itemState.lastMatchedSound = targetSound;
+                itemState.lastMatchedAt = now;
                 advancedInItem = true;
               }
             }
 
+            // 3. Jika belum ada token posisi tunggal yg cocok, cek frasa sisa pada alternatif
             if (!advancedInItem && currentReadingIndex < READING_STEPS.length) {
               const currentTarget = READING_STEPS[currentReadingIndex].sound;
               for (let altIdx = 0; altIdx < altTokenLists.length; altIdx++) {
-                const sliceText = altTokenLists[altIdx].slice(offset).join(' ');
+                const sliceText = altTokenLists[altIdx].slice(itemState.tokenOffset).join(' ');
                 if (sliceText && isReadingSoundMatch(sliceText, currentTarget)) {
                   advanceReadingStep_('✓ "' + sliceText + '"');
-                  offset = Math.max(offset, altTokenLists[altIdx].length);
-                  readingSpeechTokenOffsets[i] = offset;
+                  itemState.tokenOffset = Math.max(itemState.tokenOffset, altTokenLists[altIdx].length);
+                  itemState.lastMatchedIdx = Math.max(0, altTokenLists[altIdx].length - 1);
+                  itemState.consumedPrefix = altTokenLists[altIdx][itemState.lastMatchedIdx] || sliceText;
+                  itemState.lastMatchedSound = currentTarget;
+                  itemState.lastMatchedAt = now;
                   advancedInItem = true;
                   break;
                 }
               }
             }
 
-            // Jika murid mengucapkan huruf yang salah, pensil TETAP DIAM sampai benar!
+            // 4. Jika murid mengucapkan huruf yang salah, pensil TETAP DIAM sampai benar!
             if (!advancedInItem && currentReadingIndex < READING_STEPS.length) {
               const currentTarget = READING_STEPS[currentReadingIndex].sound;
-              const latestWords = primaryTokens.slice(offset);
-              const latestDisplay = (latestWords.length > 0 ? latestWords.join(' ') : alts[0]);
+              const latestDisplay = getUnconsumedWrongHint_(primaryTokens, itemState, alts[0]);
               if (resItem.isFinal) {
-                readingSpeechTokenOffsets[i] = maxTokenLen;
-                flashReadingMismatch_(latestDisplay, currentTarget);
+                itemState.tokenOffset = maxTokenLen;
+                if (latestDisplay) {
+                  flashReadingMismatch_(latestDisplay, currentTarget);
+                }
               } else if (label && latestDisplay) {
                 label.textContent = '⏳ "' + latestDisplay + '" (target: "' + currentTarget.toUpperCase() + '")';
                 label.className = 'italic font-bold text-amber-700 truncate max-w-[180px] sm:max-w-xs';
               }
             } else if (resItem.isFinal) {
-              readingSpeechTokenOffsets[i] = Math.max(readingSpeechTokenOffsets[i] || 0, maxTokenLen);
+              itemState.tokenOffset = Math.max(itemState.tokenOffset, maxTokenLen);
             }
           }
         };
@@ -17535,12 +17658,16 @@
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             isReadingMicActive = false;
             isReadingListening = false;
+            isReadingRecognizerRunning = false;
             updateReadingMicUI(false, 'Izin mikrofon belum diberikan');
+          } else if (event.error === 'aborted' || event.error === 'audio-capture' || event.error === 'network') {
+            isReadingRecognizerRunning = false;
           }
         };
 
         recognizer.onend = function () {
           isReadingListening = false;
+          isReadingRecognizerRunning = false;
           if (readingSpeechPulseTimer) {
             clearTimeout(readingSpeechPulseTimer);
             readingSpeechPulseTimer = null;
@@ -17549,11 +17676,14 @@
           if (isReadingMicActive && readingMicMode === 'lafal') {
             if (readingSpeechRestartTimer) clearTimeout(readingSpeechRestartTimer);
             readingSpeechRestartTimer = setTimeout(function () {
-              if (!isReadingMicActive || readingMicMode !== 'lafal') return;
+              if (!isReadingMicActive || readingMicMode !== 'lafal' || isReadingRecognizerRunning) return;
               try {
+                isReadingRecognizerRunning = true;
                 recognizer.start();
-              } catch (err) { }
-            }, 75);
+              } catch (err) {
+                isReadingRecognizerRunning = false;
+              }
+            }, 15);
           } else if (!isReadingMicActive) {
             updateReadingMicUI(false, 'Mikrofon Nonaktif');
           }
@@ -17662,7 +17792,7 @@
       if (currentReadingIndex >= READING_STEPS.length) return;
       const target = READING_STEPS[currentReadingIndex].sound.toLowerCase();
       safeSpeechCancel();
-      readingSpeechGuardUntil = Date.now() + 1800;
+      readingSpeechGuardUntil = Date.now() + 700;
 
       const idVoiceFemale = getIndonesianVoice('female');
       const idVoiceMale = getIndonesianVoice('male');
@@ -17716,11 +17846,11 @@
         utter.pitch = pitch;
         utter.rate = rate;
         if (selectedVoice) utter.voice = selectedVoice;
-        utter.onend = function () { readingSpeechGuardUntil = Date.now() + 260; };
-        utter.onerror = function () { readingSpeechGuardUntil = Date.now() + 150; };
+        utter.onend = function () { readingSpeechGuardUntil = Date.now() + 120; };
+        utter.onerror = function () { readingSpeechGuardUntil = Date.now() + 80; };
         window.speechSynthesis.speak(utter);
       } catch (e) {
-        readingSpeechGuardUntil = Date.now() + 150;
+        readingSpeechGuardUntil = Date.now() + 80;
         console.warn('Speech synthesis ejaan notice:', e);
       }
     }
@@ -17752,7 +17882,7 @@
     function resetBelajarMembaca() {
       currentReadingIndex = 0;
       readingVadCooldownUntil = 0;
-      readingSpeechTokenOffsets = {};
+      readingSpeechStates = {};
       readingLastMismatchHint = '';
       if (readingMismatchTimer) {
         clearTimeout(readingMismatchTimer);
