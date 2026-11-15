@@ -16689,55 +16689,89 @@
     // Kamus variasi transkrip SpeechRecognition bebas bentrok untuk seluruh 50 suku kata kurikulum (Lembar 1 - 10)
     const READING_PHONETIC_ALIASES = {
       a: ['a', 'ah', 'aa', 'aaa', 'ea', 'ak', 'eh'],
-      i: ['i', 'ih', 'ii', 'iii', 'ei', 'ik', 'iy'],
-      u: ['u', 'uh', 'uu', 'uuu', 'wu', 'uk', 'uw'],
-      ba: ['ba', 'bah', 'baa', 'mbak', 'mbah', 'mba', 'baba', 'bak', 'be', 'b'],
-      bi: ['bi', 'bih', 'bii', 'bibi', 'bee'],
-      bu: ['bu', 'buh', 'buu', 'bubu', 'buk'],
-      ca: ['ca', 'cha', 'cah', 'caa', 'cak', 'caca', 'chacha', 'ce', 'c'],
-      ci: ['ci', 'chi', 'cih', 'cii', 'cici'],
-      cu: ['cu', 'chu', 'cuh', 'cuu', 'cucu'],
-      da: ['da', 'dah', 'daa', 'ndak', 'nda', 'dak', 'dada', 'de', 'd'],
-      di: ['di', 'dih', 'dii', 'didi'],
-      du: ['du', 'duh', 'duu', 'dudu'],
-      sa: ['sa', 'sah', 'saa', 'sak', 'sasa', 'es', 'se', 's'],
-      si: ['si', 'sih', 'sii', 'sisi'],
-      su: ['su', 'suh', 'suu', 'susu'],
+      i: ['i', 'ih', 'ii', 'iii', 'ei', 'ik', 'iy', 'e', 'ee'],
+      u: ['u', 'uh', 'uu', 'uuu', 'wu', 'uk', 'uw', 'o', 'oo'],
+      ba: ['ba', 'bah', 'baa', 'mbak', 'mbah', 'mba', 'baba', 'bak', 'be', 'b', 'wa', 'bha'],
+      bi: ['bi', 'bih', 'bii', 'bibi', 'bee', 'pi', 'vi', 'fi', 'wi', 'bie'],
+      bu: ['bu', 'buh', 'buu', 'bubu', 'buk', 'pu', 'vu', 'fu', 'boo'],
+      ca: ['ca', 'cha', 'cah', 'caa', 'cak', 'caca', 'chacha', 'ce', 'c', 'ja', 'je', 'j', 'tja'],
+      ci: ['ci', 'chi', 'cih', 'cii', 'cici', 'ji', 'jie', 'tji'],
+      cu: ['cu', 'chu', 'cuh', 'cuu', 'cucu', 'ju', 'juh', 'juu', 'tju'],
+      da: ['da', 'dah', 'daa', 'ndak', 'nda', 'dak', 'dada', 'de', 'd', 'dha'],
+      di: ['di', 'dih', 'dii', 'didi', 'dhi', 'dee'],
+      du: ['du', 'duh', 'duu', 'dudu', 'dhu', 'doo'],
+      sa: ['sa', 'sah', 'saa', 'sak', 'sasa', 'es', 'se', 's', 'za', 'xa', 'sya', 'sha'],
+      si: ['si', 'sih', 'sii', 'sisi', 'zi', 'syi', 'shi', 'see'],
+      su: ['su', 'suh', 'suu', 'susu', 'zu', 'syu', 'shu', 'soo'],
       ma: ['ma', 'mah', 'maa', 'mak', 'emak', 'mama', 'em', 'me', 'm'],
-      mi: ['mi', 'mih', 'mie', 'mii', 'mimi'],
-      mu: ['mu', 'muh', 'muu', 'mumu'],
-      ya: ['ya', 'yah', 'yaa', 'yaya', 'ye', 'y'],
-      yi: ['yi', 'yih', 'yii', 'yiyi'],
-      yu: ['yu', 'yuh', 'yuu', 'yuk', 'yuyu'],
-      na: ['na', 'nah', 'naa', 'nak', 'nana', 'en', 'n'],
-      ni: ['ni', 'nih', 'nii', 'nini'],
-      nu: ['nu', 'nuh', 'nuu', 'nunu'],
-      ha: ['ha', 'hah', 'haa', 'hak', 'haha'],
-      hi: ['hi', 'hih', 'hii', 'hihi'],
-      hu: ['hu', 'huh', 'huu', 'huhu'],
-      ka: ['ka', 'kah', 'kaa', 'kak', 'kaka', 'ke', 'k'],
-      ki: ['ki', 'kih', 'kii', 'kiki'],
-      ku: ['ku', 'kuh', 'kuu', 'kuku'],
-      la: ['la', 'lah', 'laa', 'lala', 'el', 'l'],
-      lu: ['lu', 'luh', 'luu', 'lulu'],
-      pa: ['pa', 'pah', 'paa', 'pak', 'papa', 'pe', 'p'],
-      ra: ['ra', 'rah', 'raa', 'rara', 'er', 'r'],
-      ri: ['ri', 'rih', 'rii', 'riri'],
-      ta: ['ta', 'tah', 'taa', 'tak', 'tata', 'te', 't'],
-      ti: ['ti', 'tih', 'tii', 'titi'],
-      tu: ['tu', 'tuh', 'tuu', 'tutu'],
-      iba: ['iba', 'ibah'],
-      ibi: ['ibi', 'ibih'],
-      ica: ['ica', 'icha', 'icah'],
-      ici: ['ici', 'ichi', 'icih'],
-      ida: ['ida', 'idah'],
-      idi: ['idi', 'idih'],
-      ima: ['ima', 'imah'],
-      imi: ['imi', 'imih'],
-      isa: ['isa', 'isah', 'isya'],
-      isi: ['isi', 'isih', 'issy'],
-      iya: ['iya', 'iyah'],
-      iyi: ['iyi', 'iyih']
+      mi: ['mi', 'mih', 'mie', 'mii', 'mimi', 'my', 'mee'],
+      mu: ['mu', 'muh', 'muu', 'mumu', 'moo'],
+      ya: ['ya', 'yah', 'yaa', 'yaya', 'ye', 'y', 'yeah'],
+      yi: ['yi', 'yih', 'yii', 'yiyi', 'yei'],
+      yu: ['yu', 'yuh', 'yuu', 'yuk', 'yuyu', 'you', 'yo'],
+      na: ['na', 'nah', 'naa', 'nak', 'nana', 'en', 'n', 'nya', 'nyah', 'ne'],
+      ni: ['ni', 'nih', 'nii', 'nini', 'nyi', 'nie', 'knee'],
+      nu: ['nu', 'nuh', 'nuu', 'nunu', 'nyu', 'noo'],
+      ha: ['ha', 'hah', 'haa', 'hak', 'haha', 'h', 'he', 'kha'],
+      hi: ['hi', 'hih', 'hii', 'hihi', 'khi', 'hee'],
+      hu: ['hu', 'huh', 'huu', 'huhu', 'khu', 'who'],
+      ka: ['ka', 'kah', 'kaa', 'kak', 'kaka', 'ke', 'k', 'ga', 'gah', 'qa'],
+      ki: ['ki', 'kih', 'kii', 'kiki', 'gi', 'gih', 'qi', 'key'],
+      ku: ['ku', 'kuh', 'kuu', 'kuku', 'gu', 'guh', 'qu'],
+      la: ['la', 'lah', 'laa', 'lala', 'el', 'l', 'le'],
+      lu: ['lu', 'luh', 'luu', 'lulu', 'ru', 'ruh', 'loe'],
+      pa: ['pa', 'pah', 'paa', 'pak', 'papa', 'pe', 'p', 'fa', 'va', 'fe'],
+      ra: ['ra', 'rah', 'raa', 'rara', 'er', 'r', 're'],
+      ri: ['ri', 'rih', 'rii', 'riri', 'li', 'lih', 'ree'],
+      ta: ['ta', 'tah', 'taa', 'tak', 'tata', 'te', 't', 'tha'],
+      ti: ['ti', 'tih', 'tii', 'titi', 'thi', 'tea', 'tee'],
+      tu: ['tu', 'tuh', 'tuu', 'tutu', 'thu', 'to', 'two', 'too'],
+      iba: ['iba', 'ibah', 'ipa', 'iva', 'iwa'],
+      ibi: ['ibi', 'ibih', 'ipi', 'ivi', 'iwi'],
+      ica: ['ica', 'icha', 'icah', 'ija', 'ijah', 'itja'],
+      ici: ['ici', 'ichi', 'icih', 'iji', 'ijih', 'itji'],
+      ida: ['ida', 'idah', 'ita', 'itah', 'idha'],
+      idi: ['idi', 'idih', 'iti', 'itih', 'idhi'],
+      ima: ['ima', 'imah', 'ina', 'inah'],
+      imi: ['imi', 'imih', 'ini', 'inih'],
+      isa: ['isa', 'isah', 'isya', 'isha', 'iza', 'izah'],
+      isi: ['isi', 'isih', 'issy', 'isyi', 'ishi', 'izi', 'izih'],
+      iya: ['iya', 'iyah', 'ia', 'iha'],
+      iyi: ['iyi', 'iyih', 'ihi']
+    };
+
+    // Toleransi Opsi 1: pasangan suku kata kurikulum berbunyi berdekatan (A<->H, Bi<->Di, dll.)
+    const READING_FUZZY_NEIGHBORS = {
+      a: ['ha'],
+      i: ['hi', 'yi'],
+      u: ['hu', 'yu'],
+      ha: ['a'],
+      hi: ['i', 'yi'],
+      hu: ['u', 'yu'],
+      yi: ['i', 'hi'],
+      yu: ['u', 'hu'],
+      ba: ['da', 'pa'],
+      da: ['ba', 'ta'],
+      pa: ['ba', 'ta'],
+      ta: ['da', 'pa'],
+      bi: ['di'],
+      di: ['bi', 'ti'],
+      ti: ['di'],
+      bu: ['du'],
+      du: ['bu', 'tu'],
+      tu: ['du'],
+      ma: ['na'],
+      na: ['ma'],
+      mi: ['ni'],
+      ni: ['mi'],
+      mu: ['nu'],
+      nu: ['mu'],
+      la: ['ra'],
+      ra: ['la'],
+      iba: ['ida'],
+      ida: ['iba'],
+      ibi: ['idi'],
+      idi: ['ibi']
     };
 
     /**
@@ -17137,8 +17171,31 @@
     }
 
     /**
-     * Pengenal Suara Ketat & Bebas Bentrok untuk Seluruh 50 Suku Kata (Lembar 1 - 10)
+     * Pengenal Suara dengan Toleransi Fonetik & Bunyi Berdekatan untuk Seluruh 50 Suku Kata (Lembar 1 - 10)
      */
+    function isTokenMatchSoundKey_(words, key) {
+      if (!words || words.length === 0 || !key) return false;
+      if (words.indexOf(key) > -1) return true;
+
+      const aliases = READING_PHONETIC_ALIASES[key];
+      if (aliases && words.some(function (w) { return aliases.indexOf(w) > -1; })) {
+        return true;
+      }
+
+      // Variasi fonetik ch- ketat per kata untuk suku kata berawalan c
+      if (key.charAt(0) === 'c') {
+        const chVariant = 'ch' + key.slice(1);
+        if (words.indexOf(chVariant) > -1 || words.indexOf(chVariant + 'h') > -1) return true;
+      }
+
+      // Pengulangan target yang sama dalam 1 token (mis. 'aaa', 'baba')
+      const dup2 = key + key;
+      const dup3 = dup2 + key;
+      if (words.some(function (w) { return w === dup2 || w === dup3; })) return true;
+
+      return false;
+    }
+
     function isReadingSoundMatch(spoken, target) {
       if (!spoken || !target) return false;
       const clean = String(spoken).toLowerCase().replace(/[^a-z0-9]/g, ' ').trim();
@@ -17147,23 +17204,12 @@
       const tgt = String(target).toLowerCase().trim();
       if (!tgt) return false;
 
-      if (clean === tgt || words.indexOf(tgt) > -1) return true;
+      if (clean === tgt || isTokenMatchSoundKey_(words, tgt)) return true;
 
-      const aliases = READING_PHONETIC_ALIASES[tgt];
-      if (aliases && words.some(function (w) { return aliases.indexOf(w) > -1; })) {
+      const neighbors = READING_FUZZY_NEIGHBORS[tgt];
+      if (neighbors && neighbors.some(function (nKey) { return isTokenMatchSoundKey_(words, nKey); })) {
         return true;
       }
-
-      // Variasi fonetik ch- ketat per kata untuk suku kata berawalan c
-      if (tgt.charAt(0) === 'c') {
-        const chVariant = 'ch' + tgt.slice(1);
-        if (words.indexOf(chVariant) > -1 || words.indexOf(chVariant + 'h') > -1) return true;
-      }
-
-      // Pengulangan target yang sama dalam 1 token (mis. 'aaa', 'baba')
-      const dup2 = tgt + tgt;
-      const dup3 = dup2 + tgt;
-      if (words.some(function (w) { return w === dup2 || w === dup3; })) return true;
 
       return false;
     }
