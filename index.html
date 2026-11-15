@@ -16680,7 +16680,9 @@
     let readingMismatchTimer = null;
     let readingLastMismatchHint = '';
     let readingSpeechPulseTimer = null;
-    let readingVadState = { calibrated: false, noiseFloor: 0.015, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
+    let readingSpeechWatchdogTimer = null;
+    let readingNoSpeechHintUntil = 0;
+    let readingVadState = { calibrated: false, noiseFloor: 0.008, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
     let readingAudioCtx = null;
     let currentVoiceProfile = 'ibu_guru'; // 'ibu_guru', 'pak_guru', 'anak', 'eja_fonetik'
 
@@ -16689,39 +16691,39 @@
       a: ['a', 'ah', 'aa', 'aaa', 'ea', 'ak', 'eh'],
       i: ['i', 'ih', 'ii', 'iii', 'ei', 'ik', 'iy'],
       u: ['u', 'uh', 'uu', 'uuu', 'wu', 'uk', 'uw'],
-      ba: ['ba', 'bah', 'baa', 'mbak', 'mbah', 'mba', 'baba', 'bak'],
+      ba: ['ba', 'bah', 'baa', 'mbak', 'mbah', 'mba', 'baba', 'bak', 'be', 'b'],
       bi: ['bi', 'bih', 'bii', 'bibi', 'bee'],
       bu: ['bu', 'buh', 'buu', 'bubu', 'buk'],
-      ca: ['ca', 'cha', 'cah', 'caa', 'cak', 'caca', 'chacha'],
+      ca: ['ca', 'cha', 'cah', 'caa', 'cak', 'caca', 'chacha', 'ce', 'c'],
       ci: ['ci', 'chi', 'cih', 'cii', 'cici'],
       cu: ['cu', 'chu', 'cuh', 'cuu', 'cucu'],
-      da: ['da', 'dah', 'daa', 'ndak', 'nda', 'dak', 'dada'],
+      da: ['da', 'dah', 'daa', 'ndak', 'nda', 'dak', 'dada', 'de', 'd'],
       di: ['di', 'dih', 'dii', 'didi'],
       du: ['du', 'duh', 'duu', 'dudu'],
-      sa: ['sa', 'sah', 'saa', 'sak', 'sasa'],
+      sa: ['sa', 'sah', 'saa', 'sak', 'sasa', 'es', 'se', 's'],
       si: ['si', 'sih', 'sii', 'sisi'],
       su: ['su', 'suh', 'suu', 'susu'],
-      ma: ['ma', 'mah', 'maa', 'mak', 'emak', 'mama'],
+      ma: ['ma', 'mah', 'maa', 'mak', 'emak', 'mama', 'em', 'me', 'm'],
       mi: ['mi', 'mih', 'mie', 'mii', 'mimi'],
       mu: ['mu', 'muh', 'muu', 'mumu'],
-      ya: ['ya', 'yah', 'yaa', 'yaya'],
+      ya: ['ya', 'yah', 'yaa', 'yaya', 'ye', 'y'],
       yi: ['yi', 'yih', 'yii', 'yiyi'],
       yu: ['yu', 'yuh', 'yuu', 'yuk', 'yuyu'],
-      na: ['na', 'nah', 'naa', 'nak', 'nana'],
+      na: ['na', 'nah', 'naa', 'nak', 'nana', 'en', 'n'],
       ni: ['ni', 'nih', 'nii', 'nini'],
       nu: ['nu', 'nuh', 'nuu', 'nunu'],
       ha: ['ha', 'hah', 'haa', 'hak', 'haha'],
       hi: ['hi', 'hih', 'hii', 'hihi'],
       hu: ['hu', 'huh', 'huu', 'huhu'],
-      ka: ['ka', 'kah', 'kaa', 'kak', 'kaka'],
+      ka: ['ka', 'kah', 'kaa', 'kak', 'kaka', 'ke', 'k'],
       ki: ['ki', 'kih', 'kii', 'kiki'],
       ku: ['ku', 'kuh', 'kuu', 'kuku'],
-      la: ['la', 'lah', 'laa', 'lala'],
+      la: ['la', 'lah', 'laa', 'lala', 'el', 'l'],
       lu: ['lu', 'luh', 'luu', 'lulu'],
-      pa: ['pa', 'pah', 'paa', 'pak', 'papa'],
-      ra: ['ra', 'rah', 'raa', 'rara'],
+      pa: ['pa', 'pah', 'paa', 'pak', 'papa', 'pe', 'p'],
+      ra: ['ra', 'rah', 'raa', 'rara', 'er', 'r'],
       ri: ['ri', 'rih', 'rii', 'riri'],
-      ta: ['ta', 'tah', 'taa', 'tak', 'tata'],
+      ta: ['ta', 'tah', 'taa', 'tak', 'tata', 'te', 't'],
       ti: ['ti', 'tih', 'tii', 'titi'],
       tu: ['tu', 'tuh', 'tuu', 'tutu'],
       iba: ['iba', 'ibah'],
@@ -17208,7 +17210,7 @@
         });
       }
       readingMicStream = null;
-      readingVadState = { calibrated: false, noiseFloor: 0.015, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
+      readingVadState = { calibrated: false, noiseFloor: 0.008, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
       setReadingMicMeter_(0);
     }
 
@@ -17259,25 +17261,36 @@
         readingVadSource = readingVadCtx.createMediaStreamSource(stream);
         readingVadAnalyser = readingVadCtx.createAnalyser();
         readingVadAnalyser.fftSize = 512;
-        readingVadAnalyser.smoothingTimeConstant = 0.2;
+        readingVadAnalyser.smoothingTimeConstant = 0.15;
         readingVadSource.connect(readingVadAnalyser);
-        readingVadDataBuf = new Uint8Array(readingVadAnalyser.fftSize);
+        const useFloatVad = typeof readingVadAnalyser.getFloatTimeDomainData === 'function';
+        readingVadDataBuf = useFloatVad
+          ? new Float32Array(readingVadAnalyser.fftSize)
+          : new Uint8Array(readingVadAnalyser.fftSize);
 
-        readingVadState = { calibrated: false, noiseFloor: 0.015, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
+        readingVadState = { calibrated: false, noiseFloor: 0.008, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
         isReadingListening = true;
-        updateReadingMicUI(true, '⚡ Suara Bebas Aktif (Tanpa Cek Huruf)');
+        updateReadingMicUI(true, '⚡ Suara Bebas Aktif (Ultra-Peka)');
 
         function pumpReadingVad_() {
           if (!isReadingMicActive || readingMicMode !== 'kilat' || !readingVadAnalyser || !readingVadDataBuf) return;
 
-          readingVadAnalyser.getByteTimeDomainData(readingVadDataBuf);
           let sumSq = 0;
-          for (let i = 0; i < readingVadDataBuf.length; i++) {
-            const norm = (readingVadDataBuf[i] - 128) / 128;
-            sumSq += norm * norm;
+          if (useFloatVad) {
+            readingVadAnalyser.getFloatTimeDomainData(readingVadDataBuf);
+            for (let i = 0; i < readingVadDataBuf.length; i++) {
+              const norm = readingVadDataBuf[i];
+              sumSq += norm * norm;
+            }
+          } else {
+            readingVadAnalyser.getByteTimeDomainData(readingVadDataBuf);
+            for (let i = 0; i < readingVadDataBuf.length; i++) {
+              const norm = (readingVadDataBuf[i] - 128) / 128;
+              sumSq += norm * norm;
+            }
           }
           const rms = Math.sqrt(sumSq / readingVadDataBuf.length);
-          setReadingMicMeter_(Math.min(100, (rms / 0.14) * 100));
+          setReadingMicMeter_(Math.min(100, (rms / 0.08) * 100));
 
           const now = Date.now();
           let ttsActive = false;
@@ -17298,20 +17311,20 @@
             if (readingVadState.samples.length >= 14) {
               const sum = readingVadState.samples.reduce(function (a, b) { return a + b; }, 0);
               const avg = sum / readingVadState.samples.length;
-              readingVadState.noiseFloor = Math.min(0.055, Math.max(0.008, avg * 1.15));
+              readingVadState.noiseFloor = Math.min(0.045, Math.max(0.004, avg * 1.15));
               readingVadState.calibrated = true;
             }
             readingVadRafId = requestAnimationFrame(pumpReadingVad_);
             return;
           }
 
-          const onsetThresh = Math.max(readingVadState.noiseFloor * 2.5, 0.026);
-          const releaseThresh = Math.max(readingVadState.noiseFloor * 1.5, 0.015);
+          const onsetThresh = Math.max(readingVadState.noiseFloor * 1.9, 0.011);
+          const releaseThresh = Math.max(readingVadState.noiseFloor * 1.25, 0.0065);
 
           if (!readingVadState.isSpeaking) {
             if (rms < releaseThresh) {
               readingVadState.noiseFloor = (readingVadState.noiseFloor * 0.96) + (rms * 0.04);
-              readingVadState.noiseFloor = Math.min(0.055, Math.max(0.008, readingVadState.noiseFloor));
+              readingVadState.noiseFloor = Math.min(0.045, Math.max(0.004, readingVadState.noiseFloor));
             }
             if (rms >= onsetThresh) {
               readingVadState.onsetFrames++;
@@ -17374,6 +17387,11 @@
         clearTimeout(readingSpeechPulseTimer);
         readingSpeechPulseTimer = null;
       }
+      if (readingSpeechWatchdogTimer) {
+        clearTimeout(readingSpeechWatchdogTimer);
+        readingSpeechWatchdogTimer = null;
+      }
+      readingNoSpeechHintUntil = 0;
       readingSpeechStates = {};
       isReadingListening = false;
       setReadingMicMeter_(0);
@@ -17401,6 +17419,11 @@
         clearTimeout(readingSpeechRestartTimer);
         readingSpeechRestartTimer = null;
       }
+      if (readingSpeechWatchdogTimer) {
+        clearTimeout(readingSpeechWatchdogTimer);
+        readingSpeechWatchdogTimer = null;
+      }
+      readingNoSpeechHintUntil = 0;
       readingSpeechStates = {};
       if (isReadingRecognizerRunning) {
         try { readingSpeechRecognizer.stop(); } catch (err) { isReadingRecognizerRunning = false; }
@@ -17491,15 +17514,23 @@
         recognizer.maxAlternatives = 5;
 
         recognizer.onstart = function () {
+          if (readingSpeechWatchdogTimer) {
+            clearTimeout(readingSpeechWatchdogTimer);
+            readingSpeechWatchdogTimer = null;
+          }
           isReadingRecognizerRunning = true;
           readingSpeechStates = {};
           isReadingListening = true;
-          updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
+          if (Date.now() >= readingNoSpeechHintUntil) {
+            updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
+          }
         };
 
         recognizer.onsoundstart = recognizer.onspeechstart = function () {
           if (!isReadingMicActive || readingMicMode !== 'lafal') return;
+          readingNoSpeechHintUntil = 0;
           if (readingSpeechPulseTimer) clearTimeout(readingSpeechPulseTimer);
+          if (readingSpeechWatchdogTimer) clearTimeout(readingSpeechWatchdogTimer);
           setReadingMicMeter_(72);
           updateReadingMicUI(true, '🔊 Mendengar suara murid...');
           readingSpeechPulseTimer = setTimeout(function () {
@@ -17509,6 +17540,28 @@
               updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
             }
           }, 1400);
+          // Watchdog anti-macet: jika SpeechRecognition mendeteksi suara namun tidak mengirim onresult > 3.5 detik, restart bersih
+          readingSpeechWatchdogTimer = setTimeout(function () {
+            readingSpeechWatchdogTimer = null;
+            if (!isReadingMicActive || readingMicMode !== 'lafal' || !isReadingRecognizerRunning) return;
+            try {
+              isReadingRecognizerRunning = false;
+              recognizer.abort();
+            } catch (err) {
+              isReadingRecognizerRunning = false;
+            }
+            if (!readingSpeechRestartTimer) {
+              readingSpeechRestartTimer = setTimeout(function () {
+                if (!isReadingMicActive || readingMicMode !== 'lafal' || isReadingRecognizerRunning) return;
+                try {
+                  isReadingRecognizerRunning = true;
+                  recognizer.start();
+                } catch (err) {
+                  isReadingRecognizerRunning = false;
+                }
+              }, 150);
+            }
+          }, 3500);
         };
 
         recognizer.onspeechend = recognizer.onsoundend = function () {
@@ -17516,13 +17569,18 @@
             clearTimeout(readingSpeechPulseTimer);
             readingSpeechPulseTimer = null;
           }
-          if (isReadingMicActive && readingMicMode === 'lafal') {
+          if (isReadingMicActive && readingMicMode === 'lafal' && Date.now() >= readingNoSpeechHintUntil) {
             setReadingMicMeter_(12);
             updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
           }
         };
 
         recognizer.onresult = function (event) {
+          if (readingSpeechWatchdogTimer) {
+            clearTimeout(readingSpeechWatchdogTimer);
+            readingSpeechWatchdogTimer = null;
+          }
+          readingNoSpeechHintUntil = 0;
           const now = Date.now();
           let ttsActive = false;
           try {
@@ -17655,11 +17713,27 @@
 
         recognizer.onerror = function (event) {
           console.warn('Speech Recognition error:', event.error);
+          if (readingSpeechWatchdogTimer) {
+            clearTimeout(readingSpeechWatchdogTimer);
+            readingSpeechWatchdogTimer = null;
+          }
           if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
             isReadingMicActive = false;
             isReadingListening = false;
             isReadingRecognizerRunning = false;
             updateReadingMicUI(false, 'Izin mikrofon belum diberikan');
+          } else if (event.error === 'no-speech') {
+            isReadingRecognizerRunning = false;
+            if (isReadingMicActive && readingMicMode === 'lafal') {
+              readingNoSpeechHintUntil = Date.now() + 3000;
+              setReadingMicMeter_(8);
+              updateReadingMicUI(true, '🔇 Suara pelan / tak terbaca — dekatkan mic atau klik ⚡ Suara Bebas');
+              const label = document.getElementById('detectedReadingSpeech');
+              if (label) {
+                label.textContent = '🔇 Suara pelan / tak terbaca — dekatkan mic atau klik ⚡ Suara Bebas';
+                label.className = 'italic font-bold text-amber-700 truncate max-w-[180px] sm:max-w-xs';
+              }
+            }
           } else if (event.error === 'aborted' || event.error === 'audio-capture' || event.error === 'network') {
             isReadingRecognizerRunning = false;
           }
@@ -17671,6 +17745,10 @@
           if (readingSpeechPulseTimer) {
             clearTimeout(readingSpeechPulseTimer);
             readingSpeechPulseTimer = null;
+          }
+          if (readingSpeechWatchdogTimer) {
+            clearTimeout(readingSpeechWatchdogTimer);
+            readingSpeechWatchdogTimer = null;
           }
           setReadingMicMeter_(0);
           if (isReadingMicActive && readingMicMode === 'lafal') {
