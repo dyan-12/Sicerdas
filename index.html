@@ -4377,6 +4377,10 @@
               <textarea id="inputFormSoalPertanyaan" rows="2"
                 placeholder="Contoh: Benda yang berbentuk kubus memiliki sisi sebanyak..."
                 class="w-full py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:bg-white focus:outline-none focus:border-amber-500 resize-none"></textarea>
+              <div id="formSoalImgNotice"
+                class="hidden mt-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] font-bold text-amber-800">
+                🖼️ Soal ini memiliki gambar terlampir (pertahankan di sini, atau ubah gambar lewat tombol <strong>+ Tambah / Kelola Soal</strong> di dalam folder).
+              </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div class="flex items-center space-x-1.5">
@@ -4847,7 +4851,12 @@
       </div>
 
       <div class="space-y-2">
-        <h4 class="text-xs font-extrabold text-slate-700">Daftar Kotak Soal Saat Ini</h4>
+        <div class="flex items-center justify-between gap-2">
+          <h4 class="text-xs font-extrabold text-slate-700">Daftar Kotak Soal Saat Ini</h4>
+          <span id="quickSoalExistingCountBadge"
+            class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200 text-[10px] font-black">0
+            Soal</span>
+        </div>
         <div id="quickSoalExistingList" class="space-y-2 max-h-56 overflow-y-auto pr-0.5"></div>
       </div>
     </div>
@@ -12818,6 +12827,13 @@
         Boolean(u.match(/\.(pdf|doc|docx|ppt|pptx|xls|xlsx|txt)($|\?)/i));
     }
 
+    function isSoalQuestionValid_(q) {
+      if (!q || typeof q !== 'object') return false;
+      var pert = String(q.pertanyaan || '').trim();
+      var pertImg = resolveSoalMediaUrl(q.pertanyaanImg);
+      return Boolean(pert || pertImg);
+    }
+
     function ekstrakIsiFolderMateri(item) {
       var res = { videos: [], dokumen: [], gambar: [], soal: [] };
       if (!item) return res;
@@ -12859,9 +12875,7 @@
       });
 
       var soalList = Array.isArray(item.daftarSoal) ? item.daftarSoal : [];
-      res.soal = soalList.filter(function (q) {
-        return q && String(q.pertanyaan || '').trim() !== '';
-      });
+      res.soal = soalList.filter(isSoalQuestionValid_);
 
       return res;
     }
@@ -13147,6 +13161,9 @@
       if (kEl) kEl.value = 'A';
       if (btnSave) btnSave.textContent = '+ Tambah Kotak Soal';
       if (btnBatal) btnBatal.classList.add('hidden');
+      const imgNotice = document.getElementById('formSoalImgNotice');
+      if (imgNotice) imgNotice.classList.add('hidden');
+      if (pEl) pEl.placeholder = 'Contoh: Benda yang berbentuk kubus memiliki sisi sebanyak...';
     }
 
     function resolveSoalMediaUrl(rawUrl) {
@@ -13157,7 +13174,10 @@
 
     function renderSoalListCardsHtml(list, labelPrefix, editFn, delFn) {
       var html = '';
+      var visibleNo = 0;
       list.forEach(function (q, idx) {
+        if (!isSoalQuestionValid_(q)) return;
+        visibleNo++;
         const qImgSrc = resolveSoalMediaUrl(q.pertanyaanImg);
         const qTextHtml = q.pertanyaan
           ? '<p class="text-xs font-extrabold text-slate-800 mt-1 break-words">' + escapeHtml(q.pertanyaan) + '</p>'
@@ -13184,7 +13204,7 @@
           '<div class="flex items-start justify-between gap-2">' +
           '<div class="min-w-0 flex-1">' +
           '<div class="flex flex-wrap items-center gap-1.5 mb-0.5">' +
-          '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">' + escapeHtml(labelPrefix) + ' #' + (idx + 1) + '</span>' +
+          '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">' + escapeHtml(labelPrefix) + ' #' + visibleNo + '</span>' +
           '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Kunci: ' + escapeHtml(q.kunci || 'A') + '</span>' +
           '</div>' +
           qTextHtml +
@@ -13207,10 +13227,11 @@
       const container = document.getElementById('folderDraftSoalList');
       const countBadge = document.getElementById('folderDraftSoalCount');
       const list = window._draftMediaSoal || [];
-      if (countBadge) countBadge.textContent = list.length + ' Kotak Soal';
+      const validList = list.filter(isSoalQuestionValid_);
+      if (countBadge) countBadge.textContent = validList.length + ' Kotak Soal';
       if (!container) return;
 
-      if (list.length === 0) {
+      if (validList.length === 0) {
         container.innerHTML = '<div class="text-[11px] text-amber-800 italic bg-white/75 rounded-xl p-2.5 border border-amber-100 text-center">Belum ada kotak soal. Isi form di atas lalu klik "+ Tambah Kotak Soal".</div>';
         return;
       }
@@ -13286,7 +13307,19 @@
       document.getElementById('selectFormSoalKunci').value = q.kunci || 'A';
       document.getElementById('btnSimpanDraftSoal').textContent = 'Simpan Perubahan Soal';
       document.getElementById('btnBatalEditDraftSoal').classList.remove('hidden');
-      document.getElementById('inputFormSoalPertanyaan').focus();
+      const hasAnyImg = Boolean(q.pertanyaanImg || q.opsiAImg || q.opsiBImg || q.opsiCImg || q.opsiDImg);
+      const imgNotice = document.getElementById('formSoalImgNotice');
+      if (imgNotice) {
+        if (hasAnyImg) imgNotice.classList.remove('hidden');
+        else imgNotice.classList.add('hidden');
+      }
+      const pEl = document.getElementById('inputFormSoalPertanyaan');
+      if (pEl) {
+        pEl.placeholder = q.pertanyaanImg
+          ? 'Teks pertanyaan opsional (gambar soal tetap tersimpan)...'
+          : 'Contoh: Benda yang berbentuk kubus memiliki sisi sebanyak...';
+        pEl.focus();
+      }
     }
 
     function hapusDraftSoalDariForm(idx) {
@@ -14392,9 +14425,12 @@
 
     function renderQuickSoalExistingList(item) {
       const container = document.getElementById('quickSoalExistingList');
-      if (!container) return;
+      const countBadge = document.getElementById('quickSoalExistingCountBadge');
       const list = Array.isArray(item.daftarSoal) ? item.daftarSoal : [];
-      if (list.length === 0) {
+      const validSoal = ekstrakIsiFolderMateri(item).soal;
+      if (countBadge) countBadge.textContent = validSoal.length + ' Soal';
+      if (!container) return;
+      if (validSoal.length === 0) {
         container.innerHTML = '<div class="text-xs text-slate-400 italic text-center py-4 bg-slate-50 rounded-xl border border-slate-100">Belum ada soal tersimpan di folder ini.</div>';
         return;
       }
@@ -14451,7 +14487,8 @@
         if (btn) btn.disabled = false;
         if (res && res.success) {
           item.daftarSoal = updatedSoalList.slice();
-          window._shuffledSoalBoxes = fisherYatesShuffleArray(item.daftarSoal);
+          const isiUpdated = ekstrakIsiFolderMateri(item);
+          window._shuffledSoalBoxes = fisherYatesShuffleArray(isiUpdated.soal);
           renderQuickSoalExistingList(item);
           renderKotakSoalAcakGrid();
           renderMediaList(STATE.cache.mediaList || []);
@@ -16674,6 +16711,7 @@
     let readingVadDataBuf = null;
     let readingVadCooldownUntil = 0;
     let readingSpeechGuardUntil = 0;
+    let readingTtsSessionUntil = 0;
     let readingSpeechRestartTimer = null;
     let readingSpeechStates = {};
     let isReadingRecognizerRunning = false;
@@ -17047,7 +17085,7 @@
 
       try {
         if (typeof targetEl.scrollIntoView === 'function') {
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          targetEl.scrollIntoView({ behavior: 'auto', block: 'nearest' });
         }
       } catch (e) { }
 
@@ -17214,6 +17252,52 @@
       return false;
     }
 
+    /**
+     * Mengurai satu kata gabungan alami menjadi deret 2-4 suku kata target berurutan (mis. "baca" -> ba+ca, "ada" -> a+da).
+     * Hanya lolos bila 100% huruf dalam kata cocok tepat secara berurutan dari startIndex.
+     */
+    function matchPrefixCurriculumSequence_(tokClean, startIndex) {
+      const clean = String(tokClean || '').toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+      if (!clean || clean.length < 2 || startIndex < 0 || startIndex >= READING_STEPS.length) return null;
+
+      function solve(pos, stepIdx, depth, prevSeg) {
+        if (pos === clean.length) {
+          return depth >= 2 ? [] : null;
+        }
+        if (depth >= 4 || stepIdx >= READING_STEPS.length) return null;
+
+        const targetSound = String(READING_STEPS[stepIdx].sound || '').toLowerCase().trim();
+        if (!targetSound) return null;
+
+        const maxEnd = Math.min(clean.length, pos + 6);
+        for (let end = maxEnd; end >= pos + 1; end--) {
+          const seg = clean.slice(pos, end);
+          // Untuk target >=2 huruf (mis. ba/ca/da), segmen penguraian minimal 2 huruf agar tidak memecah huruf tunggal acak ("ab")
+          if (targetSound.length >= 2 && seg.length < 2) continue;
+          // Cegah pengulangan vokal 1 huruf ("aa") melompat dua kotak dalam satu tarikan napas tanpa jeda 180ms
+          if (seg.length === 1 && seg === prevSeg && seg === targetSound) continue;
+          if (!isReadingSoundMatch(seg, targetSound)) continue;
+
+          const rest = solve(end, stepIdx + 1, depth + 1, seg);
+          if (rest !== null) {
+            return [{ sound: targetSound, segment: seg }].concat(rest);
+          }
+        }
+        return null;
+      }
+
+      return solve(0, startIndex, 0, '');
+    }
+
+    function isReadingTtsActive_(now) {
+      if (now >= readingTtsSessionUntil) return false;
+      try {
+        return safeSpeechSupported() && Boolean(window.speechSynthesis.speaking || window.speechSynthesis.pending);
+      } catch (e) {
+        return false;
+      }
+    }
+
     function prosesSuaraMurid(spokenTranscript) {
       if (!spokenTranscript) return false;
       if (currentReadingIndex >= READING_STEPS.length) return false;
@@ -17221,6 +17305,14 @@
 
       if (isReadingSoundMatch(spokenTranscript, currentTarget)) {
         return advanceReadingStep_('✓ "' + spokenTranscript + '"');
+      }
+      const seq = matchPrefixCurriculumSequence_(spokenTranscript, currentReadingIndex);
+      if (seq && seq.length >= 2) {
+        for (let sIdx = 0; sIdx < seq.length; sIdx++) {
+          if (currentReadingIndex >= READING_STEPS.length) break;
+          advanceReadingStep_(sIdx === seq.length - 1 ? ('✓ "' + spokenTranscript + '"') : ('✓ "' + seq[sIdx].segment + '"'));
+        }
+        return true;
       }
       flashReadingMismatch_(spokenTranscript, currentTarget);
       return false;
@@ -17339,10 +17431,7 @@
           setReadingMicMeter_(Math.min(100, (rms / 0.08) * 100));
 
           const now = Date.now();
-          let ttsActive = false;
-          try {
-            ttsActive = safeSpeechSupported() && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
-          } catch (e) { }
+          const ttsActive = isReadingTtsActive_(now);
 
           if (ttsActive) {
             readingSpeechGuardUntil = Math.max(readingSpeechGuardUntil, now + 260);
@@ -17438,6 +17527,7 @@
         readingSpeechWatchdogTimer = null;
       }
       readingNoSpeechHintUntil = 0;
+      readingTtsSessionUntil = 0;
       readingSpeechStates = {};
       isReadingListening = false;
       setReadingMicMeter_(0);
@@ -17470,6 +17560,7 @@
         readingSpeechWatchdogTimer = null;
       }
       readingNoSpeechHintUntil = 0;
+      readingTtsSessionUntil = 0;
       readingSpeechStates = {};
       if (isReadingRecognizerRunning) {
         try { readingSpeechRecognizer.stop(); } catch (err) { isReadingRecognizerRunning = false; }
@@ -17586,7 +17677,7 @@
               updateReadingMicUI(true, '🎯 Wajib Benar Aktif - Ucapkan Huruf');
             }
           }, 1400);
-          // Watchdog anti-macet: jika SpeechRecognition mendeteksi suara namun tidak mengirim onresult > 3.5 detik, restart bersih
+          // Watchdog anti-macet: jika SpeechRecognition mendeteksi suara namun tidak mengirim onresult > 2 detik, restart bersih
           readingSpeechWatchdogTimer = setTimeout(function () {
             readingSpeechWatchdogTimer = null;
             if (!isReadingMicActive || readingMicMode !== 'lafal' || !isReadingRecognizerRunning) return;
@@ -17607,7 +17698,7 @@
                 }
               }, 150);
             }
-          }, 3500);
+          }, 2000);
         };
 
         recognizer.onspeechend = recognizer.onsoundend = function () {
@@ -17628,10 +17719,7 @@
           }
           readingNoSpeechHintUntil = 0;
           const now = Date.now();
-          let ttsActive = false;
-          try {
-            ttsActive = safeSpeechSupported() && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
-          } catch (e) { }
+          const ttsActive = isReadingTtsActive_(now);
           if (ttsActive || now < readingSpeechGuardUntil) return;
 
           for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -17717,6 +17805,37 @@
                 itemState.lastMatchedSound = targetSound;
                 itemState.lastMatchedAt = now;
                 advancedInItem = true;
+              } else {
+                // Urai kata sambung alami bila seluruh kata tepat membentuk deret target berurutan (mis. "baca", "ada", "ibu")
+                let seqMatch = null;
+                let seqTok = '';
+                for (let altIdx = 0; altIdx < altTokenLists.length; altIdx++) {
+                  const candidateTok = altTokenLists[altIdx][t];
+                  if (!candidateTok || candidateTok.length < 2) continue;
+                  const parsed = matchPrefixCurriculumSequence_(candidateTok, currentReadingIndex);
+                  if (parsed && parsed.length >= 2) {
+                    seqMatch = parsed;
+                    seqTok = candidateTok;
+                    break;
+                  }
+                }
+                if (seqMatch) {
+                  let lastSeqSound = targetSound;
+                  for (let sIdx = 0; sIdx < seqMatch.length; sIdx++) {
+                    if (currentReadingIndex >= READING_STEPS.length) break;
+                    lastSeqSound = seqMatch[sIdx].sound;
+                    const hint = sIdx === seqMatch.length - 1
+                      ? ('✓ "' + seqTok + '"')
+                      : ('✓ "' + seqMatch[sIdx].segment + '"');
+                    advanceReadingStep_(hint);
+                  }
+                  itemState.tokenOffset = t + 1;
+                  itemState.lastMatchedIdx = t;
+                  itemState.consumedPrefix = seqTok;
+                  itemState.lastMatchedSound = lastSeqSound;
+                  itemState.lastMatchedAt = now;
+                  advancedInItem = true;
+                }
               }
             }
 
@@ -17903,6 +18022,8 @@
         stopReadingMicEngine_();
         updateReadingMicUI(false, 'Mikrofon Dimatikan');
       } else {
+        safeSpeechCancel();
+        readingTtsSessionUntil = 0;
         isReadingMicActive = true;
         startReadingMicEngine_();
       }
@@ -17917,6 +18038,7 @@
       const target = READING_STEPS[currentReadingIndex].sound.toLowerCase();
       safeSpeechCancel();
       readingSpeechGuardUntil = Date.now() + 700;
+      readingTtsSessionUntil = Date.now() + 4500;
 
       const idVoiceFemale = getIndonesianVoice('female');
       const idVoiceMale = getIndonesianVoice('male');
@@ -17970,10 +18092,11 @@
         utter.pitch = pitch;
         utter.rate = rate;
         if (selectedVoice) utter.voice = selectedVoice;
-        utter.onend = function () { readingSpeechGuardUntil = Date.now() + 120; };
-        utter.onerror = function () { readingSpeechGuardUntil = Date.now() + 80; };
+        utter.onend = function () { readingTtsSessionUntil = 0; readingSpeechGuardUntil = Date.now() + 120; };
+        utter.onerror = function () { readingTtsSessionUntil = 0; readingSpeechGuardUntil = Date.now() + 80; };
         window.speechSynthesis.speak(utter);
       } catch (e) {
+        readingTtsSessionUntil = 0;
         readingSpeechGuardUntil = Date.now() + 80;
         console.warn('Speech synthesis ejaan notice:', e);
       }
@@ -18006,6 +18129,7 @@
     function resetBelajarMembaca() {
       currentReadingIndex = 0;
       readingVadCooldownUntil = 0;
+      readingTtsSessionUntil = 0;
       readingSpeechStates = {};
       readingLastMismatchHint = '';
       if (readingMismatchTimer) {
