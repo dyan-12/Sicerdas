@@ -3996,8 +3996,23 @@
           <div id="badgeMicReadingStatus"
             class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
             <span id="dotMicReadingPulse" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-            <span id="labelMicReadingStatus">🎙️ Mikrofon Aktif - Ayo Bersuara!</span>
+            <span id="labelMicReadingStatus">🎙️ Mic Kilat Aktif - Ayo Bersuara!</span>
           </div>
+          <!-- Live Audio Level Meter -->
+          <div id="readingMicLevelWrap"
+            class="inline-flex items-center space-x-1.5 px-2 py-1 rounded-xl bg-slate-50 border border-slate-200"
+            title="Indikator kepekaan suara mikrofon">
+            <span class="text-[10px] font-bold text-slate-500">Suara</span>
+            <div class="w-12 h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div id="readingMicLevelBar"
+                class="h-full w-0 bg-emerald-500 rounded-full transition-all duration-75"></div>
+            </div>
+          </div>
+          <button type="button" onclick="toggleReadingMicMode()" id="btnSwitchReadingMicMode"
+            class="text-xs px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold rounded-xl border border-amber-300 transition-colors"
+            title="Klik untuk beralih antara Mode Kilat (tanpa delay) atau Mode Cek Lafal">
+            ⚡ Mode Kilat
+          </button>
           <button type="button" onclick="toggleMicMembaca()" id="btnToggleMicMembaca"
             class="text-xs px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl border border-slate-300 transition-colors">
             Matikan Mic
@@ -4042,7 +4057,7 @@
 
         <!-- Animated Pencil Pointer -->
         <div id="pencilReadingPointer"
-          class="absolute pointer-events-none transition-all duration-300 ease-out z-20 flex flex-col items-center -translate-x-1/2 -translate-y-full"
+          class="absolute pointer-events-none transition-all duration-75 ease-out z-20 flex flex-col items-center -translate-x-1/2 -translate-y-full"
           style="top: 0px; left: 0px;">
           <div class="animate-bounce flex flex-col items-center">
             <span class="text-3xl sm:text-4xl filter drop-shadow-md transform rotate-12 inline-block">✏️</span>
@@ -16643,8 +16658,62 @@
     let readingSpeechRecognizer = null;
     let isReadingMicActive = false;
     let isReadingListening = false;
+    let readingMicMode = 'kilat'; // 'kilat' (Web Audio VAD <35ms) atau 'lafal' (SpeechRecognition)
+    let readingMicStream = null;
+    let readingVadCtx = null;
+    let readingVadAnalyser = null;
+    let readingVadSource = null;
+    let readingVadRafId = null;
+    let readingVadDataBuf = null;
+    let readingVadCooldownUntil = 0;
+    let readingSpeechGuardUntil = 0;
+    let readingSpeechRestartTimer = null;
+    let readingSpeechTokenOffsets = {};
+    let readingVadState = { calibrated: false, noiseFloor: 0.015, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
     let readingAudioCtx = null;
     let currentVoiceProfile = 'ibu_guru'; // 'ibu_guru', 'pak_guru', 'anak', 'eja_fonetik'
+
+    const READING_PHONETIC_ALIASES = {
+      a: ['a', 'ah', 'aa', 'ha', 'ea', 'eh'],
+      i: ['i', 'ih', 'ii', 'hi', 'yi', 'y'],
+      u: ['u', 'uh', 'uu', 'hu', 'wu', 'w'],
+      ba: ['ba', 'bah', 'baa', 'pak', 'mbak', 'mbah', 'pa', 'be', 'b'],
+      ca: ['ca', 'cha', 'cah', 'cak', 'c', 'ce', 'sa', 'za'],
+      da: ['da', 'dah', 'daa', 'tak', 'ta', 'de', 'd'],
+      sa: ['sa', 'sah', 'saa', 'esa', 'se', 'za'],
+      ma: ['ma', 'mah', 'maa', 'mak', 'emak', 'me', 'm'],
+      ya: ['ya', 'yah', 'yaa', 'iya', 'iyah', 'y'],
+      bi: ['bi', 'bih', 'bii', 'pi'],
+      ci: ['ci', 'chi', 'cih', 'si'],
+      di: ['di', 'dih', 'ti', 'dii'],
+      si: ['si', 'sih', 'sii', 'ci'],
+      mi: ['mi', 'mih', 'mie', 'mei'],
+      yi: ['yi', 'yih', 'ii', 'i'],
+      bu: ['bu', 'buh', 'buu', 'pu'],
+      cu: ['cu', 'chu', 'cuh', 'su'],
+      du: ['du', 'duh', 'duu', 'tu'],
+      su: ['su', 'suh', 'suu'],
+      mu: ['mu', 'muh', 'muu'],
+      yu: ['yu', 'yuh', 'yuu', 'you'],
+      na: ['na', 'nah', 'naa', 'ana'],
+      ni: ['ni', 'nih', 'nii', 'ini'],
+      nu: ['nu', 'nuh', 'nuu'],
+      ha: ['ha', 'hah', 'haa', 'ah'],
+      hi: ['hi', 'hih', 'hii', 'ih'],
+      hu: ['hu', 'huh', 'huu', 'uh'],
+      iba: ['iba', 'ibah', 'ipa'],
+      ibi: ['ibi', 'ibih', 'ipi'],
+      ica: ['ica', 'icha', 'isa', 'cica'],
+      ici: ['ici', 'ichi', 'isi'],
+      ida: ['ida', 'idah', 'ita'],
+      idi: ['idi', 'idih', 'iti'],
+      isa: ['isa', 'isah', 'isya'],
+      isi: ['isi', 'isih'],
+      ima: ['ima', 'imah'],
+      imi: ['imi', 'imih'],
+      iya: ['iya', 'iyah', 'ia', 'ya'],
+      iyi: ['iyi', 'iyih']
+    };
 
     /**
      * Render Papan Baca Dinamis Berdasarkan Lembar Soal (Lembar 1 - 10)
@@ -16757,9 +16826,12 @@
         updatePencilPosition(currentReadingIndex);
       }
 
+      updateReadingMicModeBtn_();
+
       // Mulai dengarkan suara murid secara otomatis jika belum aktif
       if (!isReadingMicActive) {
-        toggleMicMembaca();
+        isReadingMicActive = true;
+        startReadingMicEngine_();
       }
     }
 
@@ -16767,9 +16839,8 @@
       const modal = document.getElementById('modalMediaBelajarMembaca');
       if (modal) modal.classList.add('hidden');
       document.body.style.overflow = '';
-      if (isReadingMicActive) {
-        toggleMicMembaca();
-      }
+      isReadingMicActive = false;
+      stopReadingMicEngine_();
       safeSpeechCancel();
     }
 
@@ -16873,12 +16944,12 @@
           osc.frequency.setValueAtTime(587.33, now); // D5
           osc.frequency.exponentialRampToValueAtTime(880.00, now + 0.12); // A5
           gain.gain.setValueAtTime(0.001, now);
-          gain.gain.linearRampToValueAtTime(0.25, now + 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+          gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.16);
           osc.connect(gain);
           gain.connect(readingAudioCtx.destination);
           osc.start(now);
-          osc.stop(now + 0.2);
+          osc.stop(now + 0.18);
         } else if (type === 'finish') {
           const notes = [523.25, 659.25, 783.99, 1046.50];
           notes.forEach(function (freq, idx) {
@@ -16888,7 +16959,7 @@
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(freq, noteTime);
             gain.gain.setValueAtTime(0.001, noteTime);
-            gain.gain.linearRampToValueAtTime(0.3, noteTime + 0.02);
+            gain.gain.linearRampToValueAtTime(0.28, noteTime + 0.02);
             gain.gain.exponentialRampToValueAtTime(0.001, noteTime + 0.28);
             osc.connect(gain);
             gain.connect(readingAudioCtx.destination);
@@ -16907,6 +16978,12 @@
       const board = document.getElementById('readingBoardContainer');
 
       if (!pencil || !targetEl || !board) return;
+
+      try {
+        if (typeof targetEl.scrollIntoView === 'function') {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      } catch (e) { }
 
       const boardRect = board.getBoundingClientRect();
       const targetRect = targetEl.getBoundingClientRect();
@@ -16932,87 +17009,322 @@
     }
 
     /**
+     * Memajukan pensil penunjuk ke langkah berikutnya sekaligus memperbarui UI & papan perayaan.
+     */
+    function advanceReadingStep_(displayHint) {
+      if (currentReadingIndex >= READING_STEPS.length) return false;
+      readingVadCooldownUntil = Date.now() + 260;
+
+      if (displayHint) {
+        const speechLabel = document.getElementById('detectedReadingSpeech');
+        if (speechLabel) speechLabel.textContent = displayHint;
+      }
+
+      playReadingChime('step');
+      const prevEl = document.getElementById('ejaan-item-' + currentReadingIndex);
+      if (prevEl) {
+        prevEl.classList.remove('bg-amber-200', 'text-amber-950', 'ring-4', 'ring-amber-400', 'scale-110', 'shadow-md');
+        prevEl.classList.add('text-emerald-700', 'font-black');
+      }
+
+      currentReadingIndex++;
+
+      if (currentReadingIndex >= READING_STEPS.length) {
+        readingVadCooldownUntil = Date.now() + 900;
+        playReadingChime('finish');
+        const overlay = document.getElementById('readingCelebrationOverlay');
+        if (overlay) overlay.classList.remove('hidden');
+        const targetEl = document.getElementById('targetReadingSoundText');
+        if (targetEl) targetEl.textContent = 'SELESAI ⭐';
+        const counterEl = document.getElementById('readingProgressCounter');
+        if (counterEl) counterEl.textContent = READING_STEPS.length + ' / ' + READING_STEPS.length;
+
+        const titleEl = document.getElementById('celebrationTitle');
+        const msgEl = document.getElementById('celebrationMessage');
+        const nextBtn = document.getElementById('btnLanjutLembarBerikutnya');
+
+        if (currentLessonId < READING_LESSONS.length) {
+          if (titleEl) titleEl.textContent = '🎉 HEBAT! LEMBAR ' + currentLessonId + ' TUNTAS!';
+          if (msgEl) msgEl.innerHTML = 'Selamat! Kamu sudah berhasil membaca seluruh <b>Lembar ' + currentLessonId + '</b> dengan sangat pintar! 🌟';
+          if (nextBtn) {
+            nextBtn.classList.remove('hidden');
+            nextBtn.innerHTML = '🌟 Lanjut ke Lembar ' + (currentLessonId + 1) + ' ➔';
+          }
+        } else {
+          if (titleEl) titleEl.textContent = '🏆 LUAR BIASA! SEMUA LEMBAR TUNTAS!';
+          if (msgEl) msgEl.innerHTML = 'Selamat! Kamu telah menyelesaikan seluruh <b>10 Lembar Kurikulum Belajar Membaca</b> dengan sempurna! 🌟🎓';
+          if (nextBtn) {
+            nextBtn.classList.remove('hidden');
+            nextBtn.innerHTML = '🔄 Ulangi Dari Lembar 1';
+          }
+        }
+      } else {
+        updatePencilPosition(currentReadingIndex);
+      }
+      return true;
+    }
+
+    /**
      * Pengenal Suara Pintar & Fleksibel untuk Seluruh 10 Lembar
      */
     function isReadingSoundMatch(spoken, target) {
       if (!spoken || !target) return false;
       const clean = spoken.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim();
+      if (!clean) return false;
       const words = clean.split(/\s+/).filter(Boolean);
       const tgt = target.toLowerCase().trim();
 
-      if (clean === tgt) return true;
-      if (words.includes(tgt)) return true;
-      if (words.some(function (w) { return w === tgt || w.startsWith(tgt) || w.endsWith(tgt) || w.includes(tgt); })) return true;
-      if (clean.includes(tgt)) return true;
+      if (clean === tgt || words.indexOf(tgt) > -1) return true;
 
-      // Variasi fonetik vokal tunggal
-      if (tgt === 'a' && (words.includes('ah') || words.includes('ha') || words.includes('aa'))) return true;
-      if (tgt === 'i' && (words.includes('ih') || words.includes('hi') || words.includes('ii'))) return true;
-      if (tgt === 'u' && (words.includes('uh') || words.includes('hu') || words.includes('uu'))) return true;
-
-      // Variasi fonetik c / ch
-      if (tgt.startsWith('c')) {
-        const chVariant = 'ch' + tgt.slice(1);
-        if (clean.includes(chVariant) || words.includes(chVariant)) return true;
+      const aliases = READING_PHONETIC_ALIASES[tgt];
+      if (aliases && words.some(function (w) { return aliases.indexOf(w) > -1; })) {
+        return true;
       }
-      if (tgt === 'ca' && (clean.includes('cha') || words.includes('cha') || clean.includes('sa'))) return true;
-      if (tgt === 'ci' && (clean.includes('chi') || words.includes('chi') || clean.includes('si'))) return true;
-      if (tgt === 'cu' && (clean.includes('chu') || words.includes('chu') || clean.includes('su'))) return true;
+
+      if (tgt.length >= 2) {
+        if (words.some(function (w) { return w === tgt || w.indexOf(tgt) > -1; })) return true;
+        if (clean.indexOf(tgt) > -1) return true;
+      }
+
+      // Variasi fonetik c / ch untuk suku kata berawalan c
+      if (tgt.charAt(0) === 'c') {
+        const chVariant = 'ch' + tgt.slice(1);
+        if (clean.indexOf(chVariant) > -1 || words.indexOf(chVariant) > -1) return true;
+      }
 
       return false;
     }
 
     function prosesSuaraMurid(spokenTranscript) {
-      if (!spokenTranscript) return;
+      if (!spokenTranscript) return false;
       const speechLabel = document.getElementById('detectedReadingSpeech');
       if (speechLabel) {
         speechLabel.textContent = '"' + spokenTranscript + '"';
       }
 
-      if (currentReadingIndex >= READING_STEPS.length) return;
+      if (currentReadingIndex >= READING_STEPS.length) return false;
       const currentTarget = READING_STEPS[currentReadingIndex].sound;
 
       if (isReadingSoundMatch(spokenTranscript, currentTarget)) {
-        playReadingChime('step');
-        const prevEl = document.getElementById('ejaan-item-' + currentReadingIndex);
-        if (prevEl) {
-          prevEl.classList.remove('bg-amber-200', 'text-amber-950', 'ring-4', 'ring-amber-400', 'scale-110', 'shadow-md');
-          prevEl.classList.add('text-emerald-700', 'font-black');
+        return advanceReadingStep_('"' + spokenTranscript + '"');
+      }
+      return false;
+    }
+
+    function setReadingMicMeter_(percent) {
+      const bar = document.getElementById('readingMicLevelBar');
+      if (!bar) return;
+      const clamped = Math.max(0, Math.min(100, Math.round(percent || 0)));
+      bar.style.width = clamped + '%';
+      bar.className = clamped >= 35
+        ? 'h-full bg-emerald-500 rounded-full transition-all duration-75'
+        : 'h-full bg-amber-400 rounded-full transition-all duration-75';
+    }
+
+    function stopReadingVadStream_() {
+      if (readingVadRafId) {
+        cancelAnimationFrame(readingVadRafId);
+        readingVadRafId = null;
+      }
+      try { if (readingVadSource) readingVadSource.disconnect(); } catch (e) { }
+      try { if (readingVadAnalyser) readingVadAnalyser.disconnect(); } catch (e) { }
+      readingVadSource = null;
+      readingVadAnalyser = null;
+      readingVadDataBuf = null;
+      if (readingVadCtx && typeof readingVadCtx.close === 'function') {
+        try { readingVadCtx.close(); } catch (e) { }
+      }
+      readingVadCtx = null;
+      if (readingMicStream && typeof readingMicStream.getTracks === 'function') {
+        readingMicStream.getTracks().forEach(function (track) {
+          try { track.stop(); } catch (e) { }
+        });
+      }
+      readingMicStream = null;
+      readingVadState = { calibrated: false, noiseFloor: 0.015, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
+      setReadingMicMeter_(0);
+    }
+
+    function startReadingVadStream_() {
+      stopReadingVadStream_();
+
+      if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        // Fallback otomatis ke Mode Cek Lafal bila browser lama tidak mendukung getUserMedia
+        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+          readingMicMode = 'lafal';
+          updateReadingMicModeBtn_();
+          startReadingSpeechRecognition_();
+        } else {
+          isReadingMicActive = false;
+          updateReadingMicUI(false, 'Mikrofon tidak didukung di peramban ini');
+          showToast('Peramban tidak mendukung akses mikrofon. Gunakan tombol "Murid Bersuara ➔".', 'warning');
+        }
+        return;
+      }
+
+      updateReadingMicUI(true, 'Menyiapkan mikrofon kilat...');
+
+      navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      }).then(function (stream) {
+        if (!isReadingMicActive || readingMicMode !== 'kilat') {
+          stream.getTracks().forEach(function (t) { try { t.stop(); } catch (e) { } });
+          return;
+        }
+        readingMicStream = stream;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) {
+          stopReadingVadStream_();
+          readingMicMode = 'lafal';
+          updateReadingMicModeBtn_();
+          startReadingSpeechRecognition_();
+          return;
         }
 
-        currentReadingIndex++;
+        readingVadCtx = new AudioCtx();
+        if (readingVadCtx.state === 'suspended') {
+          readingVadCtx.resume().catch(function () { });
+        }
+        readingVadSource = readingVadCtx.createMediaStreamSource(stream);
+        readingVadAnalyser = readingVadCtx.createAnalyser();
+        readingVadAnalyser.fftSize = 512;
+        readingVadAnalyser.smoothingTimeConstant = 0.2;
+        readingVadSource.connect(readingVadAnalyser);
+        readingVadDataBuf = new Uint8Array(readingVadAnalyser.fftSize);
 
-        if (currentReadingIndex >= READING_STEPS.length) {
-          playReadingChime('finish');
-          const overlay = document.getElementById('readingCelebrationOverlay');
-          if (overlay) overlay.classList.remove('hidden');
-          const targetEl = document.getElementById('targetReadingSoundText');
-          if (targetEl) targetEl.textContent = 'SELESAI ⭐';
-          const counterEl = document.getElementById('readingProgressCounter');
-          if (counterEl) counterEl.textContent = READING_STEPS.length + ' / ' + READING_STEPS.length;
+        readingVadState = { calibrated: false, noiseFloor: 0.015, samples: [], isSpeaking: false, onsetFrames: 0, quietFrames: 0 };
+        isReadingListening = true;
+        updateReadingMicUI(true, '⚡ Mic Kilat Aktif - Ayo Bersuara!');
 
-          const titleEl = document.getElementById('celebrationTitle');
-          const msgEl = document.getElementById('celebrationMessage');
-          const nextBtn = document.getElementById('btnCelebrationNextSheet');
+        function pumpReadingVad_() {
+          if (!isReadingMicActive || readingMicMode !== 'kilat' || !readingVadAnalyser || !readingVadDataBuf) return;
 
-          if (currentLessonId < READING_LESSONS.length) {
-            if (titleEl) titleEl.textContent = '🎉 HEBAT! LEMBAR ' + currentLessonId + ' TUNTAS!';
-            if (msgEl) msgEl.innerHTML = 'Selamat! Kamu sudah berhasil membaca seluruh <b>Lembar ' + currentLessonId + '</b> dengan sangat pintar! 🌟';
-            if (nextBtn) {
-              nextBtn.classList.remove('hidden');
-              nextBtn.innerHTML = '🌟 Lanjut ke Lembar ' + (currentLessonId + 1) + ' ➔';
+          readingVadAnalyser.getByteTimeDomainData(readingVadDataBuf);
+          let sumSq = 0;
+          for (let i = 0; i < readingVadDataBuf.length; i++) {
+            const norm = (readingVadDataBuf[i] - 128) / 128;
+            sumSq += norm * norm;
+          }
+          const rms = Math.sqrt(sumSq / readingVadDataBuf.length);
+          setReadingMicMeter_(Math.min(100, (rms / 0.14) * 100));
+
+          const now = Date.now();
+          let ttsActive = false;
+          try {
+            ttsActive = safeSpeechSupported() && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
+          } catch (e) { }
+
+          if (ttsActive) {
+            readingSpeechGuardUntil = Math.max(readingSpeechGuardUntil, now + 260);
+            readingVadState.isSpeaking = false;
+            readingVadState.onsetFrames = 0;
+            readingVadRafId = requestAnimationFrame(pumpReadingVad_);
+            return;
+          }
+
+          if (!readingVadState.calibrated) {
+            readingVadState.samples.push(rms);
+            if (readingVadState.samples.length >= 14) {
+              const sum = readingVadState.samples.reduce(function (a, b) { return a + b; }, 0);
+              const avg = sum / readingVadState.samples.length;
+              readingVadState.noiseFloor = Math.min(0.055, Math.max(0.008, avg * 1.15));
+              readingVadState.calibrated = true;
+            }
+            readingVadRafId = requestAnimationFrame(pumpReadingVad_);
+            return;
+          }
+
+          const onsetThresh = Math.max(readingVadState.noiseFloor * 2.5, 0.026);
+          const releaseThresh = Math.max(readingVadState.noiseFloor * 1.5, 0.015);
+
+          if (!readingVadState.isSpeaking) {
+            if (rms < releaseThresh) {
+              readingVadState.noiseFloor = (readingVadState.noiseFloor * 0.96) + (rms * 0.04);
+              readingVadState.noiseFloor = Math.min(0.055, Math.max(0.008, readingVadState.noiseFloor));
+            }
+            if (rms >= onsetThresh) {
+              readingVadState.onsetFrames++;
+              if (readingVadState.onsetFrames >= 2 && now >= readingVadCooldownUntil && now >= readingSpeechGuardUntil) {
+                readingVadState.isSpeaking = true;
+                readingVadState.quietFrames = 0;
+                const target = READING_STEPS[currentReadingIndex] ? READING_STEPS[currentReadingIndex].sound : '';
+                if (target) {
+                  advanceReadingStep_('⚡ Terdengar "' + target + '"');
+                }
+              }
+            } else {
+              readingVadState.onsetFrames = 0;
             }
           } else {
-            if (titleEl) titleEl.textContent = '🏆 LUAR BIASA! SEMUA LEMBAR TUNTAS!';
-            if (msgEl) msgEl.innerHTML = 'Selamat! Kamu telah menyelesaikan seluruh <b>10 Lembar Kurikulum Belajar Membaca</b> dengan sempurna! 🌟🎓';
-            if (nextBtn) {
-              nextBtn.classList.remove('hidden');
-              nextBtn.innerHTML = '🔄 Ulangi Dari Lembar 1';
+            if (rms < releaseThresh) {
+              readingVadState.quietFrames++;
+              if (readingVadState.quietFrames >= 2) {
+                readingVadState.isSpeaking = false;
+                readingVadState.onsetFrames = 0;
+              }
+            } else {
+              readingVadState.quietFrames = 0;
             }
           }
-        } else {
-          updatePencilPosition(currentReadingIndex);
+
+          readingVadRafId = requestAnimationFrame(pumpReadingVad_);
         }
+
+        readingVadRafId = requestAnimationFrame(pumpReadingVad_);
+      }).catch(function (err) {
+        console.warn('VAD getUserMedia error:', err);
+        const errName = (err && err.name) ? String(err.name) : '';
+        if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+          isReadingMicActive = false;
+          isReadingListening = false;
+          updateReadingMicUI(false, 'Izin mikrofon belum diberikan');
+          showToast('Izinkan akses mikrofon di browser agar pensil dapat mengikuti suara murid.', 'warning');
+          return;
+        }
+        // Jika capture gagal, coba fallback ke SpeechRecognition bila tersedia
+        if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+          readingMicMode = 'lafal';
+          updateReadingMicModeBtn_();
+          startReadingSpeechRecognition_();
+        } else {
+          isReadingMicActive = false;
+          isReadingListening = false;
+          updateReadingMicUI(false, 'Mikrofon tidak tersedia');
+        }
+      });
+    }
+
+    function stopReadingSpeechRecognition_() {
+      if (readingSpeechRestartTimer) {
+        clearTimeout(readingSpeechRestartTimer);
+        readingSpeechRestartTimer = null;
+      }
+      readingSpeechTokenOffsets = {};
+      isReadingListening = false;
+      if (readingSpeechRecognizer) {
+        try { readingSpeechRecognizer.stop(); } catch (err) { }
+      }
+    }
+
+    function startReadingSpeechRecognition_() {
+      stopReadingSpeechRecognition_();
+      if (!readingSpeechRecognizer) {
+        readingSpeechRecognizer = initReadingSpeechRecognition();
+      }
+      if (!readingSpeechRecognizer) {
+        isReadingMicActive = false;
+        showToast('Browser ini tidak mendukung Mode Cek Lafal. Beralih ke Mode Kilat.', 'warning');
+        return;
+      }
+      try {
+        readingSpeechRecognizer.start();
+        updateReadingMicUI(true, 'Menghubungkan Mode Cek Lafal...');
+      } catch (err) {
+        console.warn('Gagal start SpeechRecognition:', err);
       }
     }
 
@@ -17028,29 +17340,73 @@
         recognizer.lang = 'id-ID';
         recognizer.continuous = true;
         recognizer.interimResults = true;
-        recognizer.maxAlternatives = 3;
+        recognizer.maxAlternatives = 5;
 
         recognizer.onstart = function () {
+          readingSpeechTokenOffsets = {};
           isReadingListening = true;
-          updateReadingMicUI(true, '🎙️ Mikrofon Aktif - Ayo Bersuara!');
+          updateReadingMicUI(true, '🎯 Mode Cek Lafal Aktif');
         };
 
         recognizer.onresult = function (event) {
-          let finalTranscript = '';
+          const now = Date.now();
+          let ttsActive = false;
+          try {
+            ttsActive = safeSpeechSupported() && (window.speechSynthesis.speaking || window.speechSynthesis.pending);
+          } catch (e) { }
+          if (ttsActive || now < readingSpeechGuardUntil) return;
+
           for (let i = event.resultIndex; i < event.results.length; ++i) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
-            } else {
-              const interim = event.results[i][0].transcript;
-              const label = document.getElementById('detectedReadingSpeech');
-              if (label && interim) label.textContent = '...' + interim;
-              if (interim && interim.trim().length >= 1) {
-                prosesSuaraMurid(interim.trim());
+            const resItem = event.results[i];
+            if (!resItem || resItem.length === 0) continue;
+
+            const alts = [];
+            for (let a = 0; a < resItem.length; a++) {
+              if (resItem[a] && resItem[a].transcript) {
+                alts.push(String(resItem[a].transcript).trim());
               }
             }
-          }
-          if (finalTranscript.trim()) {
-            prosesSuaraMurid(finalTranscript.trim());
+            if (alts.length === 0) continue;
+
+            const primaryClean = alts[0].toLowerCase().replace(/[^a-z0-9]/g, ' ').trim();
+            const primaryTokens = primaryClean.split(/\s+/).filter(Boolean);
+            const prevOffset = readingSpeechTokenOffsets[i] || 0;
+
+            const label = document.getElementById('detectedReadingSpeech');
+            if (label && alts[0]) {
+              label.textContent = (resItem.isFinal ? '"' : '...') + alts[0] + (resItem.isFinal ? '"' : '');
+            }
+
+            if (currentReadingIndex >= READING_STEPS.length) continue;
+
+            // Cek per kata baru (memungkinkan bacaan cepat seperti "a a a" atau "ba ca" dalam satu kalimat)
+            if (primaryTokens.length > prevOffset) {
+              for (let t = prevOffset; t < primaryTokens.length; t++) {
+                if (currentReadingIndex >= READING_STEPS.length) break;
+                const targetSound = READING_STEPS[currentReadingIndex].sound;
+                if (isReadingSoundMatch(primaryTokens[t], targetSound)) {
+                  advanceReadingStep_('"' + primaryTokens[t] + '"');
+                  readingSpeechTokenOffsets[i] = t + 1;
+                }
+              }
+            }
+
+            // Jika belum cocok di token primary[offset..], cek seluruh alternatif ke-1..4 dari pengenal suara
+            if ((readingSpeechTokenOffsets[i] || 0) < primaryTokens.length || resItem.isFinal) {
+              for (let altIdx = 0; altIdx < alts.length; altIdx++) {
+                if (currentReadingIndex >= READING_STEPS.length) break;
+                const altTokens = alts[altIdx].toLowerCase().replace(/[^a-z0-9]/g, ' ').trim().split(/\s+/).filter(Boolean);
+                const sliceText = altTokens.slice(prevOffset).join(' ') || alts[altIdx];
+                if (sliceText && prosesSuaraMurid(sliceText)) {
+                  readingSpeechTokenOffsets[i] = Math.max(readingSpeechTokenOffsets[i] || 0, primaryTokens.length || 1);
+                  break;
+                }
+              }
+            }
+
+            if (resItem.isFinal) {
+              readingSpeechTokenOffsets[i] = Math.max(readingSpeechTokenOffsets[i] || 0, primaryTokens.length);
+            }
           }
         };
 
@@ -17065,9 +17421,15 @@
 
         recognizer.onend = function () {
           isReadingListening = false;
-          if (isReadingMicActive) {
-            try { recognizer.start(); } catch (err) { }
-          } else {
+          if (isReadingMicActive && readingMicMode === 'lafal') {
+            if (readingSpeechRestartTimer) clearTimeout(readingSpeechRestartTimer);
+            readingSpeechRestartTimer = setTimeout(function () {
+              if (!isReadingMicActive || readingMicMode !== 'lafal') return;
+              try {
+                recognizer.start();
+              } catch (err) { }
+            }, 75);
+          } else if (!isReadingMicActive) {
             updateReadingMicUI(false, 'Mikrofon Nonaktif');
           }
         };
@@ -17076,6 +17438,58 @@
       } catch (e) {
         console.warn('Init speech recognizer error:', e);
         return null;
+      }
+    }
+
+    function startReadingMicEngine_() {
+      stopReadingVadStream_();
+      stopReadingSpeechRecognition_();
+      if (!isReadingMicActive) return;
+
+      if (readingMicMode === 'kilat') {
+        startReadingVadStream_();
+      } else {
+        startReadingSpeechRecognition_();
+      }
+    }
+
+    function stopReadingMicEngine_() {
+      stopReadingVadStream_();
+      stopReadingSpeechRecognition_();
+    }
+
+    function updateReadingMicModeBtn_() {
+      const btn = document.getElementById('btnSwitchReadingMicMode');
+      const meterWrap = document.getElementById('readingMicLevelWrap');
+      if (btn) {
+        if (readingMicMode === 'kilat') {
+          btn.textContent = '⚡ Mode Kilat';
+          btn.className = 'text-xs px-2.5 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold rounded-xl border border-amber-300 transition-colors';
+        } else {
+          btn.textContent = '🎯 Cek Lafal';
+          btn.className = 'text-xs px-2.5 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-900 font-extrabold rounded-xl border border-purple-300 transition-colors';
+        }
+      }
+      if (meterWrap) {
+        meterWrap.classList.toggle('opacity-40', readingMicMode !== 'kilat');
+      }
+    }
+
+    function toggleReadingMicMode() {
+      if (readingMicMode === 'kilat') {
+        if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+          showToast('Peramban ini hanya mendukung Mode Kilat (deteksi suara instan).', 'info');
+          return;
+        }
+        readingMicMode = 'lafal';
+        showToast('Beralih ke Mode Cek Lafal (mencocokkan ucapan kata target).', 'info');
+      } else {
+        readingMicMode = 'kilat';
+        showToast('Beralih ke Mode Kilat (respon seketika tanpa delay).', 'success');
+      }
+      updateReadingMicModeBtn_();
+      if (isReadingMicActive) {
+        startReadingMicEngine_();
       }
     }
 
@@ -17090,7 +17504,7 @@
       if (active) {
         badge.className = 'inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300';
         if (dot) dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping';
-        label.textContent = text || '🎙️ Mikrofon Aktif - Ayo Bersuara!';
+        label.textContent = text || '⚡ Mic Kilat Aktif - Ayo Bersuara!';
         if (btn) {
           btn.textContent = 'Matikan Mic';
           btn.className = 'text-xs px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl border border-slate-300 transition-colors';
@@ -17107,27 +17521,13 @@
     }
 
     function toggleMicMembaca() {
-      if (!readingSpeechRecognizer) {
-        readingSpeechRecognizer = initReadingSpeechRecognition();
-      }
-
-      if (!readingSpeechRecognizer) {
-        showToast('Browser ini tidak mendukung deteksi suara', 'warning');
-        return;
-      }
-
       if (isReadingMicActive) {
         isReadingMicActive = false;
-        try { readingSpeechRecognizer.stop(); } catch (err) { }
+        stopReadingMicEngine_();
         updateReadingMicUI(false, 'Mikrofon Dimatikan');
       } else {
         isReadingMicActive = true;
-        try {
-          readingSpeechRecognizer.start();
-          updateReadingMicUI(true, 'Menghubungkan mikrofon...');
-        } catch (err) {
-          console.warn('Gagal start recognizer:', err);
-        }
+        startReadingMicEngine_();
       }
     }
 
@@ -17139,6 +17539,7 @@
       if (currentReadingIndex >= READING_STEPS.length) return;
       const target = READING_STEPS[currentReadingIndex].sound.toLowerCase();
       safeSpeechCancel();
+      readingSpeechGuardUntil = Date.now() + 1800;
 
       const idVoiceFemale = getIndonesianVoice('female');
       const idVoiceMale = getIndonesianVoice('male');
@@ -17192,8 +17593,11 @@
         utter.pitch = pitch;
         utter.rate = rate;
         if (selectedVoice) utter.voice = selectedVoice;
+        utter.onend = function () { readingSpeechGuardUntil = Date.now() + 260; };
+        utter.onerror = function () { readingSpeechGuardUntil = Date.now() + 150; };
         window.speechSynthesis.speak(utter);
       } catch (e) {
+        readingSpeechGuardUntil = Date.now() + 150;
         console.warn('Speech synthesis ejaan notice:', e);
       }
     }
@@ -17212,45 +17616,7 @@
     });
 
     function majuEjaanManual() {
-      if (currentReadingIndex >= READING_STEPS.length) return;
-      playReadingChime('step');
-      const prevEl = document.getElementById('ejaan-item-' + currentReadingIndex);
-      if (prevEl) {
-        prevEl.classList.remove('bg-amber-200', 'text-amber-950', 'ring-4', 'ring-amber-400', 'scale-110', 'shadow-md');
-        prevEl.classList.add('text-emerald-700', 'font-black');
-      }
-      currentReadingIndex++;
-      if (currentReadingIndex >= READING_STEPS.length) {
-        playReadingChime('finish');
-        const overlay = document.getElementById('readingCelebrationOverlay');
-        if (overlay) overlay.classList.remove('hidden');
-        const targetEl = document.getElementById('targetReadingSoundText');
-        if (targetEl) targetEl.textContent = 'SELESAI ⭐';
-        const counterEl = document.getElementById('readingProgressCounter');
-        if (counterEl) counterEl.textContent = READING_STEPS.length + ' / ' + READING_STEPS.length;
-
-        const titleEl = document.getElementById('celebrationTitle');
-        const msgEl = document.getElementById('celebrationMessage');
-        const nextBtn = document.getElementById('btnCelebrationNextSheet');
-
-        if (currentLessonId < READING_LESSONS.length) {
-          if (titleEl) titleEl.textContent = '🎉 HEBAT! LEMBAR ' + currentLessonId + ' TUNTAS!';
-          if (msgEl) msgEl.innerHTML = 'Selamat! Kamu sudah berhasil membaca seluruh <b>Lembar ' + currentLessonId + '</b> dengan sangat pintar! 🌟';
-          if (nextBtn) {
-            nextBtn.classList.remove('hidden');
-            nextBtn.innerHTML = '🌟 Lanjut ke Lembar ' + (currentLessonId + 1) + ' ➔';
-          }
-        } else {
-          if (titleEl) titleEl.textContent = '🏆 LUAR BIASA! SEMUA LEMBAR TUNTAS!';
-          if (msgEl) msgEl.innerHTML = 'Selamat! Kamu telah menyelesaikan seluruh <b>10 Lembar Kurikulum Belajar Membaca</b> dengan sempurna! 🌟🎓';
-          if (nextBtn) {
-            nextBtn.classList.remove('hidden');
-            nextBtn.innerHTML = '🔄 Ulangi Dari Lembar 1';
-          }
-        }
-      } else {
-        updatePencilPosition(currentReadingIndex);
-      }
+      advanceReadingStep_();
     }
 
     function klikEjaanItem(idx) {
@@ -17262,6 +17628,8 @@
 
     function resetBelajarMembaca() {
       currentReadingIndex = 0;
+      readingVadCooldownUntil = 0;
+      readingSpeechTokenOffsets = {};
       const overlay = document.getElementById('readingCelebrationOverlay');
       if (overlay) overlay.classList.add('hidden');
       const speechLabel = document.getElementById('detectedReadingSpeech');
