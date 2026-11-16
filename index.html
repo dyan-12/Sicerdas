@@ -3323,15 +3323,15 @@
       </div>
 
       <!-- Kartu Identitas & Edit Foto Profil Pengguna (Guru / Murid) -->
-      <div
-        class="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-4 flex flex-col sm:flex-row items-center gap-3.5 text-center sm:text-left">
-        <div class="relative flex-shrink-0 group cursor-pointer" onclick="bukaZoomFotoProfil()"
+      <div id="profilIdentityCard"
+        class="p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-100 mb-4 flex flex-col items-center gap-3 text-center">
+        <div class="relative w-20 h-20 mx-auto flex-shrink-0 group cursor-pointer" onclick="bukaZoomFotoProfil()"
           title="Klik untuk lihat foto profil (Zoom)">
-          <img id="profilModalAvatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150" alt=""
-            class="w-16 h-16 rounded-2xl object-cover border-2 border-brand-blue shadow-xs group-hover:opacity-90 group-hover:scale-105 transition-custom">
-          alt="" class="w-16 h-16 rounded-2xl object-cover border-2 border-brand-blue shadow-xs">
+          <img id="profilModalAvatar" src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150"
+            alt="Foto Profil"
+            class="w-20 h-20 rounded-2xl object-cover border-2 border-brand-blue shadow-xs group-hover:opacity-90 group-hover:scale-105 transition-custom">
           <!-- Tombol overlay untuk ganti foto -->
-          <button type="button" onclick="document.getElementById('profilInputFotoFile').click()"
+          <button type="button" onclick="event.stopPropagation(); document.getElementById('profilInputFotoFile').click()"
             class="absolute inset-0 bg-slate-900/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-custom flex items-center justify-center text-white text-xs font-bold"
             title="Pilih foto baru">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3342,11 +3342,11 @@
             </svg>
           </button>
         </div>
-        <div class="flex-1 min-w-0">
+        <div class="w-full min-w-0 flex flex-col items-center text-center">
           <h4 id="profilModalNama" class="text-sm font-extrabold text-slate-800">Nama Pengguna</h4>
           <p id="profilModalKelas" class="text-xs font-semibold text-brand-blue">Kelas 1-B</p>
           <p id="profilModalIdAbsen" class="text-[11px] text-slate-400 mt-0.5">ID: SIS-001 • Absen #1</p>
-          <div class="mt-2 flex flex-wrap gap-2 justify-center sm:justify-start">
+          <div class="mt-3 flex flex-wrap gap-2 justify-center">
             <input type="file" id="profilInputFotoFile" accept="image/*" class="hidden"
               onchange="handleProfilFotoSelected(event)">
             <button type="button" onclick="document.getElementById('profilInputFotoFile').click()"
@@ -5579,7 +5579,8 @@
       if (MOCK_DB) MOCK_DB.activeToken = null;
       clearClientSessionCache_();
       if (STATE.liveClockTimer) clearInterval(STATE.liveClockTimer);
-      if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
+      if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      else if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
       if (typeof stopQrisLivePolling === 'function') stopQrisLivePolling();
       if (typeof qrisClockInterval !== 'undefined' && qrisClockInterval) clearInterval(qrisClockInterval);
       document.querySelectorAll('.modal, [id^="modal"]:not(.hidden), #confirmModal').forEach(function (m) {
@@ -6789,10 +6790,20 @@
      * MODAL TOGGLER UTILITY
      */
     function openModal(modalId) {
+      if (typeof stopAllAbsensiCameras_ === 'function') {
+        stopAllAbsensiCameras_({
+          barcode: modalId !== 'modalScanBarcodeGuru',
+          closeBarcodeModal: modalId !== 'modalScanBarcodeGuru',
+          qris: true
+        });
+      }
       document.getElementById(modalId).classList.remove('hidden');
     }
     function closeModal(modalId) {
       document.getElementById(modalId).classList.add('hidden');
+      if (modalId === 'modalScanBarcodeGuru' && typeof stopHtml5QrScanner === 'function') {
+        stopHtml5QrScanner();
+      }
     }
 
     /**
@@ -7233,7 +7244,8 @@
           }
         }
         if (STATE.liveClockTimer) clearInterval(STATE.liveClockTimer);
-        if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
+        if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
+        else if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
         if (typeof stopQrisLivePolling === 'function') stopQrisLivePolling();
         if (typeof qrisClockInterval !== 'undefined' && qrisClockInterval) clearInterval(qrisClockInterval);
         document.querySelectorAll('.modal, [id^="modal"]:not(.hidden), #confirmModal').forEach(function (m) {
@@ -7421,11 +7433,18 @@
       if (tabName === 'kalender') loadKalenderList();
       if (tabName === 'media') loadMediaList();
       if (tabName === 'qris') {
+        if (typeof stopAllAbsensiCameras_ === 'function') {
+          stopAllAbsensiCameras_({ barcode: true, closeBarcodeModal: true, qris: false });
+        }
         loadQrisData();
         if (typeof startQrisLivePolling === 'function') startQrisLivePolling();
       } else {
         if (typeof stopQrisLivePolling === 'function') stopQrisLivePolling();
-        if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
+        if (typeof stopAllAbsensiCameras_ === 'function') {
+          stopAllAbsensiCameras_({ barcode: true, closeBarcodeModal: true, qris: true });
+        } else if (typeof stopQrisCameraScanner === 'function') {
+          stopQrisCameraScanner();
+        }
       }
 
       // Update 3-Button Bottom Nav Active Styles
@@ -7896,6 +7915,9 @@
     }
 
     function triggerNativeCamera(type) {
+      if (typeof stopAllAbsensiCameras_ === 'function') {
+        stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      }
       STATE.tempSelfieType = type;
       const modalTitle = document.getElementById('modalCameraTitle');
       if (modalTitle) {
@@ -9369,6 +9391,7 @@
      * =========================================================================
      */
     let html5QrScannerInstance = null;
+    let barcodeScannerEpoch = 0;
     let currentScanMode = 'masuk'; // 'masuk' | 'pulang'
     let lastScannedCode = '';
     let lastScanTime = 0;
@@ -9747,26 +9770,120 @@
       }
     }
 
-    async function stopHtml5QrScanner() {
-      setScannerOverlaysVisible(false);
-      if (html5QrScannerInstance) {
+    function collectContainerVideoTracks_(containerId) {
+      const tracks = [];
+      const container = document.getElementById(containerId);
+      if (!container) return tracks;
+      container.querySelectorAll('video').forEach(function (vid) {
         try {
-          const state = typeof html5QrScannerInstance.getState === 'function' ? html5QrScannerInstance.getState() : null;
-          // State 2 = SCANNING
-          if (state === 2 || state === 'SCANNING') {
-            await html5QrScannerInstance.stop();
+          const stream = vid.srcObject;
+          if (stream && typeof stream.getTracks === 'function') {
+            stream.getTracks().forEach(function (track) { tracks.push(track); });
           }
-          try { html5QrScannerInstance.clear(); } catch (e) { }
-        } catch (e) {
-          console.warn('stop scanner error:', e);
-        } finally {
-          html5QrScannerInstance = null;
-        }
+        } catch (e) { }
+      });
+      return tracks;
+    }
+
+    function stopMediaTracksInContainer_(containerId, preCollectedTracks) {
+      const tracks = (preCollectedTracks || []).concat(collectContainerVideoTracks_(containerId));
+      tracks.forEach(function (track) {
+        try {
+          if (track && typeof track.stop === 'function') track.stop();
+        } catch (e) { }
+      });
+      const container = document.getElementById(containerId);
+      if (container) {
+        container.querySelectorAll('video').forEach(function (vid) {
+          try { vid.pause(); } catch (e) { }
+          try { vid.srcObject = null; } catch (e) { }
+        });
       }
     }
 
-    async function startHtml5QrScanner() {
-      await stopHtml5QrScanner();
+    function isBarcodeScannerActive_() {
+      const modal = document.getElementById('modalScanBarcodeGuru');
+      return Boolean(modal && !modal.classList.contains('hidden') && document.visibilityState !== 'hidden' && STATE.currentUser);
+    }
+
+    function isQrisScannerActive_() {
+      if (!STATE.currentUser || STATE.currentTab !== 'qris' || currentQrisSubTab !== 'scanner') return false;
+      if (document.visibilityState === 'hidden') return false;
+      const tabEl = document.getElementById('tabContentQris');
+      const subEl = document.getElementById('qrisSubViewScanner');
+      if (!tabEl || tabEl.classList.contains('hidden') || !subEl || subEl.classList.contains('hidden')) return false;
+      const openModals = document.querySelectorAll('.fixed.inset-0[id^="modal"]:not(.hidden), #confirmModal:not(.hidden)');
+      for (let i = 0; i < openModals.length; i++) {
+        if (openModals[i].id !== 'modalKonfirmasiKeluar') return false;
+      }
+      return true;
+    }
+
+    function stopAllAbsensiCameras_(options) {
+      const opts = options || {};
+      if (opts.barcode !== false) {
+        if (opts.closeBarcodeModal) {
+          const modal = document.getElementById('modalScanBarcodeGuru');
+          if (modal) modal.classList.add('hidden');
+        }
+        if (typeof stopHtml5QrScanner === 'function') {
+          stopHtml5QrScanner();
+        }
+      }
+      if (opts.qris !== false && typeof stopQrisCameraScanner === 'function') {
+        stopQrisCameraScanner();
+      }
+    }
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) {
+          stopAllAbsensiCameras_({ closeBarcodeModal: false });
+        }
+      });
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pagehide', function () {
+        stopAllAbsensiCameras_({ closeBarcodeModal: false });
+      });
+    }
+
+    async function releaseHtml5QrInstance_(instance, containerId) {
+      const preTracks = collectContainerVideoTracks_(containerId);
+      if (instance) {
+        try {
+          const state = typeof instance.getState === 'function' ? instance.getState() : null;
+          if (state === 2 || state === 'SCANNING' || state === 3 || state === 'PAUSED') {
+            await instance.stop();
+          }
+        } catch (e) {
+          console.warn('stop scanner error:', e);
+        }
+        stopMediaTracksInContainer_(containerId, preTracks);
+        try { instance.clear(); } catch (e) { }
+      } else {
+        stopMediaTracksInContainer_(containerId, preTracks);
+      }
+      const container = document.getElementById(containerId);
+      if (container) container.innerHTML = '';
+    }
+
+    async function stopHtml5QrScanner(skipEpochBump) {
+      if (!skipEpochBump) barcodeScannerEpoch++;
+      setScannerOverlaysVisible(false);
+      const inst = html5QrScannerInstance;
+      html5QrScannerInstance = null;
+      await releaseHtml5QrInstance_(inst, 'qrBarcodeReaderContainer');
+    }
+
+    async function startHtml5QrScanner(preferredDeviceId) {
+      const myEpoch = ++barcodeScannerEpoch;
+      await stopHtml5QrScanner(true);
+      const isStale = function () {
+        return myEpoch !== barcodeScannerEpoch || !isBarcodeScannerActive_();
+      };
+      if (isStale()) return;
+
       const containerId = 'qrBarcodeReaderContainer';
       const container = document.getElementById(containerId);
       if (!container) return;
@@ -9790,10 +9907,8 @@
         return;
       }
 
-      // Pastikan container bersih untuk Html5Qrcode
       container.innerHTML = '';
 
-      // Konfigurasi instance multi-format: QR Code 2D & Barcode 1D (Code128, Code39, EAN)
       const html5QrConfig = {
         formatsToSupport: typeof Html5QrcodeSupportedFormats !== 'undefined' ? [
           Html5QrcodeSupportedFormats.QR_CODE,
@@ -9807,11 +9922,11 @@
         experimentalFeatures: { useBarCodeDetectorIfSupported: true }
       };
 
-      html5QrScannerInstance = new Html5Qrcode(containerId, html5QrConfig);
+      const instance = new Html5Qrcode(containerId, html5QrConfig);
+      html5QrScannerInstance = instance;
 
-      // Konfigurasi scanner runtime
       const scannerConfig = {
-        fps: 25, // Kecepatan tinggi 25 FPS membaca instan barcode kartu siswa
+        fps: 25,
         qrbox: function (viewfinderWidth, viewfinderHeight) {
           const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
           const edgeSize = Math.max(160, Math.floor(minEdge * 0.78));
@@ -9819,7 +9934,7 @@
         },
         aspectRatio: undefined,
         experimentalFeatures: {
-          useBarCodeDetectorIfSupported: true // Akselerasi hardware Chromium jika tersedia
+          useBarCodeDetectorIfSupported: true
         }
       };
 
@@ -9829,35 +9944,59 @@
         updateScannerStatusText('Kamera Aktif — Dekatkan Barcode Siswa', true);
       }
 
-      // 1. Prioritas Utama: Langsung nyalakan kamera belakang HP (facingMode: "environment")
-      try {
-        await html5QrScannerInstance.start(
-          { facingMode: "environment" },
+      async function tryStartCamera(cameraIdOrConfig) {
+        if (isStale()) return false;
+        await instance.start(
+          cameraIdOrConfig,
           scannerConfig,
           function onScanSuccess(decodedText) {
             handleBarcodeScanned(decodedText);
           },
           function onScanError(errorMessage) { }
         );
+        if (isStale()) {
+          if (html5QrScannerInstance === instance) html5QrScannerInstance = null;
+          await releaseHtml5QrInstance_(instance, containerId);
+          return 'cancelled';
+        }
         onCameraActive();
+        return true;
+      }
 
-        // Enumerasi kamera untuk tombol switch jika perangkat memiliki > 1 kamera
+      if (preferredDeviceId) {
         try {
-          const devices = await Html5Qrcode.getCameras();
-          if (devices && devices.length > 1) {
-            availableScannerCameras = devices;
-            const btnSwitch = document.getElementById('btnSwitchCamera');
-            if (btnSwitch) btnSwitch.classList.remove('hidden');
-          }
-        } catch (e) { }
-        return;
+          const started = await tryStartCamera(preferredDeviceId);
+          if (started === true || started === 'cancelled') return;
+        } catch (prefErr) {
+          console.warn('Start kamera terpilih gagal:', prefErr);
+          if (isStale()) return;
+        }
+      }
+
+      // 1. Prioritas Utama: Langsung nyalakan kamera belakang HP (facingMode: "environment")
+      try {
+        const started = await tryStartCamera({ facingMode: "environment" });
+        if (started === 'cancelled') return;
+        if (started === true) {
+          try {
+            const devices = await Html5Qrcode.getCameras();
+            if (!isStale() && devices && devices.length > 1) {
+              availableScannerCameras = devices;
+              const btnSwitch = document.getElementById('btnSwitchCamera');
+              if (btnSwitch) btnSwitch.classList.remove('hidden');
+            }
+          } catch (e) { }
+          return;
+        }
       } catch (envErr) {
         console.warn('Start facingMode: environment gagal, mencoba enumerasi kamera:', envErr);
+        if (isStale()) return;
       }
 
       // 2. Prioritas 2: Cari kamera belakang dari getCameras()
       try {
         const devices = await Html5Qrcode.getCameras();
+        if (isStale()) return;
         if (devices && devices.length > 0) {
           availableScannerCameras = devices;
           let targetIndex = 0;
@@ -9872,35 +10011,26 @@
           const btnSwitch = document.getElementById('btnSwitchCamera');
           if (btnSwitch) btnSwitch.classList.toggle('hidden', devices.length <= 1);
 
-          await html5QrScannerInstance.start(
-            devices[targetIndex].id,
-            scannerConfig,
-            function onScanSuccess(decodedText) {
-              handleBarcodeScanned(decodedText);
-            },
-            function onScanError(errorMessage) { }
-          );
-          onCameraActive();
-          return;
+          const started = await tryStartCamera(devices[targetIndex].id);
+          if (started === true || started === 'cancelled') return;
         }
       } catch (camErr) {
         console.warn('Enumerasi getCameras gagal:', camErr);
+        if (isStale()) return;
       }
 
       // 3. Prioritas 3: Coba kamera depan (user)
       try {
-        await html5QrScannerInstance.start(
-          { facingMode: "user" },
-          scannerConfig,
-          function onScanSuccess(decodedText) {
-            handleBarcodeScanned(decodedText);
-          },
-          function onScanError(errorMessage) { }
-        );
-        onCameraActive();
-        return;
+        const started = await tryStartCamera({ facingMode: "user" });
+        if (started === true || started === 'cancelled') return;
       } catch (usrErr) {
         console.warn('Start user camera gagal:', usrErr);
+      }
+
+      if (isStale()) {
+        if (html5QrScannerInstance === instance) html5QrScannerInstance = null;
+        await releaseHtml5QrInstance_(instance, containerId);
+        return;
       }
 
       // 4. Semua percobaan WebRTC gagal (Sensor diblokir oleh kebijakan iframe Google Apps Script di HP)
@@ -9934,53 +10064,11 @@
 
     async function switchScannerCamera() {
       if (!availableScannerCameras || availableScannerCameras.length <= 1) return;
+      if (!isBarcodeScannerActive_()) return;
       currentCameraIndex = (currentCameraIndex + 1) % availableScannerCameras.length;
       const targetCam = availableScannerCameras[currentCameraIndex];
       showToast('Beralih ke: ' + (targetCam.label || ('Kamera ' + (currentCameraIndex + 1))), 'info');
-
-      await stopHtml5QrScanner();
-      setTimeout(async () => {
-        const containerId = 'qrBarcodeReaderContainer';
-        const html5QrConfig = {
-          formatsToSupport: typeof Html5QrcodeSupportedFormats !== 'undefined' ? [
-            Html5QrcodeSupportedFormats.QR_CODE,
-            Html5QrcodeSupportedFormats.CODE_128,
-            Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8
-          ] : undefined,
-          verbose: false,
-          experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-        };
-        html5QrScannerInstance = new Html5Qrcode(containerId, html5QrConfig);
-        const scannerConfig = {
-          fps: 25,
-          qrbox: function (viewfinderWidth, viewfinderHeight) {
-            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const edgeSize = Math.max(160, Math.floor(minEdge * 0.76));
-            return { width: edgeSize, height: edgeSize };
-          },
-          aspectRatio: undefined,
-          experimentalFeatures: { useBarCodeDetectorIfSupported: true }
-        };
-
-        try {
-          await html5QrScannerInstance.start(
-            targetCam.id,
-            scannerConfig,
-            function onScanSuccess(decodedText) {
-              handleBarcodeScanned(decodedText);
-            },
-            function onScanError(errorMessage) { }
-          );
-          const loadingOverlay = document.getElementById('scannerLoadingOverlay');
-          if (loadingOverlay) loadingOverlay.classList.add('hidden');
-          setScannerOverlaysVisible(true);
-          updateScannerStatusText('Kamera Aktif — Dekatkan Barcode Siswa', true);
-        } catch (e) {
-          console.error('Gagal switch kamera:', e);
-        }
-      }, 150);
+      await startHtml5QrScanner(targetCam.id);
     }
 
     function updateScannerStatusText(text, isActive) {
@@ -13333,6 +13421,9 @@
     }
 
     function openModalTambahMedia() {
+      if (typeof stopAllAbsensiCameras_ === 'function') {
+        stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      }
       document.getElementById('modalMediaTitle').textContent = 'Buat Folder Materi Pembelajaran';
       document.getElementById('inputMediaId').value = '';
       document.getElementById('inputMediaExistingUrl').value = '';
@@ -13367,6 +13458,9 @@
     function openModalEditMedia(id) {
       const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === id; });
       if (!item) return;
+      if (typeof stopAllAbsensiCameras_ === 'function') {
+        stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      }
       document.getElementById('modalMediaTitle').textContent = 'Edit Folder Materi Pembelajaran';
       document.getElementById('inputMediaId').value = item.id;
       document.getElementById('inputMediaExistingUrl').value = item.urlMedia || '';
@@ -13677,6 +13771,9 @@
     function bukaFolderMateri(id, keepShuffleOrder) {
       const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === id; });
       if (!item) return;
+      if (typeof stopAllAbsensiCameras_ === 'function') {
+        stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      }
 
       // Hangatkan daftar suara speechSynthesis browser agar siap berbunyi saat kotak dijawab
       safeSpeechGetVoices();
@@ -15591,6 +15688,8 @@
     // =========================================================================
     var html5QrCodeScanner = null;
     var isCameraRunning = false;
+    var isQrisCameraStarting = false;
+    var qrisScannerEpoch = 0;
     var currentFacingMode = 'environment';
     var isTorchOn = false;
     var isProcessingQrisScan = false;
@@ -15604,7 +15703,6 @@
       switchTab('qris');
 
       if (!isGuru) {
-        switchQrisSubTab('scanner');
         triggerQrisNativeCamera();
       } else {
         if (currentQrisSubTab === 'scanner') {
@@ -15968,21 +16066,35 @@
       const box = document.getElementById('qrisReaderBox');
       const loading = document.getElementById('qrisScannerLoading');
       if (!box) return;
-
+      if (typeof isQrisScannerActive_ === 'function' && !isQrisScannerActive_()) {
+        stopQrisCameraScanner();
+        return;
+      }
       if (typeof Html5Qrcode === 'undefined') {
         return;
       }
 
+      const myEpoch = ++qrisScannerEpoch;
+      isQrisCameraStarting = true;
+
       if (html5QrCodeScanner) {
+        const oldInst = html5QrCodeScanner;
+        html5QrCodeScanner = null;
+        isCameraRunning = false;
         try {
-          html5QrCodeScanner.stop().then(function () {
-            html5QrCodeScanner.clear();
+          oldInst.stop().then(function () {
+            try { oldInst.clear(); } catch (e) { }
+            if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox');
             initScannerInstance();
           }).catch(function () {
+            try { oldInst.clear(); } catch (e) { }
+            if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox');
             initScannerInstance();
           });
           return;
         } catch (e) {
+          try { oldInst.clear(); } catch (e2) { }
+          if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox');
           initScannerInstance();
           return;
         }
@@ -15991,11 +16103,20 @@
       initScannerInstance();
 
       function initScannerInstance() {
+        const isStale = function () {
+          return myEpoch !== qrisScannerEpoch || (typeof isQrisScannerActive_ === 'function' && !isQrisScannerActive_());
+        };
+        if (isStale()) {
+          isQrisCameraStarting = false;
+          isCameraRunning = false;
+          return;
+        }
         try {
-          html5QrCodeScanner = new Html5Qrcode('qrisReaderBox');
+          const inst = new Html5Qrcode('qrisReaderBox');
+          html5QrCodeScanner = inst;
           const config = { fps: 15, qrbox: { width: 220, height: 220 } };
 
-          html5QrCodeScanner.start(
+          inst.start(
             { facingMode: currentFacingMode },
             config,
             function onScanSuccess(decodedText) {
@@ -16006,40 +16127,90 @@
             function onScanFailure(error) {
             }
           ).then(function () {
+            if (isStale()) {
+              isQrisCameraStarting = false;
+              isCameraRunning = false;
+              if (html5QrCodeScanner === inst) html5QrCodeScanner = null;
+              try {
+                inst.stop().then(function () {
+                  try { inst.clear(); } catch (e) { }
+                  if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox');
+                }).catch(function () {
+                  try { inst.clear(); } catch (e) { }
+                  if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox');
+                });
+              } catch (eStop) {
+                if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox');
+              }
+              return;
+            }
+            isQrisCameraStarting = false;
             isCameraRunning = true;
             if (loading) loading.classList.add('hidden');
           }).catch(function (err) {
+            isQrisCameraStarting = false;
             isCameraRunning = false;
+            if (html5QrCodeScanner === inst) html5QrCodeScanner = null;
             if (loading) loading.classList.add('hidden');
             console.info('Live camera stream not supported by iframe sandbox. Using native camera capture.');
           });
         } catch (errInit) {
+          isQrisCameraStarting = false;
           isCameraRunning = false;
           if (loading) loading.classList.add('hidden');
         }
       }
     }
 
-    function stopQrisCameraScanner() {
-      if (html5QrCodeScanner && isCameraRunning) {
+    function stopQrisCameraScanner(keepEpoch) {
+      if (!keepEpoch) qrisScannerEpoch++;
+      isQrisCameraStarting = false;
+      isCameraRunning = false;
+      isTorchOn = false;
+      const lbl = document.getElementById('torchStatusLabel');
+      if (lbl) lbl.textContent = 'Senter';
+
+      const preTracks = typeof collectContainerVideoTracks_ === 'function' ? collectContainerVideoTracks_('qrisReaderBox') : [];
+      const inst = html5QrCodeScanner;
+      html5QrCodeScanner = null;
+      if (inst) {
         try {
-          html5QrCodeScanner.stop().then(function () {
-            html5QrCodeScanner.clear();
-            isCameraRunning = false;
-          }).catch(function (e) {
-            isCameraRunning = false;
-          });
+          const stopPromise = inst.stop();
+          if (stopPromise && typeof stopPromise.then === 'function') {
+            stopPromise.then(function () {
+              if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox', preTracks);
+              try { inst.clear(); } catch (e) { }
+            }).catch(function () {
+              if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox', preTracks);
+              try { inst.clear(); } catch (e) { }
+            });
+          } else {
+            if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox', preTracks);
+            try { inst.clear(); } catch (e) { }
+          }
         } catch (e) {
-          isCameraRunning = false;
+          if (typeof stopMediaTracksInContainer_ === 'function') stopMediaTracksInContainer_('qrisReaderBox', preTracks);
+          try { inst.clear(); } catch (e2) { }
         }
       }
+      if (typeof stopMediaTracksInContainer_ === 'function') {
+        stopMediaTracksInContainer_('qrisReaderBox', preTracks);
+      }
+      const box = document.getElementById('qrisReaderBox');
+      if (box) box.innerHTML = '';
     }
 
     function switchQrisCamera() {
       currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
-      if (html5QrCodeScanner && isCameraRunning) {
+      if (typeof isQrisScannerActive_ === 'function' && !isQrisScannerActive_()) return;
+      if (html5QrCodeScanner || isCameraRunning || isQrisCameraStarting) {
         stopQrisCameraScanner();
-        setTimeout(startQrisCameraScanner, 300);
+        const waitEpoch = qrisScannerEpoch;
+        setTimeout(function () {
+          if (waitEpoch !== qrisScannerEpoch) return;
+          if (typeof isQrisScannerActive_ === 'function' && !isQrisScannerActive_()) return;
+          startQrisCameraScanner();
+        }, 300);
       }
     }
 
@@ -16918,6 +17089,9 @@
     function bukaModalBelajarMembaca() {
       const modal = document.getElementById('modalMediaBelajarMembaca');
       if (!modal) return;
+      if (typeof stopAllAbsensiCameras_ === 'function') {
+        stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      }
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
 
