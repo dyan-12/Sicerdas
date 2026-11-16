@@ -516,7 +516,7 @@
                 <div>
                   <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#2D6A4F]">JAM BELAJAR HARI INI
                   </p>
-                  <h3 id="bannerShiftTime" class="text-xs sm:text-sm font-bold text-slate-800">07:15 WIB - 13:00 WIB
+                  <h3 id="bannerShiftTime" class="text-xs sm:text-sm font-bold text-slate-800">Masuk: 07.15 • Pulang 11.15
                   </h3>
                 </div>
                 <div onclick="switchTab('kalender')" title="Klik untuk membuka Kalender Pendidikan &amp; Tanggal"
@@ -1149,22 +1149,21 @@
           </div>
         </div>
 
-        <!-- Seksi Khusus Guru: Panel Presensi & Izin Siswa Terpadu -->
+        <!-- Seksi Khusus Guru: Panel Presensi & Izin Siswa Terpadu + Absen Manual -->
         <div id="guruPresensiSection" class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-100 mb-5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
-              <div class="flex items-center space-x-2">
-                <h3 class="text-base sm:text-lg font-bold text-slate-800">Daftar Presensi & Izin Siswa</h3>
+              <div class="flex items-center flex-wrap gap-2">
+                <h3 class="text-base sm:text-lg font-bold text-slate-800">Daftar Presensi &amp; Absen Manual</h3>
                 <span id="badgeAntreanVerifikasiCount"
                   class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                  Otomatis Terverifikasi
+                  Hadir: 0 • Tidak Hadir: 0 • Izin: 0 • Sakit: 0
                 </span>
               </div>
-              <p class="text-xs text-slate-400">Daftar kehadiran siswa (Hadir, Izin, Sakit) otomatis terverifikasi
-                sistem</p>
+              <p class="text-xs text-slate-400 mt-0.5">Ketuk Centang (Hadir), Silang (Tidak Hadir), atau Izin/Sakit langsung pada daftar seluruh murid</p>
             </div>
 
-            <!-- Filter Kategori & Tanggal + Tombol Scan Barcode Guru -->
+            <!-- Tanggal & Tombol Scan Barcode Guru -->
             <div class="flex flex-wrap items-center gap-2">
               <button type="button" onclick="openModalScanBarcodeGuru()"
                 class="py-2 px-3.5 bg-brand-blue hover:bg-sky-600 text-white font-bold text-xs rounded-xl shadow-md shadow-sky-500/20 transition-all flex items-center space-x-1.5">
@@ -1174,21 +1173,70 @@
                 </svg>
                 <span>Scan Barcode Siswa</span>
               </button>
-              <input id="filterTanggalPresensi" type="date" onchange="loadGuruAttendanceList()"
+              <input id="filterTanggalPresensi" type="date" onchange="loadGuruAttendanceList(true)"
                 class="py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
-              <select id="filterStatusPresensi" onchange="loadGuruAttendanceList()"
+            </div>
+          </div>
+
+          <!-- Sub-Tab Switcher Guru: Absen Manual vs Log Scan & Foto -->
+          <div class="bg-slate-100 p-1.5 rounded-2xl grid grid-cols-2 gap-1.5 mb-4">
+            <button type="button" id="btnGuruPresensiTabManual" onclick="switchGuruPresensiSubTab('manual')"
+              class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center space-x-1.5 bg-white text-brand-blue shadow-xs">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Absen Manual (Semua Murid)</span>
+            </button>
+            <button type="button" id="btnGuruPresensiTabLog" onclick="switchGuruPresensiSubTab('log')"
+              class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center space-x-1.5 text-slate-600 hover:text-slate-900">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              <span>Log Scan &amp; Bukti Foto</span>
+            </button>
+          </div>
+
+          <!-- SUB-SEKSI GURU 1: ABSEN MANUAL SELURUH MURID -->
+          <div id="guruPresensiSubManual" class="space-y-3">
+            <!-- Bar Ringkasan & Pencarian Nama Murid -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50/90 p-3 rounded-2xl border border-slate-200/70">
+              <div id="manualAbsenSummaryBar" class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
+                <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700">Total: 0 Murid</span>
+              </div>
+              <div class="relative w-full sm:w-64">
+                <input id="searchManualPresensiInput" type="text" oninput="renderGuruManualAttendanceList()"
+                  placeholder="Cari nama atau no. absen murid..."
+                  class="w-full py-1.5 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-200">
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Daftar Seluruh Murid dengan 3 Tombol (Centang, Silang, Izin/Sakit) -->
+            <div id="guruManualAttendanceList" class="space-y-2.5">
+              <!-- Render dinamis seluruh murid -->
+            </div>
+          </div>
+
+          <!-- SUB-SEKSI GURU 2: LOG SCAN, SELFIE & BUKTI IZIN -->
+          <div id="guruPresensiSubLog" class="hidden space-y-3">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs font-semibold text-slate-500">Filter Kategori Log Presensi:</p>
+              <select id="filterStatusPresensi" onchange="renderGuruAttendanceListFromCache_()"
                 class="py-1.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 focus:outline-none">
-                <option value="Semua" selected>Semua (Hadir, Izin, Sakit)</option>
+                <option value="Semua" selected>Semua Status</option>
                 <option value="hadir">Hadir Saja</option>
+                <option value="tidak_hadir">Tidak Hadir (Silang)</option>
                 <option value="izin">Izin Saja</option>
                 <option value="sakit">Sakit Saja</option>
               </select>
             </div>
-          </div>
 
-          <!-- Tabel / Kartu Presensi & Izin Siswa Terpadu -->
-          <div id="guruAttendanceListContainer" class="space-y-3">
-            <!-- Render dinamis presensi siswa untuk guru -->
+            <!-- Tabel / Kartu Presensi & Izin Siswa Terpadu -->
+            <div id="guruAttendanceListContainer" class="space-y-3">
+              <!-- Render dinamis presensi siswa untuk guru -->
+            </div>
           </div>
         </div>
       </div>
@@ -2844,6 +2892,53 @@
             ✅ Setujui Hadir Sah
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2B: PILIHAN CEPAT IZIN / SAKIT ABSEN MANUAL GURU (v1.56.0) -->
+  <div id="modalManualIzinSakit"
+    class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-5 sm:p-6 shadow-2xl animate-fade-in">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+        <div>
+          <h3 class="text-sm sm:text-base font-extrabold text-slate-800">Pilih Status Izin / Sakit</h3>
+          <p id="manualIzinDateLabel" class="text-[11px] font-semibold text-slate-400">Tanggal: -</p>
+        </div>
+        <button type="button" onclick="closeModal('modalManualIzinSakit')" class="text-slate-400 hover:text-slate-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <input type="hidden" id="manualIzinStudentId">
+      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 mb-3.5">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Nama Murid</p>
+        <p id="manualIzinStudentName" class="text-sm font-extrabold text-slate-800 mt-0.5">-</p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-600 mb-1">Keterangan / Alasan (Opsional)</label>
+        <input id="manualIzinAlasanInput" type="text" placeholder="Contoh: Acara keluarga / Demam..."
+          class="w-full py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-200">
+      </div>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <button id="btnConfirmManualIzin" type="button" onclick="confirmManualIzinSakit('izin')"
+          class="py-3 px-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <span>Izin</span>
+        </button>
+        <button id="btnConfirmManualSakit" type="button" onclick="confirmManualIzinSakit('sakit')"
+          class="py-3 px-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          <span>Sakit</span>
+        </button>
       </div>
     </div>
   </div>
@@ -6258,6 +6353,13 @@
             catatanGuru: 'Hadir via QRIS Guru',
             waktuVerifikasi: getCurDateTimeFormatted()
           });
+        } else {
+          mainExisting.jamMasuk = curTime;
+          mainExisting.fotoMasuk = 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600';
+          mainExisting.statusKeterlambatan = statusTelatQ;
+          mainExisting.statusVerifikasi = 'Disetujui';
+          mainExisting.catatanGuru = 'Hadir via QRIS Guru';
+          mainExisting.waktuVerifikasi = getCurDateTimeFormatted();
         }
         return {
           success: true,
@@ -6301,12 +6403,14 @@
         var hariArr = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
         var todayHari = hariArr[new Date().getDay()];
         var myPresensi = MOCK_DB.attendances.find(a => a.idPengguna === uId && a.tanggal === today) || null;
+        if (myPresensi && myPresensi.statusVerifikasi === 'Tidak Hadir') {
+          myPresensi = { ...myPresensi, jamMasuk: '', jamPulang: '' };
+        }
         var pendingVerif = MOCK_DB.attendances.filter(a => a.statusVerifikasi === 'Menunggu Verifikasi').length;
         var todaySchedule = MOCK_DB.schedules.filter(s => String(s.hari || '').trim().toLowerCase() === todayHari.toLowerCase());
-        var totalHadir = MOCK_DB.attendances.filter(a => a.tanggal === today).length;
-        if (totalHadir === 0 && MOCK_DB.attendances.length > 0) totalHadir = MOCK_DB.attendances.length;
-        var totalIzin = MOCK_DB.leaveRequests.filter(l => String(l.kategori || '').toLowerCase() === 'izin').length;
-        var totalSakit = MOCK_DB.leaveRequests.filter(l => String(l.kategori || '').toLowerCase() === 'sakit').length;
+        var totalHadir = MOCK_DB.attendances.filter(a => a.tanggal === today && a.jamMasuk && a.jamMasuk !== '-' && a.statusVerifikasi !== 'Tidak Hadir').length;
+        var totalIzin = MOCK_DB.leaveRequests.filter(l => String(l.kategori || '').toLowerCase() === 'izin' && String(l.status || '').toLowerCase() !== 'ditolak' && today >= l.tglMulai && today <= (l.tglSelesai || l.tglMulai)).length;
+        var totalSakit = MOCK_DB.leaveRequests.filter(l => String(l.kategori || '').toLowerCase() === 'sakit' && String(l.status || '').toLowerCase() !== 'ditolak' && today >= l.tglMulai && today <= (l.tglSelesai || l.tglMulai)).length;
         return {
           success: true,
           data: {
@@ -6364,21 +6468,33 @@
             };
           }
           var statusTelatAtt = hitungStatusKeterlambatanMasuk_(curTimeAtt);
-          var newRecord = {
-            id: 'PRS-' + today.replace(/-/g, '') + '-00' + (MOCK_DB.attendances.length + 1),
-            idPengguna: p.userId,
-            namaSiswa: p.userName,
-            tanggal: today,
-            jamMasuk: curTimeAtt,
-            jamPulang: '',
-            fotoMasuk: p.photoBase64 || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600',
-            fotoPulang: '',
-            statusKeterlambatan: statusTelatAtt,
-            statusVerifikasi: 'Disetujui',
-            catatanGuru: 'Otomatis Terverifikasi Sistem',
-            waktuVerifikasi: getCurDateTimeFormatted()
-          };
-          MOCK_DB.attendances.unshift(newRecord);
+          var photoValAtt = p.photoBase64 || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600';
+          var newRecord;
+          if (existing) {
+            existing.jamMasuk = curTimeAtt;
+            existing.fotoMasuk = photoValAtt;
+            existing.statusKeterlambatan = statusTelatAtt;
+            existing.statusVerifikasi = 'Disetujui';
+            existing.catatanGuru = 'Otomatis Terverifikasi Sistem';
+            existing.waktuVerifikasi = getCurDateTimeFormatted();
+            newRecord = existing;
+          } else {
+            newRecord = {
+              id: 'PRS-' + today.replace(/-/g, '') + '-00' + (MOCK_DB.attendances.length + 1),
+              idPengguna: p.userId,
+              namaSiswa: p.userName,
+              tanggal: today,
+              jamMasuk: curTimeAtt,
+              jamPulang: '',
+              fotoMasuk: photoValAtt,
+              fotoPulang: '',
+              statusKeterlambatan: statusTelatAtt,
+              statusVerifikasi: 'Disetujui',
+              catatanGuru: 'Otomatis Terverifikasi Sistem',
+              waktuVerifikasi: getCurDateTimeFormatted()
+            };
+            MOCK_DB.attendances.unshift(newRecord);
+          }
           return {
             success: true,
             message: statusTelatAtt !== 'Tepat Waktu'
@@ -6409,15 +6525,19 @@
         var katFilter = String(args[1] || 'Semua').toLowerCase();
         var merged = [];
 
-        // 1. Data Hadir
-        if (katFilter === 'semua' || katFilter === 'hadir') {
+        // 1. Data Hadir & Tidak Hadir
+        if (katFilter === 'semua' || katFilter === 'hadir' || katFilter === 'tidak_hadir') {
           (MOCK_DB.attendances || []).forEach(a => {
             if (!tglFilter || a.tanggal === tglFilter) {
-              merged.push({
-                ...a,
-                tipe: 'hadir',
-                statusVerifikasi: 'Disetujui'
-              });
+              var isTH = (a.statusVerifikasi === 'Tidak Hadir' || a.statusKeterlambatan === 'Tidak Hadir');
+              var aTipe = isTH ? 'tidak_hadir' : 'hadir';
+              if (katFilter === 'semua' || katFilter === aTipe) {
+                merged.push({
+                  ...a,
+                  tipe: aTipe,
+                  statusVerifikasi: isTH ? 'Tidak Hadir' : (a.statusVerifikasi || 'Disetujui')
+                });
+              }
             }
           });
         }
@@ -6425,6 +6545,7 @@
         // 2. Data Izin & Sakit
         if (katFilter === 'semua' || katFilter === 'izin' || katFilter === 'sakit') {
           (MOCK_DB.leaveRequests || []).forEach(l => {
+            if (String(l.status || '').toLowerCase() === 'ditolak') return;
             var itemKat = String(l.kategori || '').toLowerCase();
             var dateMatch = !tglFilter || (tglFilter >= l.tglMulai && tglFilter <= (l.tglSelesai || l.tglMulai));
             var katMatch = (katFilter === 'semua' || katFilter === itemKat);
@@ -6433,13 +6554,13 @@
                 id: l.id,
                 idPengguna: l.idPengguna,
                 namaSiswa: l.namaSiswa,
-                tanggal: l.tglMulai,
+                tanggal: tglFilter || l.tglMulai,
                 jamMasuk: '-',
                 jamPulang: '-',
                 fotoMasuk: l.lampiran,
                 fotoPulang: '',
                 statusKeterlambatan: l.kategori,
-                statusVerifikasi: 'Disetujui',
+                statusVerifikasi: l.status || 'Disetujui',
                 catatanGuru: l.alasan || 'Izin/Sakit tercatat',
                 waktuVerifikasi: l.waktuVerifikasi || '2026-11-04 07:00:00',
                 tipe: itemKat,
@@ -6451,6 +6572,122 @@
         }
 
         return { success: true, data: merged };
+      }
+      if (method === 'apiSubmitManualAttendance') {
+        var mp = args[0] || {};
+        var mId = String(mp.studentId || '').trim();
+        var mStatus = String(mp.status || '').trim().toLowerCase();
+        var mKet = String(mp.keterangan || '').trim();
+        var todayStrM = getTodayFormatted();
+        var curTimeStrM = getCurTimeFormatted();
+        var nowStrM = getCurDateTimeFormatted();
+        var tDate = /^\d{4}-\d{2}-\d{2}$/.test(String(mp.targetDate || '').trim()) ? String(mp.targetDate).trim() : todayStrM;
+        var stObj = MOCK_DB.users.find(x => String(x.id).trim() === mId && x.role === 'murid');
+        if (!stObj) return { success: false, message: 'Data murid tidak ditemukan.' };
+        if (['hadir', 'tidak_hadir', 'izin', 'sakit'].indexOf(mStatus) === -1) {
+          return { success: false, message: 'Status absen manual tidak valid.' };
+        }
+
+        var clearLeaveMock = function() {
+          MOCK_DB.leaveRequests = (MOCK_DB.leaveRequests || []).filter(function(lv) {
+            if (lv.idPengguna !== stObj.id) return true;
+            var sEnd = lv.tglSelesai || lv.tglMulai;
+            return !(tDate >= lv.tglMulai && tDate <= sEnd);
+          });
+        };
+
+        if (mStatus === 'hadir' || mStatus === 'tidak_hadir') {
+          clearLeaveMock();
+          var exIdx = MOCK_DB.attendances.findIndex(a => a.idPengguna === stObj.id && a.tanggal === tDate);
+          var exRec = exIdx !== -1 ? MOCK_DB.attendances[exIdx] : null;
+          var savedRec;
+          if (mStatus === 'hadir') {
+            var keepOld = Boolean(exRec && exRec.jamMasuk && exRec.jamMasuk !== '-' && exRec.statusVerifikasi === 'Disetujui');
+            savedRec = {
+              id: exRec ? exRec.id : ('PRS-' + Date.now().toString().slice(-4)),
+              idPengguna: stObj.id,
+              namaSiswa: stObj.nama,
+              tanggal: tDate,
+              jamMasuk: keepOld ? exRec.jamMasuk : (tDate === todayStrM ? curTimeStrM : '07:00:00'),
+              jamPulang: keepOld ? (exRec.jamPulang || '') : '',
+              fotoMasuk: keepOld ? (exRec.fotoMasuk || 'MANUAL_GURU') : 'MANUAL_GURU',
+              fotoPulang: keepOld ? (exRec.fotoPulang || '') : '',
+              statusKeterlambatan: keepOld ? (exRec.statusKeterlambatan || 'Tepat Waktu') : 'Tepat Waktu',
+              statusVerifikasi: 'Disetujui',
+              catatanGuru: keepOld ? (exRec.catatanGuru || 'Disetujui Guru') : 'Hadir (Absen Manual Guru)',
+              waktuVerifikasi: nowStrM,
+              tipe: 'hadir'
+            };
+          } else {
+            savedRec = {
+              id: exRec ? exRec.id : ('PRS-' + Date.now().toString().slice(-4)),
+              idPengguna: stObj.id,
+              namaSiswa: stObj.nama,
+              tanggal: tDate,
+              jamMasuk: '',
+              jamPulang: '',
+              fotoMasuk: 'MANUAL_GURU',
+              fotoPulang: '',
+              statusKeterlambatan: 'Tidak Hadir',
+              statusVerifikasi: 'Tidak Hadir',
+              catatanGuru: mKet || 'Tidak Hadir (Absen Manual Guru)',
+              waktuVerifikasi: nowStrM,
+              tipe: 'tidak_hadir'
+            };
+          }
+          if (exIdx !== -1) MOCK_DB.attendances[exIdx] = savedRec;
+          else MOCK_DB.attendances.unshift(savedRec);
+          return {
+            success: true,
+            status: mStatus,
+            message: (mStatus === 'hadir' ? '✓ ' : '✕ ') + stObj.nama + ' ditandai ' + (mStatus === 'hadir' ? 'Hadir' : 'Tidak Hadir') + ' pada ' + tDate + '.',
+            student: { id: stObj.id, nama: stObj.nama, absen: stObj.absen || '' },
+            record: savedRec
+          };
+        }
+
+        // izin / sakit
+        MOCK_DB.attendances = (MOCK_DB.attendances || []).filter(a => !(a.idPengguna === stObj.id && a.tanggal === tDate));
+        clearLeaveMock();
+        var katL = mStatus === 'sakit' ? 'Sakit' : 'Izin';
+        var reasonL = mKet || (katL + ' (Absen Manual Guru)');
+        var newIzM = {
+          id: 'IZN-' + Date.now().toString().slice(-4),
+          idPengguna: stObj.id,
+          namaSiswa: stObj.nama,
+          kategori: katL,
+          tglMulai: tDate,
+          tglSelesai: tDate,
+          alasan: reasonL,
+          lampiran: '',
+          status: 'Disetujui',
+          catatanGuru: 'Absen Manual Guru',
+          waktuVerifikasi: nowStrM
+        };
+        MOCK_DB.leaveRequests.unshift(newIzM);
+        return {
+          success: true,
+          status: mStatus,
+          message: (mStatus === 'sakit' ? '🏥 ' : '📝 ') + stObj.nama + ' ditandai ' + katL + ' pada ' + tDate + '.',
+          student: { id: stObj.id, nama: stObj.nama, absen: stObj.absen || '' },
+          record: {
+            id: newIzM.id,
+            tipe: mStatus,
+            idPengguna: stObj.id,
+            namaSiswa: stObj.nama,
+            tanggal: tDate,
+            jamMasuk: '-',
+            jamPulang: '-',
+            kategori: katL,
+            alasan: reasonL,
+            lampiran: '',
+            fotoMasuk: '',
+            statusKeterlambatan: katL,
+            statusVerifikasi: 'Disetujui',
+            catatanGuru: 'Absen Manual Guru',
+            waktuVerifikasi: nowStrM
+          }
+        };
       }
       if (method === 'apiVerifyAttendance') {
         var id = args[0];
@@ -6744,21 +6981,33 @@
             };
           }
           var statusTelatBar = hitungStatusKeterlambatanMasuk_(curTimeStr);
-          var newRecord = {
-            id: 'PRS-00' + (MOCK_DB.attendances.length + 1),
-            idPengguna: student.id,
-            namaSiswa: student.nama,
-            tanggal: todayStr,
-            jamMasuk: curTimeStr,
-            jamPulang: '',
-            fotoMasuk: payload.photoBase64 || student.foto || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
-            fotoPulang: '',
-            statusKeterlambatan: statusTelatBar,
-            statusVerifikasi: 'Disetujui',
-            catatanGuru: 'Presensi via Scan Barcode',
-            waktuVerifikasi: getCurDateTimeFormatted()
-          };
-          MOCK_DB.attendances.unshift(newRecord);
+          var barPhoto = payload.photoBase64 || student.foto || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150';
+          var newRecord;
+          if (existing) {
+            existing.jamMasuk = curTimeStr;
+            existing.fotoMasuk = barPhoto;
+            existing.statusKeterlambatan = statusTelatBar;
+            existing.statusVerifikasi = 'Disetujui';
+            existing.catatanGuru = 'Presensi via Scan Barcode';
+            existing.waktuVerifikasi = getCurDateTimeFormatted();
+            newRecord = existing;
+          } else {
+            newRecord = {
+              id: 'PRS-00' + (MOCK_DB.attendances.length + 1),
+              idPengguna: student.id,
+              namaSiswa: student.nama,
+              tanggal: todayStr,
+              jamMasuk: curTimeStr,
+              jamPulang: '',
+              fotoMasuk: barPhoto,
+              fotoPulang: '',
+              statusKeterlambatan: statusTelatBar,
+              statusVerifikasi: 'Disetujui',
+              catatanGuru: 'Presensi via Scan Barcode',
+              waktuVerifikasi: getCurDateTimeFormatted()
+            };
+            MOCK_DB.attendances.unshift(newRecord);
+          }
           return {
             success: true,
             scanType: 'masuk',
@@ -7524,7 +7773,7 @@
     }
 
     function updateShiftBannerSettings() {
-      document.getElementById('bannerShiftTime').textContent = `Masuk 06:30 - 07:15 • Pulang 11:00 - 24:00 WIB`;
+      document.getElementById('bannerShiftTime').textContent = `Masuk: 07.15 • Pulang 11.15`;
 
       const hariArr = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
       const now = new Date();
@@ -8656,29 +8905,324 @@
       }
     }
 
-    function loadGuruAttendanceList(forceRefresh) {
-      const tgl = document.getElementById('filterTanggalPresensi').value;
-      const st = document.getElementById('filterStatusPresensi').value;
+    let currentGuruPresensiSubTab = 'manual';
 
-      callServer('apiGetAttendanceList', [tgl, st], function (res) {
-        if (res.success && res.data) {
+    function switchGuruPresensiSubTab(subTab) {
+      currentGuruPresensiSubTab = (subTab === 'log') ? 'log' : 'manual';
+      const subManual = document.getElementById('guruPresensiSubManual');
+      const subLog = document.getElementById('guruPresensiSubLog');
+      const btnManual = document.getElementById('btnGuruPresensiTabManual');
+      const btnLog = document.getElementById('btnGuruPresensiTabLog');
+
+      const activeBtnCls = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center space-x-1.5 bg-white text-brand-blue shadow-xs';
+      const inactiveBtnCls = 'py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center space-x-1.5 text-slate-600 hover:text-slate-900';
+
+      if (currentGuruPresensiSubTab === 'manual') {
+        if (subManual) subManual.classList.remove('hidden');
+        if (subLog) subLog.classList.add('hidden');
+        if (btnManual) btnManual.className = activeBtnCls;
+        if (btnLog) btnLog.className = inactiveBtnCls;
+        renderGuruManualAttendanceList();
+      } else {
+        if (subManual) subManual.classList.add('hidden');
+        if (subLog) subLog.classList.remove('hidden');
+        if (btnManual) btnManual.className = inactiveBtnCls;
+        if (btnLog) btnLog.className = activeBtnCls;
+        renderGuruAttendanceListFromCache_();
+      }
+    }
+
+    function loadGuruAttendanceList(forceRefresh) {
+      const tglEl = document.getElementById('filterTanggalPresensi');
+      const tgl = (tglEl && tglEl.value) ? tglEl.value : getTodayFormatted();
+      if (tglEl && !tglEl.value) tglEl.value = tgl;
+
+      // Pastikan daftar seluruh murid tersedia untuk menu Absen Manual
+      const hasStudents = Array.isArray(STATE.cache.studentsList) && STATE.cache.studentsList.length > 0;
+      if (!hasStudents || forceRefresh) {
+        callServer('apiGetStudentsList', [], function (stRes) {
+          if (stRes && stRes.success && Array.isArray(stRes.data)) {
+            STATE.cache.studentsList = stRes.data;
+            renderGuruManualAttendanceList();
+          }
+        });
+      }
+
+      callServer('apiGetAttendanceList', [tgl, 'Semua'], function (res) {
+        if (res && res.success && res.data) {
           STATE.cache.attendanceList = res.data;
-          renderGuruAttendanceList(res.data);
+          renderGuruManualAttendanceList();
+          renderGuruAttendanceListFromCache_();
         }
       });
     }
 
-    function renderGuruAttendanceList(list) {
-      const container = document.getElementById('guruAttendanceListContainer');
+    function renderGuruAttendanceListFromCache_() {
+      const listAll = Array.isArray(STATE.cache.attendanceList) ? STATE.cache.attendanceList : [];
+      const stEl = document.getElementById('filterStatusPresensi');
+      const katFilter = stEl ? String(stEl.value || 'Semua').toLowerCase() : 'semua';
+
+      updateGuruPresensiBadgeCounts_(listAll);
+      const filtered = (katFilter === 'semua')
+        ? listAll
+        : listAll.filter(x => String(x.tipe || '').toLowerCase() === katFilter);
+      renderGuruAttendanceList(filtered, listAll);
+    }
+
+    function updateGuruPresensiBadgeCounts_(listAll) {
       const badgeCount = document.getElementById('badgeAntreanVerifikasiCount');
+      if (!badgeCount) return;
+      const items = Array.isArray(listAll) ? listAll : (STATE.cache.attendanceList || []);
+      const totalHadir = items.filter(x => x.tipe === 'hadir').length;
+      const totalTidakHadir = items.filter(x => x.tipe === 'tidak_hadir').length;
+      const totalIzin = items.filter(x => x.tipe === 'izin').length;
+      const totalSakit = items.filter(x => x.tipe === 'sakit').length;
 
-      const totalHadir = (list || []).filter(x => x.tipe === 'hadir').length;
-      const totalIzin = (list || []).filter(x => x.tipe === 'izin').length;
-      const totalSakit = (list || []).filter(x => x.tipe === 'sakit').length;
+      badgeCount.className = 'text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200';
+      badgeCount.textContent = `Hadir: ${totalHadir} • Tidak Hadir: ${totalTidakHadir} • Izin: ${totalIzin} • Sakit: ${totalSakit}`;
+    }
 
-      if (badgeCount) {
-        badgeCount.className = 'text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200';
-        badgeCount.textContent = `Hadir: ${totalHadir} • Izin: ${totalIzin} • Sakit: ${totalSakit}`;
+    function renderGuruManualAttendanceList() {
+      const container = document.getElementById('guruManualAttendanceList');
+      const summaryBar = document.getElementById('manualAbsenSummaryBar');
+      if (!container) return;
+
+      const allStudentsRaw = Array.isArray(STATE.cache.studentsList) ? STATE.cache.studentsList : [];
+      const students = allStudentsRaw
+        .filter(s => !s.status || String(s.status).toLowerCase() === 'aktif')
+        .slice()
+        .sort((a, b) => (parseInt(a.absen, 10) || 9999) - (parseInt(b.absen, 10) || 9999));
+
+      const attList = Array.isArray(STATE.cache.attendanceList) ? STATE.cache.attendanceList : [];
+      updateGuruPresensiBadgeCounts_(attList);
+
+      // Peta status per ID murid pada tanggal terpilih
+      const statusByStudentId = {};
+      attList.forEach(item => {
+        const uid = String(item.idPengguna || '').trim();
+        if (!uid) return;
+        const prev = statusByStudentId[uid];
+        // Prioritaskan izin/sakit atau hadir dibandingkan entri lama
+        if (!prev || item.tipe === 'hadir' || item.tipe === 'izin' || item.tipe === 'sakit') {
+          statusByStudentId[uid] = item;
+        }
+      });
+
+      let cntHadir = 0, cntTidak = 0, cntIzinSakit = 0, cntBelum = 0;
+      students.forEach(st => {
+        const rec = statusByStudentId[String(st.id || '').trim()];
+        if (!rec) cntBelum++;
+        else if (rec.tipe === 'hadir') cntHadir++;
+        else if (rec.tipe === 'tidak_hadir') cntTidak++;
+        else if (rec.tipe === 'izin' || rec.tipe === 'sakit') cntIzinSakit++;
+        else cntBelum++;
+      });
+
+      if (summaryBar) {
+        summaryBar.innerHTML = `
+          <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700">Total: ${students.length} Murid</span>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">✓ Hadir: ${cntHadir}</span>
+          <span class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-800 border border-rose-200">✕ Tidak Hadir: ${cntTidak}</span>
+          <span class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Izin/Sakit: ${cntIzinSakit}</span>
+          <span class="px-2.5 py-1 rounded-full bg-slate-200 text-slate-700">Belum: ${cntBelum}</span>
+        `;
+      }
+
+      if (students.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+            Memuat daftar seluruh murid...
+          </div>
+        `;
+        return;
+      }
+
+      const searchEl = document.getElementById('searchManualPresensiInput');
+      const query = searchEl ? String(searchEl.value || '').trim().toLowerCase() : '';
+      const filteredStudents = query
+        ? students.filter(s => String(s.nama || '').toLowerCase().indexOf(query) > -1 || String(s.absen || '').toLowerCase().indexOf(query) > -1 || String(s.id || '').toLowerCase().indexOf(query) > -1)
+        : students;
+
+      if (filteredStudents.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center text-xs text-slate-400">
+            Tidak ada murid yang cocok dengan pencarian "${escapeHtml(query)}".
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filteredStudents.map((st, idx) => {
+        const sid = String(st.id || '').trim();
+        const rec = statusByStudentId[sid] || null;
+        const activeType = rec ? String(rec.tipe || '').toLowerCase() : '';
+
+        let statusBadgeHtml = '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-600">Belum Absen</span>';
+        let cardBorderCls = 'border-slate-200/90 bg-white';
+
+        if (activeType === 'hadir') {
+          const telatTxt = rec.statusKeterlambatan || 'Tepat Waktu';
+          const isLate = telatTxt.toLowerCase().indexOf('terlambat') > -1;
+          const jamTxt = (rec.jamMasuk && rec.jamMasuk !== '-') ? (rec.jamMasuk.slice(0, 5) + ' WIB') : '';
+          statusBadgeHtml = isLate
+            ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Hadir ${jamTxt ? '(' + escapeHtml(jamTxt) + ')' : ''} • ${escapeHtml(telatTxt)}</span>`
+            : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Hadir ${jamTxt ? '• ' + escapeHtml(jamTxt) : ''}</span>`;
+          cardBorderCls = 'border-emerald-200 bg-emerald-50/30';
+        } else if (activeType === 'tidak_hadir') {
+          statusBadgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">Tidak Hadir</span>`;
+          cardBorderCls = 'border-rose-200 bg-rose-50/30';
+        } else if (activeType === 'izin') {
+          statusBadgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">Izin${rec.alasan ? ': ' + escapeHtml(rec.alasan) : ''}</span>`;
+          cardBorderCls = 'border-sky-200 bg-sky-50/30';
+        } else if (activeType === 'sakit') {
+          statusBadgeHtml = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">Sakit${rec.alasan ? ': ' + escapeHtml(rec.alasan) : ''}</span>`;
+          cardBorderCls = 'border-amber-200 bg-amber-50/30';
+        }
+
+        const hadirBtnCls = (activeType === 'hadir')
+          ? 'py-2 px-2.5 rounded-xl text-[11px] font-extrabold bg-emerald-600 text-white border border-emerald-700 shadow-xs transition-all flex items-center justify-center space-x-1'
+          : 'py-2 px-2.5 rounded-xl text-[11px] font-bold bg-white hover:bg-emerald-50 text-emerald-700 border border-emerald-200 transition-all flex items-center justify-center space-x-1';
+
+        const silangBtnCls = (activeType === 'tidak_hadir')
+          ? 'py-2 px-2.5 rounded-xl text-[11px] font-extrabold bg-rose-600 text-white border border-rose-700 shadow-xs transition-all flex items-center justify-center space-x-1'
+          : 'py-2 px-2.5 rounded-xl text-[11px] font-bold bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 transition-all flex items-center justify-center space-x-1';
+
+        const isIzSkActive = (activeType === 'izin' || activeType === 'sakit');
+        const izSkLabel = activeType === 'sakit' ? 'Sakit ✓' : (activeType === 'izin' ? 'Izin ✓' : 'Izin/Sakit');
+        const izSkBtnCls = isIzSkActive
+          ? (activeType === 'sakit'
+            ? 'py-2 px-2.5 rounded-xl text-[11px] font-extrabold bg-amber-500 text-white border border-amber-600 shadow-xs transition-all flex items-center justify-center space-x-1'
+            : 'py-2 px-2.5 rounded-xl text-[11px] font-extrabold bg-sky-600 text-white border border-sky-700 shadow-xs transition-all flex items-center justify-center space-x-1')
+          : 'py-2 px-2.5 rounded-xl text-[11px] font-bold bg-white hover:bg-amber-50 text-amber-800 border border-amber-200 transition-all flex items-center justify-center space-x-1';
+
+        return `
+          <div data-manual-row-id="${escapeHtml(sid)}" class="p-3.5 rounded-2xl border ${cardBorderCls} shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 transition-all">
+            <div class="flex items-start sm:items-center space-x-3 min-w-0">
+              <span class="w-8 h-8 rounded-full bg-white border border-slate-200 text-brand-blue font-extrabold text-xs flex items-center justify-center flex-shrink-0 shadow-2xs">
+                ${escapeHtml(st.absen || String(idx + 1))}
+              </span>
+              <div class="min-w-0">
+                <h4 class="text-xs sm:text-sm font-extrabold text-slate-800 leading-snug break-words">${escapeHtml(st.nama)}</h4>
+                <div class="mt-1 flex flex-wrap items-center gap-1">${statusBadgeHtml}</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-1.5 sm:flex sm:items-center sm:flex-shrink-0">
+              <button type="button" data-student-id="${escapeHtml(sid)}" data-manual-btn="hadir"
+                onclick="handleManualPresensiClick(this.dataset.studentId, 'hadir', this)"
+                title="Tandai Hadir (Datang)"
+                class="${hadirBtnCls}">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Centang</span>
+              </button>
+              <button type="button" data-student-id="${escapeHtml(sid)}" data-manual-btn="tidak_hadir"
+                onclick="handleManualPresensiClick(this.dataset.studentId, 'tidak_hadir', this)"
+                title="Tandai Tidak Hadir (Alpa)"
+                class="${silangBtnCls}">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Silang</span>
+              </button>
+              <button type="button" data-student-id="${escapeHtml(sid)}" data-manual-btn="izinsakit"
+                onclick="openModalManualIzinSakit(this.dataset.studentId)"
+                title="Tandai Izin atau Sakit"
+                class="${izSkBtnCls}">
+                <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>${izSkLabel}</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function handleManualPresensiClick(studentId, status, triggerBtn) {
+      if (!studentId || !status) return;
+      const rowEl = triggerBtn ? triggerBtn.closest('[data-manual-row-id]') : null;
+      const rowBtns = rowEl ? Array.from(rowEl.querySelectorAll('button')) : [];
+      submitManualAttendanceStatus(studentId, status, '', rowBtns);
+    }
+
+    function openModalManualIzinSakit(studentId) {
+      const sid = String(studentId || '').trim();
+      const students = Array.isArray(STATE.cache.studentsList) ? STATE.cache.studentsList : [];
+      const st = students.find(x => String(x.id || '').trim() === sid);
+      const tglEl = document.getElementById('filterTanggalPresensi');
+      const targetDate = (tglEl && tglEl.value) ? tglEl.value : getTodayFormatted();
+
+      document.getElementById('manualIzinStudentId').value = sid;
+      document.getElementById('manualIzinStudentName').textContent = st ? st.nama : sid;
+      document.getElementById('manualIzinDateLabel').textContent = 'Tanggal: ' + targetDate;
+
+      const attList = Array.isArray(STATE.cache.attendanceList) ? STATE.cache.attendanceList : [];
+      const existing = attList.find(x => String(x.idPengguna || '').trim() === sid && (x.tipe === 'izin' || x.tipe === 'sakit'));
+      document.getElementById('manualIzinAlasanInput').value = existing && existing.alasan ? existing.alasan : '';
+
+      openModal('modalManualIzinSakit');
+    }
+
+    function confirmManualIzinSakit(kategori) {
+      const sid = document.getElementById('manualIzinStudentId').value.trim();
+      const alasan = document.getElementById('manualIzinAlasanInput').value.trim();
+      const btnIzin = document.getElementById('btnConfirmManualIzin');
+      const btnSakit = document.getElementById('btnConfirmManualSakit');
+      submitManualAttendanceStatus(sid, kategori, alasan, [btnIzin, btnSakit], true);
+    }
+
+    function submitManualAttendanceStatus(studentId, status, keterangan, btnEls, fromModal) {
+      const tglEl = document.getElementById('filterTanggalPresensi');
+      const targetDate = (tglEl && tglEl.value) ? tglEl.value : getTodayFormatted();
+      const buttons = Array.isArray(btnEls) ? btnEls.filter(Boolean) : [];
+      buttons.forEach(b => { b.disabled = true; b.classList.add('opacity-60'); });
+
+      const restoreButtons = function() {
+        buttons.forEach(b => { b.disabled = false; b.classList.remove('opacity-60'); });
+      };
+
+      const payload = {
+        studentId: String(studentId || '').trim(),
+        targetDate: targetDate,
+        status: status,
+        keterangan: String(keterangan || '').trim()
+      };
+
+      callServer('apiSubmitManualAttendance', [payload], function (res) {
+        restoreButtons();
+        if (res && res.success) {
+          if (fromModal) closeModal('modalManualIzinSakit');
+          // Optimistic UI update di cache attendanceList
+          const sid = String(payload.studentId || '').trim();
+          const filteredCache = (Array.isArray(STATE.cache.attendanceList) ? STATE.cache.attendanceList : [])
+            .filter(item => String(item.idPengguna || '').trim() !== sid);
+          if (res.record) {
+            filteredCache.unshift(res.record);
+          }
+          STATE.cache.attendanceList = filteredCache;
+          STATE.cache.dashboardData = null;
+
+          renderGuruManualAttendanceList();
+          renderGuruAttendanceListFromCache_();
+          showToast(res.message || 'Absen manual tersimpan.', 'success');
+        } else {
+          showToast((res && res.message) || 'Gagal menyimpan absen manual.', 'error');
+        }
+      }, function (err) {
+        restoreButtons();
+        showToast('Error menyimpan absen manual: ' + (err && err.message ? err.message : 'Server error'), 'error');
+      });
+    }
+
+    function renderGuruAttendanceList(list, allForCounts) {
+      const container = document.getElementById('guruAttendanceListContainer');
+      if (allForCounts) {
+        updateGuruPresensiBadgeCounts_(allForCounts);
+      } else {
+        updateGuruPresensiBadgeCounts_(list || []);
       }
 
       if (!list || list.length === 0) {
@@ -8692,6 +9236,37 @@
 
       container.innerHTML = list.map(item => {
         const isIzinSakit = (item.tipe === 'izin' || item.tipe === 'sakit');
+        const isTidakHadir = (item.tipe === 'tidak_hadir');
+
+        if (isTidakHadir) {
+          return `
+            <div class="p-4 bg-white rounded-2xl border border-rose-200 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-rose-50/40 transition-custom">
+              <div class="flex items-center space-x-3.5">
+                <div class="w-12 h-12 rounded-xl bg-rose-100 border border-rose-200 text-rose-600 flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="flex items-center flex-wrap gap-1.5">
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-800">${escapeHtml(item.namaSiswa)}</h4>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">✕ Tidak Hadir</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700">☑️ Manual Guru</span>
+                  </div>
+                  <p class="text-[10px] font-semibold text-slate-500 mt-1">
+                    Tanggal: ${escapeHtml(item.tanggal || '-')} ${item.catatanGuru ? '• ' + escapeHtml(item.catatanGuru) : ''}
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-2 self-end sm:self-center">
+                <button type="button" onclick="switchGuruPresensiSubTab('manual')"
+                  class="py-2 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-custom">
+                  Ubah di Absen Manual
+                </button>
+              </div>
+            </div>
+          `;
+        }
 
         if (isIzinSakit) {
           const isSakit = (item.tipe === 'sakit');
@@ -8740,11 +9315,15 @@
         // Tipe: Hadir
         const fotoThumb = (item.fotoMasuk && (item.fotoMasuk.startsWith('http') || item.fotoMasuk.startsWith('data:')))
           ? item.fotoMasuk
-          : (item.fotoMasuk === 'BARCODE_GURU_SCAN'
-            ? 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150'
-            : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150');
+          : 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150';
 
-        const isBarcode = (item.fotoMasuk === 'BARCODE_GURU_SCAN');
+        const isBarcode = (item.fotoMasuk === 'BARCODE_GURU_SCAN' || item.fotoMasuk === 'BARCODE_SCAN');
+        const isManualGuru = (item.fotoMasuk === 'MANUAL_GURU');
+        const sourceBadgeHtml = isManualGuru
+          ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-700">☑️ Manual Guru</span>'
+          : (isBarcode
+            ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700">🪪 Barcode</span>'
+            : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700">📸 Selfie</span>');
 
         return `
           <div class="p-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition-custom">
@@ -8754,7 +9333,7 @@
                 <div class="flex items-center space-x-2">
                   <h4 class="text-xs sm:text-sm font-bold text-slate-800">${escapeHtml(item.namaSiswa)}</h4>
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Terverifikasi ✓</span>
-                  ${isBarcode ? '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-purple-100 text-purple-700">🪪 Barcode</span>' : '<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-sky-100 text-sky-700">📸 Selfie</span>'}
+                  ${sourceBadgeHtml}
                 </div>
                 <p class="text-[11px] text-slate-500 mt-1">
                   Masuk: <span class="font-bold text-slate-700">${item.jamMasuk || '-'}</span> • Pulang: <span class="font-bold text-slate-700">${item.jamPulang || '-'}</span>
