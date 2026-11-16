@@ -478,22 +478,34 @@
           </div>
         </div>
 
-        <!-- Tombol Aksi Kanan Atas: Refresh & Logout -->
-        <div class="flex items-center space-x-0.5 sm:space-x-2 flex-shrink-0">
+        <!-- Tombol Aksi Kanan Atas: Refresh & Kolom (Lonceng Notifikasi di atas Logout) -->
+        <div class="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
           <button type="button" onclick="refreshAppSync()" title="Segarkan Data"
-            class="w-10 h-10 rounded-full flex items-center justify-center text-amber-500 hover:bg-amber-50 active:scale-95 transition-custom">
-            <svg class="w-6 h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-amber-500 hover:bg-amber-50 active:scale-95 transition-custom">
+            <svg class="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
           </button>
-          <button type="button" onclick="handleLogout()" title="Keluar Akun"
-            class="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 active:scale-95 transition-custom">
-            <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
+          <div id="headerNotifLogoutStack" class="flex flex-col items-center space-y-1">
+            <button id="btnHeaderNotifikasi" type="button" onclick="openModalNotifikasi()"
+              title="Notifikasi Absen, Pengumuman &amp; Tugas"
+              class="relative w-9 h-9 rounded-full flex items-center justify-center text-sky-600 bg-sky-50/80 hover:bg-sky-100 active:scale-95 transition-custom border border-sky-200/80 shadow-2xs">
+              <svg class="w-5 h-5 stroke-[2.1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <span id="notifBellBadgeCount"
+                class="hidden absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black border-2 border-white flex items-center justify-center shadow-xs">0</span>
+            </button>
+            <button id="btnHeaderLogout" type="button" onclick="handleLogout()" title="Keluar Akun"
+              class="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 active:scale-95 transition-custom">
+              <svg class="w-5 h-5 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -571,14 +583,8 @@
               </div>
             </div>
 
-            <!-- Tombol Aksi Utama Presensi di Banner -->
-            <div id="bannerActionBtnContainer" class="mt-2.5">
-              <!-- Siswa: Tombol Absen Selfie -->
-              <button id="btnBannerAbsen" type="button" onclick="openSelfieCameraModal()"
-                class="w-full sm:w-auto px-5 py-2 rounded-2xl font-bold text-xs sm:text-sm border-2 border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5">
-                <span>Presensi Masuk (Selfie)</span>
-              </button>
-
+            <!-- Tombol Aksi Guru di Banner (Tombol Presensi Murid dihapus — murid absen lewat tombol QRIS bawah) -->
+            <div id="bannerActionBtnContainer" class="mt-2.5 empty:hidden">
               <!-- Guru: Tombol Buka Data Presensi Siswa -->
               <button id="btnBannerGuruPresensi" type="button" onclick="switchTab('presensi')"
                 class="hidden w-full sm:w-auto px-4 py-1.5 rounded-xl font-bold text-xs sm:text-sm border border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5">
@@ -659,16 +665,18 @@
           <span class="text-[11px] sm:text-xs font-bold text-slate-700 mt-2 leading-tight">Struktur<br>Kelas</span>
         </button>
 
-        <!-- 4. Ruang Diskusi (Social Media Feed) -->
-        <button type="button" onclick="switchTab('diskusi')"
+        <!-- 4. Ruang Diskusi (Social Media Feed + Badge Angka Pesan Belum Dibaca) -->
+        <button id="btnQuickRuangDiskusi" type="button" onclick="switchTab('diskusi')"
           class="group flex flex-col items-center focus:outline-none">
           <div
-            class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#DCFCE7] group-hover:bg-[#BBF7D0] flex items-center justify-center text-[#15803D] shadow-sm transition-custom group-active:scale-95">
+            class="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#DCFCE7] group-hover:bg-[#BBF7D0] flex items-center justify-center text-[#15803D] shadow-sm transition-custom group-active:scale-95">
             <!-- Ikon Chat / Komunitas Media Sosial -->
             <svg class="w-6 h-6 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
+            <span id="badgeDiskusiUnreadCount"
+              class="hidden absolute -top-1 -right-1 min-w-[22px] h-[22px] px-1.5 rounded-full bg-rose-500 text-white text-[11px] font-black border-2 border-white shadow-sm flex items-center justify-center">0</span>
           </div>
           <span class="text-[11px] sm:text-xs font-bold text-slate-700 mt-2 leading-tight">Ruang<br>Diskusi</span>
         </button>
@@ -954,7 +962,7 @@
                   <span>📊</span>
                   <span>Rekapitulasi Nilai Siswa</span>
                 </h3>
-                <p class="text-xs text-slate-400">
+                <p id="rekapNilaiSubtitle" class="text-xs text-slate-400">
                   Daftar nilai akademik siswa: Harian, UTS, Semester, dan Rata-Rata Nilai
                 </p>
               </div>
@@ -2250,6 +2258,9 @@
           </button>
         </div>
 
+        <!-- Filter Urutan BAB Dinamis (BAB 1, BAB 2, dst.) -->
+        <div id="mediaBabFilterBar" class="hidden flex items-center space-x-2 overflow-x-auto pb-1 text-xs no-scrollbar"></div>
+
         <!-- Loading State -->
         <div id="mediaLoadingState" class="hidden p-8 text-center bg-white rounded-3xl border border-slate-100">
           <div class="w-8 h-8 border-3 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-2">
@@ -2390,9 +2401,13 @@
               </svg>
             </button>
             <div>
-              <h2 class="text-base sm:text-lg font-black text-slate-800 flex items-center space-x-2">
-                <span>💬 Ruang Diskusi Kelas</span>
-              </h2>
+              <div class="flex items-center flex-wrap gap-2">
+                <h2 class="text-base sm:text-lg font-black text-slate-800 flex items-center space-x-2">
+                  <span>💬 Ruang Diskusi Kelas</span>
+                </h2>
+                <span id="diskusiUnreadHeaderBadge"
+                  class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Semua pesan terbaca</span>
+              </div>
               <p class="text-xs text-slate-500">Berbagi informasi, berdiskusi materi pelajaran, dan bertanya jawab</p>
             </div>
           </div>
@@ -2939,6 +2954,55 @@
           </svg>
           <span>Sakit</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2C: PANEL PUSAT NOTIFIKASI LONCENG (ABSEN, PENGUMUMAN, TUGAS) (v1.57.0) -->
+  <div id="modalNotifikasiKelas"
+    class="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-6 shadow-2xl animate-fade-in max-h-[88vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5 stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-extrabold text-slate-800">Notifikasi Kelas</h3>
+            <p class="text-[11px] text-slate-400">Absen, Pengumuman &amp; Tugas Terbaru</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeModal('modalNotifikasiKelas')" class="text-slate-400 hover:text-slate-600 p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filter Kategori + Tandai Semua Dibaca -->
+      <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <div class="flex items-center gap-1 overflow-x-auto hide-scrollbar">
+          <button type="button" data-notif-filter="all" onclick="switchNotifFilter_('all')"
+            class="notif-filter-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-blue text-white shadow-2xs transition-custom">Semua</button>
+          <button type="button" data-notif-filter="absen" onclick="switchNotifFilter_('absen')"
+            class="notif-filter-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-custom">Absen</button>
+          <button type="button" data-notif-filter="pengumuman" onclick="switchNotifFilter_('pengumuman')"
+            class="notif-filter-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-custom">Pengumuman</button>
+          <button type="button" data-notif-filter="tugas" onclick="switchNotifFilter_('tugas')"
+            class="notif-filter-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-custom">Tugas</button>
+        </div>
+        <button id="btnMarkAllNotifRead" type="button" onclick="markAllBellNotificationsRead_()"
+          class="text-[11px] font-bold text-sky-600 hover:text-sky-800 hover:underline flex-shrink-0">
+          ✓ Tandai Dibaca
+        </button>
+      </div>
+
+      <!-- Daftar Notifikasi -->
+      <div id="notifListContainer" class="space-y-2 overflow-y-auto pr-1 flex-1 min-h-[160px]">
+        <!-- Render dinamis notifikasi absen, pengumuman, tugas -->
       </div>
     </div>
   </div>
@@ -4336,6 +4400,30 @@
           </div>
         </div>
 
+        <!-- Pilihan & Edit Urutan BAB Materi -->
+        <div class="p-3 bg-slate-50/90 border border-slate-200/80 rounded-2xl space-y-2">
+          <div class="flex flex-wrap items-center justify-between gap-1">
+            <label for="inputMediaBab" class="block text-xs font-bold text-slate-700">Pilihan &amp; Urutan BAB Materi</label>
+            <span class="text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">Bisa dipilih atau diedit bebas</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label for="selectMediaBabPreset" class="block text-[10px] font-bold text-slate-500 mb-1">Pilih Cepat BAB</label>
+              <select id="selectMediaBabPreset" onchange="handleMediaBabPresetChange(this.value)"
+                class="w-full py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-600">
+                <option value="BAB 1">📘 BAB 1</option>
+              </select>
+            </div>
+            <div>
+              <label for="inputMediaBab" class="block text-[10px] font-bold text-slate-500 mb-1">Edit / Tulis Nama BAB</label>
+              <input type="text" id="inputMediaBab" oninput="syncMediaBabPresetFromInput()"
+                placeholder="Contoh: BAB 1, BAB 2, BAB 3..."
+                class="w-full py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-600">
+            </div>
+          </div>
+          <p class="text-[10px] text-slate-500 font-medium">Semua materi otomatis diurutkan sesuai nomor BAB dari <strong>BAB 1</strong> sampai seterusnya. Kosongkan jika materi tidak memakai BAB.</p>
+        </div>
+
         <!-- Media Sampul / Video Utama -->
         <div class="p-3.5 bg-purple-50/50 border border-purple-200/80 rounded-2xl space-y-2.5">
           <div>
@@ -4575,6 +4663,8 @@
         class="bg-gradient-to-r from-purple-700 via-indigo-700 to-sky-700 text-white p-4 sm:p-5 flex items-start justify-between gap-3 flex-shrink-0">
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
+            <span id="folderViewBabBadge"
+              class="hidden px-2.5 py-0.5 rounded-full bg-emerald-300/95 text-emerald-950 text-[10px] font-black uppercase tracking-wider">BAB 1</span>
             <span id="folderViewMapelBadge"
               class="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider">Matematika</span>
             <span id="folderViewTipeBadge"
@@ -5461,6 +5551,7 @@
         reportData: null,
         kalenderList: [],
         mediaList: [],
+        allMediaList: [],
         strukturData: null,
         diskusiFeed: []
       },
@@ -5676,6 +5767,7 @@
       STATE.cache.reportData = null;
       STATE.cache.kalenderList = [];
       STATE.cache.mediaList = [];
+      STATE.cache.allMediaList = [];
       STATE.cache.strukturData = null;
       STATE.cache.diskusiFeed = [];
     }
@@ -5686,6 +5778,7 @@
       if (MOCK_DB) MOCK_DB.activeToken = null;
       clearClientSessionCache_();
       if (STATE.liveClockTimer) clearInterval(STATE.liveClockTimer);
+      if (typeof stopNotifAutoRefresh_ === 'function') stopNotifAutoRefresh_();
       if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
       else if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
       if (typeof stopQrisLivePolling === 'function') stopQrisLivePolling();
@@ -5838,6 +5931,7 @@
               id: 'MED-001',
               judul: 'Mengenal Bangun Ruang & Bangun Datar',
               mapel: 'Matematika',
+              bab: 'BAB 1',
               tipeMedia: 'Folder',
               urlMedia: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
               deskripsi: 'Folder materi lengkap bangun ruang & bangun datar berisi video, dokumen panduan, gambar ilustrasi, serta kotak soal acak interaktif.',
@@ -5893,6 +5987,7 @@
               id: 'MED-002',
               judul: 'Video Animasi Suku Kata Ceria',
               mapel: 'B. Indonesia',
+              bab: 'BAB 2',
               tipeMedia: 'Video',
               urlMedia: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
               deskripsi: 'Video pembelajaran interaktif mengenal pola suku kata dasar untuk kelas 1.',
@@ -5905,6 +6000,7 @@
               id: 'MED-003',
               judul: 'Infografis Penjumlahan Bergambar 1 - 20',
               mapel: 'Matematika',
+              bab: 'BAB 3',
               tipeMedia: 'Foto',
               urlMedia: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600',
               deskripsi: 'Poster visual menghitung apel dan balon untuk mempermudah operasi tambah.',
@@ -5917,6 +6013,7 @@
               id: 'MED-004',
               judul: 'Lagu Daerah & Budaya Deli Serdang',
               mapel: 'Budaya Deli Serdang',
+              bab: 'BAB 4',
               tipeMedia: 'Video',
               urlMedia: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
               deskripsi: 'Lagu daerah Melayu Deli Serdang yang ceria untuk pengenalan kearifan lokal.',
@@ -5927,11 +6024,14 @@
             }
           ];
         }
-        var filteredMedia = MOCK_DB.media;
+        var filteredMedia = MOCK_DB.media.slice();
         if (mapelFilter && mapelFilter !== 'Semua') {
           filteredMedia = filteredMedia.filter(function (m) {
             return String(m.mapel || '').trim().toLowerCase() === mapelFilter.toLowerCase();
           });
+        }
+        if (typeof sortMediaListByBab_ === 'function') {
+          filteredMedia = sortMediaListByBab_(filteredMedia);
         }
         return { success: true, data: filteredMedia };
       }
@@ -5941,10 +6041,14 @@
         if (!MOCK_DB.media) MOCK_DB.media = [];
         var targetMed = MOCK_DB.media.find(function (m) { return m.id === mItem.id; });
         var resolvedPrimaryUrl = mItem.fileBase64 || mItem.externalUrl || mItem.existingUrl || (targetMed ? targetMed.urlMedia : '') || '';
+        var resolvedBab = (mItem.bab !== undefined && mItem.bab !== null)
+          ? (typeof normalizeMediaBabLabel_ === 'function' ? normalizeMediaBabLabel_(mItem.bab) : String(mItem.bab || '').trim())
+          : (targetMed ? (targetMed.bab || '') : '');
         var savedMed = {
           id: mItem.id || ('MED-' + Date.now().toString().slice(-4)),
           judul: mItem.judul || '',
           mapel: mItem.mapel || 'Umum',
+          bab: resolvedBab,
           tipeMedia: mItem.tipeMedia || 'Video',
           urlMedia: resolvedPrimaryUrl,
           fileUrl: resolvedPrimaryUrl,
@@ -6044,7 +6148,7 @@
       // ==========================================
       // FITUR BARU: RUANG DISKUSI MOCK HANDLERS
       // ==========================================
-      if (method === 'apiGetDiskusiFeed') {
+      function ensureMockDiskusiSeeded_() {
         if (!MOCK_DB.diskusi) {
           MOCK_DB.diskusi = [
             {
@@ -6079,7 +6183,11 @@
             }
           ];
         }
-        return { success: true, data: MOCK_DB.diskusi };
+        return MOCK_DB.diskusi;
+      }
+
+      if (method === 'apiGetDiskusiFeed') {
+        return { success: true, data: ensureMockDiskusiSeeded_() };
       }
 
       if (method === 'apiCreateDiskusiPost') {
@@ -6411,6 +6519,51 @@
         var totalHadir = MOCK_DB.attendances.filter(a => a.tanggal === today && a.jamMasuk && a.jamMasuk !== '-' && a.statusVerifikasi !== 'Tidak Hadir').length;
         var totalIzin = MOCK_DB.leaveRequests.filter(l => String(l.kategori || '').toLowerCase() === 'izin' && String(l.status || '').toLowerCase() !== 'ditolak' && today >= l.tglMulai && today <= (l.tglSelesai || l.tglMulai)).length;
         var totalSakit = MOCK_DB.leaveRequests.filter(l => String(l.kategori || '').toLowerCase() === 'sakit' && String(l.status || '').toLowerCase() !== 'ditolak' && today >= l.tglMulai && today <= (l.tglSelesai || l.tglMulai)).length;
+
+        var mockDiskusiSeed = ensureMockDiskusiSeeded_();
+        var mockDiskusiMeta = [];
+        mockDiskusiSeed.forEach(function (dp) {
+          if (!dp || !dp.id) return;
+          mockDiskusiMeta.push({ key: 'POST:' + dp.id, authorId: String(dp.idPengguna || '') });
+          var kList = dp.daftarKomentar || dp.komentar || [];
+          if (Array.isArray(kList)) {
+            kList.forEach(function (km) {
+              if (km && km.id) {
+                mockDiskusiMeta.push({ key: 'KOM:' + dp.id + ':' + km.id, authorId: String(km.idPengguna || km.userId || '') });
+              }
+            });
+          }
+        });
+
+        var mockUngraded = (role === 'guru')
+          ? (MOCK_DB.submissions || []).filter(s => s.statusNilai !== 'Sudah Dinilai').map(s => ({
+              id: s.id, taskId: s.idTugas, namaSiswa: s.namaSiswa, waktuKumpul: s.waktuKumpul
+            }))
+          : [];
+        var mockNotifTugas = (MOCK_DB.assignments || []).map(t => {
+          var mySub = (MOCK_DB.submissions || []).find(s => s.idTugas === t.id && s.idPengguna === uId) || null;
+          return {
+            id: t.id,
+            judul: t.judul,
+            mapel: t.mapel,
+            batasWaktu: t.batasWaktu,
+            dibuatPada: t.dibuatPada,
+            submitted: Boolean(mySub),
+            statusNilai: mySub ? mySub.statusNilai : '',
+            nilai: mySub ? mySub.nilai : ''
+          };
+        });
+        var mockNotifPgm = (MOCK_DB.announcements || []).map(a => ({
+          id: a.id, judul: a.judul, penulis: a.penulis, tanggal: a.tanggal
+        }));
+        var mockNotifIzin = (MOCK_DB.leaveRequests || [])
+          .filter(l => role === 'guru' || l.idPengguna === uId)
+          .map(l => ({
+            id: l.id, idPengguna: l.idPengguna, namaSiswa: l.namaSiswa,
+            kategori: l.kategori, tglMulai: l.tglMulai, status: l.status,
+            waktu: l.waktuVerifikasi || l.tglMulai
+          }));
+
         return {
           success: true,
           data: {
@@ -6423,7 +6576,14 @@
             totalHadirHariIni: totalHadir,
             totalIzinHariIni: totalIzin,
             totalSakitHariIni: totalSakit,
-            totalTugasAktif: MOCK_DB.assignments.length
+            totalTugasAktif: MOCK_DB.assignments.length,
+            notificationsSummary: {
+              pengumuman: mockNotifPgm,
+              tugas: mockNotifTugas,
+              ungradedSubmissions: mockUngraded,
+              izinRecords: mockNotifIzin,
+              diskusiMessageMeta: mockDiskusiMeta
+            }
           }
         };
       }
@@ -7056,7 +7216,16 @@
         return { success: true, data: report, settings: STATE.classSettings };
       }
       if (method === 'apiGetRekapNilai') {
-        var muridList = MOCK_DB.users.filter(u => u.role === 'murid');
+        var curUser = STATE.currentUser;
+        var isGuruMock = (curUser && String(curUser.role || '').toLowerCase() === 'guru');
+        var curUidUpper = curUser ? String(curUser.id || '').trim().toUpperCase() : '';
+        var muridList = MOCK_DB.users.filter(u => {
+          if (u.role !== 'murid') return false;
+          if (!isGuruMock) {
+            return curUidUpper !== '' && String(u.id || '').trim().toUpperCase() === curUidUpper;
+          }
+          return true;
+        });
         var report = muridList.map((m, idx) => {
           var g = (MOCK_DB.grades || []).find(x => x.idPengguna === m.id);
           var h = g ? g.harian : null;
@@ -7657,6 +7826,9 @@
       // 6. Muat Data Dashboard Utama
       loadDashboardData();
 
+      // 6B. Mulai Pembaruan Ringan Notifikasi & Pesan Ruang Diskusi
+      if (typeof startNotifAutoRefresh_ === 'function') startNotifAutoRefresh_();
+
       // 7. Buka Tab Explore Default
       switchTab('explore');
 
@@ -7892,6 +8064,7 @@
           }
         }
         if (STATE.liveClockTimer) clearInterval(STATE.liveClockTimer);
+        if (typeof stopNotifAutoRefresh_ === 'function') stopNotifAutoRefresh_();
         if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
         else if (typeof stopQrisCameraScanner === 'function') stopQrisCameraScanner();
         if (typeof stopQrisLivePolling === 'function') stopQrisLivePolling();
@@ -8487,10 +8660,9 @@
         `;
       }
 
-      // 2. Set Banner Status Presensi
+      // 2. Set Banner Status Presensi (Tombol Presensi Banner Murid dihapus — absen lewat QRIS bawah)
       const muridBox = document.getElementById('muridBannerLogContainer');
       const guruBox = document.getElementById('guruBannerStatsContainer');
-      const btnMurid = document.getElementById('btnBannerAbsen');
       const btnGuru = document.getElementById('btnBannerGuruPresensi');
 
       const logVal = document.getElementById('bannerLogStatusVal');
@@ -8499,7 +8671,6 @@
 
       if (isGuru) {
         if (muridBox) muridBox.classList.add('hidden');
-        if (btnMurid) btnMurid.classList.add('hidden');
         if (guruBox) guruBox.classList.remove('hidden');
         if (btnGuru) btnGuru.classList.remove('hidden');
 
@@ -8516,7 +8687,6 @@
       } else {
         // Murid
         if (muridBox) muridBox.classList.remove('hidden');
-        if (btnMurid) btnMurid.classList.remove('hidden');
         if (guruBox) guruBox.classList.add('hidden');
         if (btnGuru) btnGuru.classList.add('hidden');
 
@@ -8526,61 +8696,449 @@
 
         if (gate.reasonCode === 'COMPLETED_ALL') {
           if (logLabel) logLabel.textContent = 'Status Absen:';
-          logVal.textContent = `Anda sudah absen masuk dan pulang (Masuk ${gate.jamMasuk} [${gate.statusMasukDisplay}] • Pulang ${gate.jamPulang})`;
-          logVal.className = 'text-xs font-extrabold text-emerald-800';
-          logIcon.classList.remove('hidden');
+          if (logVal) {
+            logVal.textContent = `Anda sudah absen masuk dan pulang (Masuk ${gate.jamMasuk} [${gate.statusMasukDisplay}] • Pulang ${gate.jamPulang})`;
+            logVal.className = 'text-xs font-extrabold text-emerald-800';
+          }
+          if (logIcon) logIcon.classList.remove('hidden');
           if (cardPresensiBadge) cardPresensiBadge.textContent = 'Masuk & Pulang ✓';
-
-          btnMurid.innerHTML = `<span>Anda sudah absen masuk dan pulang</span>`;
-          btnMurid.disabled = true;
-          btnMurid.onclick = null;
-          btnMurid.className = 'w-full sm:w-auto px-4 py-2 rounded-2xl font-extrabold text-xs bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-not-allowed';
         } else if (p && p.jamMasuk && p.jamMasuk !== '-') {
           const statusTxt = formatStatusKeterlambatanDisplay_(p.statusKeterlambatan || p.statusTerlambat, p.jamMasuk);
           const isLate = statusTxt.toLowerCase().indexOf('terlambat') > -1;
           if (logLabel) logLabel.textContent = 'Presensi Masuk:';
-          logVal.textContent = `${p.jamMasuk} WIB [${statusTxt}]`;
-          logVal.className = isLate ? 'text-xs font-extrabold text-amber-700' : 'text-xs font-bold text-[#2D6A4F]';
-          logIcon.classList.remove('hidden');
-          if (cardPresensiBadge) cardPresensiBadge.textContent = isLate ? statusTxt : (p.statusVerifikasi || 'Hadir');
-
-          if (gate.reasonCode === 'WAIT_PULANG_WINDOW') {
-            btnMurid.innerHTML = `<span>🔒 Absen Pulang Dibuka Pukul 11.00 - 24.00</span>`;
-            btnMurid.disabled = true;
-            btnMurid.onclick = null;
-            btnMurid.className = 'w-full sm:w-auto px-4 py-2 rounded-2xl font-bold text-xs bg-amber-50 text-amber-800 border border-amber-300 cursor-not-allowed';
-          } else {
-            btnMurid.innerHTML = `<span>Presensi Pulang (11.00 - 24.00)</span>`;
-            btnMurid.onclick = () => triggerNativeCamera('pulang');
-            btnMurid.disabled = false;
-            btnMurid.className = 'w-full sm:w-auto px-5 py-2 rounded-2xl font-bold text-xs sm:text-sm border-2 border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5';
+          if (logVal) {
+            logVal.textContent = `${p.jamMasuk} WIB [${statusTxt}]`;
+            logVal.className = isLate ? 'text-xs font-extrabold text-amber-700' : 'text-xs font-bold text-[#2D6A4F]';
           }
+          if (logIcon) logIcon.classList.remove('hidden');
+          if (cardPresensiBadge) cardPresensiBadge.textContent = isLate ? statusTxt : (p.statusVerifikasi || 'Hadir');
         } else {
           if (logLabel) logLabel.textContent = 'Presensi Masuk:';
           if (gate.reasonCode === 'BEFORE_MASUK_WINDOW') {
-            logVal.textContent = 'Dibuka pukul 06.30 WIB';
-            logVal.className = 'text-xs font-bold text-slate-600';
-            logIcon.classList.add('hidden');
+            if (logVal) {
+              logVal.textContent = 'Dibuka pukul 06.30 WIB (Scan QRIS)';
+              logVal.className = 'text-xs font-bold text-slate-600';
+            }
+            if (logIcon) logIcon.classList.add('hidden');
             if (cardPresensiBadge) cardPresensiBadge.textContent = 'Buka 06.30';
-            btnMurid.innerHTML = `<span>🔒 Absen Masuk Dibuka Pukul 06.30</span>`;
-            btnMurid.disabled = true;
-            btnMurid.onclick = null;
-            btnMurid.className = 'w-full sm:w-auto px-4 py-2 rounded-2xl font-bold text-xs bg-slate-100 text-slate-500 border border-slate-300 cursor-not-allowed';
           } else {
-            logVal.textContent = gate.isLateNow ? `Belum Presensi (${gate.lateStatusNow})` : 'Belum Presensi (Buka 06.30 - 07.15)';
-            logVal.className = gate.isLateNow ? 'text-xs font-extrabold text-amber-700' : 'text-xs font-bold text-[#2D6A4F]';
-            logIcon.classList.add('hidden');
+            if (logVal) {
+              logVal.textContent = gate.isLateNow ? `Belum Presensi (${gate.lateStatusNow})` : 'Belum Presensi (Scan QRIS)';
+              logVal.className = gate.isLateNow ? 'text-xs font-extrabold text-amber-700' : 'text-xs font-bold text-[#2D6A4F]';
+            }
+            if (logIcon) logIcon.classList.add('hidden');
             if (cardPresensiBadge) cardPresensiBadge.textContent = 'Belum Absen';
-            btnMurid.innerHTML = `<span>Presensi Masuk (Selfie)</span>`;
-            btnMurid.disabled = false;
-            btnMurid.className = 'w-full sm:w-auto px-5 py-2 rounded-2xl font-bold text-xs sm:text-sm border-2 border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5';
-            btnMurid.onclick = () => triggerNativeCamera('masuk');
           }
         }
       }
 
       // 3. Set Total Tugas Aktif
       document.getElementById('badgeActiveTugasCount').textContent = `${data.totalTugasAktif || 0} Tugas Aktif`;
+
+      // 4. Sinkronkan Notifikasi Lonceng & Angka Pesan Belum Dibaca Ruang Diskusi
+      if (typeof updateHeaderNotificationUi_ === 'function') {
+        updateHeaderNotificationUi_(data);
+      }
+    }
+
+    /**
+     * 4B. PUSAT NOTIFIKASI LONCENG (ABSEN, PENGUMUMAN, TUGAS) & BADGE ANGKA RUANG DISKUSI (v1.57.0)
+     */
+    const NOTIF_CAT_META_ = {
+      absen: { label: 'Absen', cls: 'bg-cyan-100 text-cyan-800 border-cyan-200', dotCls: 'bg-cyan-500' },
+      pengumuman: { label: 'Pengumuman', cls: 'bg-emerald-100 text-emerald-800 border-emerald-200', dotCls: 'bg-emerald-500' },
+      tugas: { label: 'Tugas', cls: 'bg-purple-100 text-purple-800 border-purple-200', dotCls: 'bg-purple-500' }
+    };
+
+    STATE.notifAutoTimer = null;
+    STATE.activeNotifFilter = 'all';
+    STATE.currentBellNotifications = [];
+
+    function getNotifStorageKey_(prefix) {
+      const uid = STATE.currentUser && STATE.currentUser.id ? String(STATE.currentUser.id).trim().toUpperCase() : 'ANON';
+      return prefix + uid;
+    }
+
+    function getReadNotifSet_(prefix) {
+      try {
+        const raw = safeStorageGet(getNotifStorageKey_(prefix), '[]');
+        const arr = JSON.parse(raw || '[]');
+        return new Set(Array.isArray(arr) ? arr.map(String) : []);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    function addReadIdsToStore_(prefix, idsArr) {
+      const set = getReadNotifSet_(prefix);
+      (Array.isArray(idsArr) ? idsArr : []).forEach(id => {
+        if (id) set.add(String(id));
+      });
+      const list = Array.from(set);
+      const trimmed = list.length > 300 ? list.slice(list.length - 300) : list;
+      safeStorageSet(getNotifStorageKey_(prefix), JSON.stringify(trimmed));
+      return set;
+    }
+
+    function buildBellNotificationsFromDashboard_(dashData) {
+      if (!STATE.currentUser || !dashData) return [];
+      const isGuru = (STATE.currentUser.role === 'guru');
+      const todayStr = dashData.todayStr || getTodayFormatted();
+      const summary = dashData.notificationsSummary || {};
+      const list = [];
+
+      // 1. Kategori Absen
+      if (isGuru) {
+        const hadir = dashData.totalHadirHariIni || 0;
+        const izin = dashData.totalIzinHariIni || 0;
+        const sakit = dashData.totalSakitHariIni || 0;
+        list.push({
+          id: `ABSEN_GURU_${todayStr}_${hadir}_${izin}_${sakit}`,
+          cat: 'absen',
+          title: 'Rekap Absen Hari Ini',
+          body: `Hadir: ${hadir} • Izin: ${izin} • Sakit: ${sakit}. Ketuk untuk buka Absen Manual.`,
+          time: todayStr,
+          targetTab: 'presensi'
+        });
+        (summary.izinRecords || []).forEach(iz => {
+          list.push({
+            id: `IZIN_GURU_${iz.id}`,
+            cat: 'absen',
+            title: `${iz.kategori || 'Izin'}: ${iz.namaSiswa || 'Murid'}`,
+            body: `Tanggal ${iz.tglMulai || todayStr} • Status: ${iz.status || 'Disetujui'}`,
+            time: iz.waktu || iz.tglMulai || '',
+            targetTab: 'presensi'
+          });
+        });
+      } else {
+        const gate = evaluateStudentAttendanceGate_('auto');
+        if (gate.reasonCode === 'OPEN_MASUK') {
+          list.push({
+            id: `ABSEN_MASUK_${todayStr}_${gate.isLateNow ? 'LATE' : 'ON'}`,
+            cat: 'absen',
+            title: gate.isLateNow ? 'Presensi Masuk Melewati 07.15' : 'Waktunya Absen Masuk',
+            body: gate.isLateNow
+              ? `${gate.lateStatusNow}. Segera scan QRIS presensi masuk lewat tombol QRIS bawah.`
+              : 'Absen masuk dibuka mulai 06.30 WIB. Scan QRIS di tombol bawah.',
+            time: getCurTimeFormatted().slice(0, 5) + ' WIB',
+            targetTab: 'qris'
+          });
+        } else if (gate.reasonCode === 'OPEN_PULANG') {
+          list.push({
+            id: `ABSEN_PULANG_${todayStr}`,
+            cat: 'absen',
+            title: 'Waktunya Absen Pulang (11.00 - 24.00)',
+            body: 'Silakan scan QRIS lewat tombol bawah untuk mencatat absen pulang.',
+            time: getCurTimeFormatted().slice(0, 5) + ' WIB',
+            targetTab: 'qris'
+          });
+        } else if (gate.reasonCode === 'COMPLETED_ALL') {
+          list.push({
+            id: `ABSEN_DONE_${todayStr}`,
+            cat: 'absen',
+            title: 'Anda sudah absen masuk dan pulang',
+            body: `Masuk ${gate.jamMasuk} WIB (${gate.statusMasukDisplay}) • Pulang ${gate.jamPulang} WIB.`,
+            time: gate.jamPulang || '',
+            targetTab: 'presensi',
+            subTab: 'hadir'
+          });
+        } else if (gate.reasonCode === 'WAIT_PULANG_WINDOW') {
+          list.push({
+            id: `ABSEN_WAIT_${todayStr}`,
+            cat: 'absen',
+            title: 'Sudah Absen Masuk',
+            body: `Tercatat masuk ${gate.jamMasuk} WIB (${gate.statusMasukDisplay}). Absen pulang dibuka pukul 11.00 - 24.00.`,
+            time: gate.jamMasuk || '',
+            targetTab: 'presensi',
+            subTab: 'hadir'
+          });
+        }
+        (summary.izinRecords || []).forEach(iz => {
+          list.push({
+            id: `IZIN_ME_${iz.id}_${iz.status || ''}`,
+            cat: 'absen',
+            title: `Status ${iz.kategori || 'Izin'}: ${iz.status || 'Diproses'}`,
+            body: `Tanggal pengajuan: ${iz.tglMulai || todayStr}`,
+            time: iz.waktu || iz.tglMulai || '',
+            targetTab: 'presensi',
+            subTab: 'izin'
+          });
+        });
+      }
+
+      // 2. Kategori Pengumuman
+      (summary.pengumuman || []).forEach(pgm => {
+        list.push({
+          id: `PGM_${pgm.id}`,
+          cat: 'pengumuman',
+          title: pgm.judul || 'Pengumuman Kelas',
+          body: `Diposting oleh ${pgm.penulis || 'Wali Kelas'}`,
+          time: pgm.tanggal || '',
+          targetTab: 'pengumuman'
+        });
+      });
+
+      // 3. Kategori Tugas
+      if (isGuru) {
+        (summary.ungradedSubmissions || []).forEach(sb => {
+          list.push({
+            id: `SUB_GURU_${sb.id}`,
+            cat: 'tugas',
+            title: `Jawaban Tugas Baru: ${sb.namaSiswa || 'Siswa'}`,
+            body: 'Menunggu pemeriksaan & nilai dari guru.',
+            time: sb.waktuKumpul || '',
+            targetTab: 'tugas',
+            subTab: 'list'
+          });
+        });
+        (summary.tugas || []).forEach(tg => {
+          list.push({
+            id: `TGS_GURU_${tg.id}`,
+            cat: 'tugas',
+            title: `Tugas Aktif: ${tg.judul || 'Tugas'}`,
+            body: `${tg.mapel || 'Kelas'}${tg.batasWaktu ? ' • Batas: ' + tg.batasWaktu : ''}`,
+            time: tg.dibuatPada || '',
+            targetTab: 'tugas',
+            subTab: 'list'
+          });
+        });
+      } else {
+        (summary.tugas || []).forEach(tg => {
+          if (!tg.submitted) {
+            list.push({
+              id: `TGS_MURID_NEW_${tg.id}`,
+              cat: 'tugas',
+              title: `Tugas Belum Dikumpulkan: ${tg.judul || 'Tugas'}`,
+              body: `${tg.mapel || 'Kelas'}${tg.batasWaktu ? ' • Batas: ' + tg.batasWaktu : ''}`,
+              time: tg.dibuatPada || '',
+              targetTab: 'tugas',
+              subTab: 'list'
+            });
+          } else if (tg.statusNilai === 'Sudah Dinilai') {
+            list.push({
+              id: `TGS_MURID_NILAI_${tg.id}_${tg.nilai || ''}`,
+              cat: 'tugas',
+              title: `Tugas Dinilai (${tg.nilai || '-'})`,
+              body: `${tg.judul || 'Tugas'} (${tg.mapel || 'Kelas'})`,
+              time: tg.dibuatPada || '',
+              targetTab: 'tugas',
+              subTab: 'list'
+            });
+          }
+        });
+      }
+
+      return list;
+    }
+
+    function updateDiskusiUnreadBadgeFromMeta_(metaArr) {
+      const badge = document.getElementById('badgeDiskusiUnreadCount');
+      const headerBadge = document.getElementById('diskusiUnreadHeaderBadge');
+      const user = STATE.currentUser;
+      if (!user) {
+        if (badge) badge.classList.add('hidden');
+        return 0;
+      }
+
+      const myIdUpper = String(user.id || '').trim().toUpperCase();
+      const seenSet = getReadNotifSet_('sicerdas_seen_diskusi_');
+      const items = Array.isArray(metaArr) ? metaArr : [];
+      let unreadCount = 0;
+
+      items.forEach(m => {
+        if (!m || !m.key) return;
+        const authorUpper = String(m.authorId || '').trim().toUpperCase();
+        if (authorUpper !== myIdUpper && !seenSet.has(String(m.key))) {
+          unreadCount++;
+        }
+      });
+
+      if (badge) {
+        if (unreadCount > 0) {
+          badge.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+          badge.classList.remove('hidden');
+        } else {
+          badge.textContent = '0';
+          badge.classList.add('hidden');
+        }
+      }
+      if (headerBadge) {
+        headerBadge.classList.remove('hidden');
+        if (unreadCount > 0) {
+          headerBadge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200';
+          headerBadge.textContent = `${unreadCount} pesan belum dibaca`;
+        } else {
+          headerBadge.className = 'text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+          headerBadge.textContent = 'Semua pesan terbaca';
+        }
+      }
+      return unreadCount;
+    }
+
+    function markDiskusiMessagesAsRead_(posts) {
+      if (!STATE.currentUser || !Array.isArray(posts)) return;
+      const keys = [];
+      const meta = [];
+      posts.forEach(p => {
+        if (!p || !p.id) return;
+        const postKey = 'POST:' + p.id;
+        keys.push(postKey);
+        meta.push({ key: postKey, authorId: String(p.idPengguna || p.userId || '') });
+        const koms = p.daftarKomentar || p.komentar || [];
+        if (Array.isArray(koms)) {
+          koms.forEach(k => {
+            if (k && k.id) {
+              const kKey = 'KOM:' + p.id + ':' + k.id;
+              keys.push(kKey);
+              meta.push({ key: kKey, authorId: String(k.idPengguna || k.userId || '') });
+            }
+          });
+        }
+      });
+
+      addReadIdsToStore_('sicerdas_seen_diskusi_', keys);
+      if (STATE.cache.dashboardData && STATE.cache.dashboardData.notificationsSummary) {
+        STATE.cache.dashboardData.notificationsSummary.diskusiMessageMeta = meta;
+      }
+      updateDiskusiUnreadBadgeFromMeta_(meta);
+    }
+
+    function updateHeaderNotificationUi_(dashData) {
+      const data = dashData || STATE.cache.dashboardData;
+      if (!data) return;
+      const allBell = buildBellNotificationsFromDashboard_(data);
+      STATE.currentBellNotifications = allBell;
+
+      const readSet = getReadNotifSet_('sicerdas_read_notif_');
+      const unreadBellCount = allBell.filter(n => !readSet.has(n.id)).length;
+      const bellBadge = document.getElementById('notifBellBadgeCount');
+      if (bellBadge) {
+        if (unreadBellCount > 0) {
+          bellBadge.textContent = unreadBellCount > 99 ? '99+' : String(unreadBellCount);
+          bellBadge.classList.remove('hidden');
+        } else {
+          bellBadge.textContent = '0';
+          bellBadge.classList.add('hidden');
+        }
+      }
+
+      const summary = data.notificationsSummary || {};
+      updateDiskusiUnreadBadgeFromMeta_(summary.diskusiMessageMeta || []);
+
+      const notifModal = document.getElementById('modalNotifikasiKelas');
+      if (notifModal && !notifModal.classList.contains('hidden')) {
+        renderNotifModalList_();
+      }
+    }
+
+    function openModalNotifikasi() {
+      STATE.activeNotifFilter = 'all';
+      switchNotifFilter_('all');
+      openModal('modalNotifikasiKelas');
+    }
+
+    function switchNotifFilter_(cat) {
+      STATE.activeNotifFilter = cat || 'all';
+      document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+        const isActive = (btn.getAttribute('data-notif-filter') === STATE.activeNotifFilter);
+        btn.className = isActive
+          ? 'notif-filter-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-brand-blue text-white shadow-2xs transition-custom'
+          : 'notif-filter-btn px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-custom';
+      });
+      renderNotifModalList_();
+    }
+
+    function renderNotifModalList_() {
+      const container = document.getElementById('notifListContainer');
+      if (!container) return;
+
+      const all = Array.isArray(STATE.currentBellNotifications) ? STATE.currentBellNotifications : [];
+      const cat = STATE.activeNotifFilter || 'all';
+      const filtered = (cat === 'all') ? all : all.filter(n => n.cat === cat);
+      const readSet = getReadNotifSet_('sicerdas_read_notif_');
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="p-6 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-xs text-slate-400">
+            Belum ada notifikasi untuk kategori ini.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(n => {
+        const isRead = readSet.has(n.id);
+        const meta = NOTIF_CAT_META_[n.cat] || NOTIF_CAT_META_.pengumuman;
+        return `
+          <button type="button"
+            data-notif-id="${escapeHtml(n.id)}"
+            data-notif-tab="${escapeHtml(n.targetTab || 'explore')}"
+            data-notif-subtab="${escapeHtml(n.subTab || '')}"
+            onclick="handleNotifItemClickFromBtn_(this)"
+            class="w-full text-left p-3 rounded-2xl border transition-all flex items-start justify-between gap-2.5 ${isRead ? 'bg-white border-slate-100 hover:bg-slate-50' : 'bg-sky-50/70 border-sky-200 hover:bg-sky-100/70 shadow-2xs'}">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center flex-wrap gap-1.5 mb-1">
+                <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${meta.cls}">${meta.label}</span>
+                ${!isRead ? `<span class="inline-flex items-center space-x-1 text-[10px] font-extrabold text-rose-600"><span class="w-1.5 h-1.5 rounded-full ${meta.dotCls}"></span><span>Baru</span></span>` : ''}
+              </div>
+              <h4 class="text-xs font-extrabold text-slate-800 leading-snug break-words">${escapeHtml(n.title)}</h4>
+              <p class="text-[11px] text-slate-600 mt-0.5 leading-relaxed break-words">${escapeHtml(n.body)}</p>
+              ${n.time ? `<p class="text-[10px] text-slate-400 font-semibold mt-1">${escapeHtml(n.time)}</p>` : ''}
+            </div>
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function handleNotifItemClickFromBtn_(btnEl) {
+      if (!btnEl) return;
+      const nId = btnEl.dataset.notifId || '';
+      const tab = btnEl.dataset.notifTab || 'explore';
+      const subTab = btnEl.dataset.notifSubtab || '';
+      if (nId) {
+        addReadIdsToStore_('sicerdas_read_notif_', [nId]);
+      }
+      updateHeaderNotificationUi_(STATE.cache.dashboardData);
+      closeModal('modalNotifikasiKelas');
+      if (tab === 'qris') {
+        handleNavQrisClick();
+      } else if (subTab) {
+        switchTab(tab, subTab);
+      } else {
+        switchTab(tab);
+      }
+    }
+
+    function markAllBellNotificationsRead_() {
+      const allIds = (STATE.currentBellNotifications || []).map(n => n.id);
+      addReadIdsToStore_('sicerdas_read_notif_', allIds);
+      updateHeaderNotificationUi_(STATE.cache.dashboardData);
+      renderNotifModalList_();
+      showToast('Semua notifikasi telah ditandai dibaca.', 'success');
+    }
+
+    function startNotifAutoRefresh_() {
+      stopNotifAutoRefresh_();
+      STATE.notifAutoTimer = setInterval(function () {
+        if (!STATE.currentUser || !STATE.sessionToken) return;
+        if (typeof document !== 'undefined' && document.hidden) return;
+        callServer('apiGetDashboardData', [STATE.currentUser.id, STATE.currentUser.role], function (res) {
+          if (res && res.success && res.data) {
+            STATE.cache.dashboardData = res.data;
+            renderDashboardData(res.data);
+          }
+        }, function () { });
+      }, 45000);
+    }
+
+    function stopNotifAutoRefresh_() {
+      if (STATE.notifAutoTimer) {
+        clearInterval(STATE.notifAutoTimer);
+        STATE.notifAutoTimer = null;
+      }
     }
 
     /**
@@ -10102,10 +10660,27 @@
     }
 
     function renderRekapNilai(list) {
-      STATE.rekapNilaiList = list || [];
       const tbody = document.getElementById('tableBodyRekapNilai');
       const thAksi = document.getElementById('thRekapNilaiAksi');
-      const isGuru = (STATE.currentUser && STATE.currentUser.role === 'guru');
+      const subtitleEl = document.getElementById('rekapNilaiSubtitle');
+      const isGuru = (STATE.currentUser && String(STATE.currentUser.role || '').toLowerCase() === 'guru');
+      const currentUidUpper = (STATE.currentUser && STATE.currentUser.id)
+        ? String(STATE.currentUser.id).trim().toUpperCase()
+        : '';
+
+      // Privasi Nilai (v1.57.0): Akun murid hanya menampilkan baris nilai milik akunnya sendiri
+      const visibleList = isGuru
+        ? (Array.isArray(list) ? list : [])
+        : (Array.isArray(list) ? list : []).filter(item =>
+            currentUidUpper !== '' && String(item.idPengguna || '').trim().toUpperCase() === currentUidUpper
+          );
+      STATE.rekapNilaiList = visibleList;
+
+      if (subtitleEl) {
+        subtitleEl.textContent = isGuru
+          ? 'Daftar nilai akademik seluruh siswa: Harian, UTS, Semester, dan Rata-Rata Nilai'
+          : 'Rekapitulasi nilai pribadi akun Anda (Harian, UTS, Semester, dan Rata-Rata Nilai)';
+      }
 
       if (thAksi) {
         if (isGuru) thAksi.classList.remove('hidden');
@@ -10113,16 +10688,16 @@
       }
 
       if (!tbody) return;
-      if (!list || list.length === 0) {
+      if (!visibleList || visibleList.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="${isGuru ? 7 : 6}" class="py-6 text-center text-xs text-slate-400">Belum ada data nilai siswa.</td>
+            <td colspan="${isGuru ? 7 : 6}" class="py-6 text-center text-xs text-slate-400">Belum ada data nilai untuk akun Anda.</td>
           </tr>
         `;
         return;
       }
 
-      tbody.innerHTML = list.map((item, idx) => {
+      tbody.innerHTML = visibleList.map((item, idx) => {
         const isMyAccount = (STATE.currentUser && STATE.currentUser.id === item.idPengguna);
         const rowBg = isMyAccount ? 'bg-sky-50/60 font-semibold' : 'hover:bg-slate-50';
 
@@ -13778,6 +14353,147 @@
      * =========================================================================
      */
     let currentMediaFilter = 'Semua';
+    let currentMediaBabFilter = 'Semua';
+
+    function normalizeMediaBabLabel_(rawBab) {
+      var clean = String(rawBab || '').replace(/\s+/g, ' ').trim();
+      if (!clean) return '';
+      var low = clean.toLowerCase();
+      if (low === 'tanpa bab' || clean === '__EMPTY__' || clean === '__NONE__') return '';
+      var m = clean.match(/^bab\s*([0-9]+(?:\.[0-9]+)?)(.*)$/i);
+      if (m) {
+        var suffix = String(m[2] || '').trim();
+        if (suffix) {
+          var sep = (suffix.indexOf(':') === 0 || suffix.indexOf('-') === 0 || suffix.indexOf('.') === 0) ? '' : ' ';
+          return 'BAB ' + m[1] + sep + suffix;
+        }
+        return 'BAB ' + m[1];
+      }
+      return clean;
+    }
+
+    function parseMediaBabSortKey_(babStr) {
+      var s = normalizeMediaBabLabel_(babStr);
+      if (!s) {
+        return { hasBab: false, num: 999999, sub: 0, text: '' };
+      }
+      var m = s.match(/\bbab\s*([0-9]+)(?:\.([0-9]+))?/i) ||
+        s.match(/^(?:unit|tema|bagian|modul|pertemuan)?\s*([0-9]+)(?:\.([0-9]+))?/i) ||
+        s.match(/([0-9]+)(?:\.([0-9]+))?/);
+      if (m) {
+        return {
+          hasBab: true,
+          num: parseInt(m[1], 10),
+          sub: m[2] ? parseInt(m[2], 10) : 0,
+          text: s.toLowerCase()
+        };
+      }
+      return { hasBab: true, num: 999998, sub: 0, text: s.toLowerCase() };
+    }
+
+    function compareMediaByBabAsc_(a, b) {
+      var ka = parseMediaBabSortKey_(a && a.bab);
+      var kb = parseMediaBabSortKey_(b && b.bab);
+      if (ka.num !== kb.num) return ka.num - kb.num;
+      if (ka.sub !== kb.sub) return ka.sub - kb.sub;
+      if (ka.text !== kb.text) return ka.text < kb.text ? -1 : 1;
+      var tA = String((a && (a.dibuatPada || a.tanggalUnggah)) || '');
+      var tB = String((b && (b.dibuatPada || b.tanggalUnggah)) || '');
+      if (tA !== tB) return tA < tB ? -1 : 1;
+      var idA = String((a && a.id) || '');
+      var idB = String((b && b.id) || '');
+      return idA < idB ? -1 : (idA > idB ? 1 : 0);
+    }
+
+    function sortMediaListByBab_(list) {
+      return Array.isArray(list) ? list.slice().sort(compareMediaByBabAsc_) : [];
+    }
+
+    function findMediaItemById_(id) {
+      var list = (STATE.cache.allMediaList && STATE.cache.allMediaList.length > 0)
+        ? STATE.cache.allMediaList
+        : (STATE.cache.mediaList || []);
+      return list.find(function (m) { return m.id === id; }) || null;
+    }
+
+    function getAvailableMediaBabOptions_(extraBab) {
+      var map = {};
+      for (var i = 1; i <= 15; i++) {
+        var std = 'BAB ' + i;
+        map[std.toLowerCase()] = std;
+      }
+      var sources = (STATE.cache.allMediaList && STATE.cache.allMediaList.length > 0)
+        ? STATE.cache.allMediaList
+        : (STATE.cache.mediaList || []);
+      sources.forEach(function (m) {
+        var lbl = normalizeMediaBabLabel_(m && m.bab);
+        if (lbl && !map[lbl.toLowerCase()]) {
+          map[lbl.toLowerCase()] = lbl;
+        }
+      });
+      var extraClean = normalizeMediaBabLabel_(extraBab || '');
+      if (extraClean && !map[extraClean.toLowerCase()]) {
+        map[extraClean.toLowerCase()] = extraClean;
+      }
+      return Object.keys(map).map(function (k) { return map[k]; }).sort(function (a, b) {
+        return compareMediaByBabAsc_({ bab: a }, { bab: b });
+      });
+    }
+
+    function populateMediaBabOptions_(selectedBab) {
+      var sel = document.getElementById('selectMediaBabPreset');
+      if (!sel) return;
+      var options = getAvailableMediaBabOptions_(selectedBab);
+      sel.innerHTML = '';
+
+      options.forEach(function (babLbl) {
+        var opt = document.createElement('option');
+        opt.value = babLbl;
+        opt.textContent = '📘 ' + babLbl;
+        sel.appendChild(opt);
+      });
+
+      var customOpt = document.createElement('option');
+      customOpt.value = '__CUSTOM__';
+      customOpt.textContent = '✏️ Edit / Tulis BAB Sendiri...';
+      sel.appendChild(customOpt);
+
+      var noneOpt = document.createElement('option');
+      noneOpt.value = '';
+      noneOpt.textContent = '-- Tanpa BAB (Lainnya) --';
+      sel.appendChild(noneOpt);
+    }
+
+    function handleMediaBabPresetChange(val) {
+      var input = document.getElementById('inputMediaBab');
+      if (!input) return;
+      if (val === '__CUSTOM__') {
+        input.focus();
+        input.select();
+        return;
+      }
+      input.value = val;
+    }
+
+    function syncMediaBabPresetFromInput() {
+      var input = document.getElementById('inputMediaBab');
+      var sel = document.getElementById('selectMediaBabPreset');
+      if (!input || !sel) return;
+      var clean = normalizeMediaBabLabel_(input.value);
+      if (!clean) {
+        sel.value = '';
+        return;
+      }
+      var matched = '';
+      for (var i = 0; i < sel.options.length; i++) {
+        var optVal = sel.options[i].value;
+        if (optVal && optVal !== '__CUSTOM__' && optVal.toLowerCase() === clean.toLowerCase()) {
+          matched = optVal;
+          break;
+        }
+      }
+      sel.value = matched || '__CUSTOM__';
+    }
 
     /**
      * Helper Universal untuk Normalisasi URL Video
@@ -13987,20 +14703,12 @@
       callBackend('apiGetMediaList', [], function (res) {
         if (loader) loader.classList.add('hidden');
         if (res && res.success && Array.isArray(res.data)) {
-          let list = res.data;
-          if (currentMediaFilter !== 'Semua') {
-            list = list.filter(function (item) {
-              const itemMapel = (item.mapel || '').toLowerCase();
-              const filterMapel = currentMediaFilter.toLowerCase();
-              return itemMapel.includes(filterMapel) || filterMapel.includes(itemMapel);
-            });
-          }
-          STATE.cache.mediaList = list;
-          renderMediaList(list);
+          STATE.cache.allMediaList = sortMediaListByBab_(res.data);
+          applyMediaFiltersAndRender_();
 
           const folderModal = document.getElementById('modalFolderMateri');
           if (folderModal && !folderModal.classList.contains('hidden') && window._activeFolderMediaId) {
-            const refreshedItem = list.find(function (x) { return x.id === window._activeFolderMediaId; });
+            const refreshedItem = findMediaItemById_(window._activeFolderMediaId);
             if (refreshedItem) {
               bukaFolderMateri(refreshedItem.id, true);
             }
@@ -14014,8 +14722,93 @@
       });
     }
 
+    function renderMediaBabFilterChips_(mapelFilteredList) {
+      const bar = document.getElementById('mediaBabFilterBar');
+      if (!bar) return;
+      bar.innerHTML = '';
+
+      var babMap = {};
+      var hasNone = false;
+      (mapelFilteredList || []).forEach(function (item) {
+        var lbl = normalizeMediaBabLabel_(item && item.bab);
+        if (lbl) {
+          babMap[lbl.toLowerCase()] = lbl;
+        } else {
+          hasNone = true;
+        }
+      });
+
+      var uniqueBabs = Object.keys(babMap).map(function (k) { return babMap[k]; }).sort(function (a, b) {
+        return compareMediaByBabAsc_({ bab: a }, { bab: b });
+      });
+
+      if (uniqueBabs.length === 0) {
+        currentMediaBabFilter = 'Semua';
+        bar.classList.add('hidden');
+        return;
+      }
+
+      if (currentMediaBabFilter !== 'Semua') {
+        if (currentMediaBabFilter === '__NONE__') {
+          if (!hasNone) currentMediaBabFilter = 'Semua';
+        } else if (!babMap[String(currentMediaBabFilter).toLowerCase()]) {
+          currentMediaBabFilter = 'Semua';
+        }
+      }
+
+      bar.classList.remove('hidden');
+
+      function createChip(key, labelText, active) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('data-bab-filter', key);
+        btn.className = active
+          ? 'media-bab-chip px-3 py-1 rounded-xl font-bold bg-indigo-600 text-white shadow-xs transition-custom whitespace-nowrap cursor-pointer'
+          : 'media-bab-chip px-3 py-1 rounded-xl font-bold bg-white text-slate-600 hover:text-indigo-700 border border-slate-200 transition-custom whitespace-nowrap cursor-pointer';
+        btn.textContent = labelText;
+        btn.onclick = function () { filterMediaBab(key); };
+        return btn;
+      }
+
+      bar.appendChild(createChip('Semua', 'Semua BAB', currentMediaBabFilter === 'Semua'));
+      uniqueBabs.forEach(function (b) {
+        bar.appendChild(createChip(b, '📘 ' + b, String(currentMediaBabFilter).toLowerCase() === b.toLowerCase()));
+      });
+      if (hasNone) {
+        bar.appendChild(createChip('__NONE__', 'Tanpa BAB', currentMediaBabFilter === '__NONE__'));
+      }
+    }
+
+    function applyMediaFiltersAndRender_() {
+      var list = sortMediaListByBab_(STATE.cache.allMediaList || []);
+      if (currentMediaFilter !== 'Semua') {
+        var filterMapel = currentMediaFilter.toLowerCase();
+        list = list.filter(function (item) {
+          var itemMapel = String(item.mapel || '').toLowerCase();
+          return itemMapel.includes(filterMapel) || filterMapel.includes(itemMapel);
+        });
+      }
+      STATE.cache.mediaList = list;
+      renderMediaBabFilterChips_(list);
+
+      var finalList = list;
+      if (currentMediaBabFilter === '__NONE__') {
+        finalList = list.filter(function (item) { return !normalizeMediaBabLabel_(item && item.bab); });
+      } else if (currentMediaBabFilter && currentMediaBabFilter !== 'Semua') {
+        var targetBabLow = String(currentMediaBabFilter).toLowerCase();
+        finalList = list.filter(function (item) { return normalizeMediaBabLabel_(item && item.bab).toLowerCase() === targetBabLow; });
+      }
+      renderMediaList(sortMediaListByBab_(finalList));
+    }
+
+    function filterMediaBab(babKey) {
+      currentMediaBabFilter = babKey || 'Semua';
+      applyMediaFiltersAndRender_();
+    }
+
     function filterMediaMapel(mapel) {
       currentMediaFilter = mapel;
+      currentMediaBabFilter = 'Semua';
       document.querySelectorAll('.media-filter-chip').forEach(function (btn) {
         if (btn.getAttribute('data-filter') === mapel) {
           btn.className = 'media-filter-chip px-3.5 py-1.5 rounded-xl font-bold bg-purple-600 text-white shadow-xs transition-custom whitespace-nowrap';
@@ -14131,8 +14924,31 @@
       if (emptyState) emptyState.classList.add('hidden');
 
       const isGuru = (STATE.currentUser && String(STATE.currentUser.role || '').toLowerCase() === 'guru');
+      const sortedItems = sortMediaListByBab_(items);
+      const hasAnyBab = sortedItems.some(function (x) { return Boolean(normalizeMediaBabLabel_(x && x.bab)); });
+      const babGroupCounts = {};
+      sortedItems.forEach(function (x) {
+        var gk = normalizeMediaBabLabel_(x && x.bab) || '__NONE__';
+        babGroupCounts[gk] = (babGroupCounts[gk] || 0) + 1;
+      });
+      var lastRenderedBabGroup = null;
 
-      items.forEach(function (item) {
+      sortedItems.forEach(function (item) {
+        const cleanBab = normalizeMediaBabLabel_(item && item.bab);
+        const babGroupKey = cleanBab || '__NONE__';
+
+        if (hasAnyBab && babGroupKey !== lastRenderedBabGroup) {
+          lastRenderedBabGroup = babGroupKey;
+          const secHeader = document.createElement('div');
+          secHeader.className = 'col-span-full media-bab-section-header flex items-center justify-between gap-2 pt-2 pb-1.5 border-b border-indigo-100';
+          secHeader.setAttribute('data-bab-group', cleanBab || '');
+          const countInBab = babGroupCounts[babGroupKey] || 1;
+          secHeader.innerHTML = cleanBab
+            ? '<div class="flex items-center space-x-2"><span class="px-3 py-1 rounded-xl bg-indigo-600 text-white text-xs font-extrabold shadow-xs">📘 ' + escapeHtml(cleanBab) + '</span><span class="text-xs font-bold text-slate-600">' + countInBab + ' Materi Pembelajaran</span></div>'
+            : '<div class="flex items-center space-x-2"><span class="px-3 py-1 rounded-xl bg-slate-200 text-slate-700 text-xs font-extrabold">📂 Materi Lainnya</span><span class="text-xs font-semibold text-slate-500">' + countInBab + ' Materi (Belum Diatur BAB)</span></div>';
+          grid.appendChild(secHeader);
+        }
+
         const isi = ekstrakIsiFolderMateri(item);
         const tipeLower = String(item.tipeMedia || '').toLowerCase();
         const isVideo = tipeLower === 'video';
@@ -14239,13 +15055,21 @@
         const headerBadgeLabel = isFolder
           ? '📂 Folder'
           : (isVideo ? '🎬 Video' : '📸 Foto');
+        const babBadgeHtml = cleanBab
+          ? '<span class="media-card-bab-badge text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-800 border border-indigo-200/70">📘 ' + escapeHtml(cleanBab) + '</span>'
+          : '';
 
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 sm:p-5 rounded-3xl border border-slate-100 shadow-xs flex flex-col justify-between space-y-2';
+        card.className = 'media-item-card bg-white p-4 sm:p-5 rounded-3xl border border-slate-100 shadow-xs flex flex-col justify-between space-y-2';
+        card.setAttribute('data-bab', cleanBab);
+        card.setAttribute('data-media-id', item.id || '');
         card.innerHTML = '<div>' +
           '<div class="flex items-center justify-between gap-2 mb-2">' +
+          '<div class="flex flex-wrap items-center gap-1">' +
+          babBadgeHtml +
           '<span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800">' + escapeHtml(item.mapel || 'Umum') + '</span>' +
-          '<div class="flex items-center space-x-1">' +
+          '</div>' +
+          '<div class="flex items-center space-x-1 flex-shrink-0">' +
           '<span class="text-[10px] font-bold ' + headerBadgeClass + ' px-2 py-0.5 rounded-md">' + headerBadgeLabel + '</span>' +
           topDeleteBtn +
           '</div>' +
@@ -14566,6 +15390,13 @@
       document.getElementById('inputMediaExistingUrl').value = '';
       document.getElementById('inputMediaJudul').value = '';
       document.getElementById('selectMediaMapel').value = 'Matematika';
+      var defaultBab = (currentMediaBabFilter && currentMediaBabFilter !== 'Semua' && currentMediaBabFilter !== '__NONE__')
+        ? normalizeMediaBabLabel_(currentMediaBabFilter)
+        : 'BAB 1';
+      populateMediaBabOptions_(defaultBab);
+      var babInput = document.getElementById('inputMediaBab');
+      if (babInput) babInput.value = defaultBab;
+      syncMediaBabPresetFromInput();
       document.getElementById('selectMediaTipe').value = 'Video';
       document.getElementById('inputMediaFile').value = '';
       batalPilihMediaFile();
@@ -14593,7 +15424,7 @@
     }
 
     function openModalEditMedia(id) {
-      const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === id; });
+      const item = findMediaItemById_(id);
       if (!item) return;
       if (typeof stopAllAbsensiCameras_ === 'function') {
         stopAllAbsensiCameras_({ closeBarcodeModal: true });
@@ -14602,6 +15433,11 @@
       document.getElementById('inputMediaId').value = item.id;
       document.getElementById('inputMediaExistingUrl').value = item.urlMedia || '';
       document.getElementById('inputMediaJudul').value = item.judul || '';
+      var currentItemBab = normalizeMediaBabLabel_(item.bab || '');
+      populateMediaBabOptions_(currentItemBab);
+      var babInput = document.getElementById('inputMediaBab');
+      if (babInput) babInput.value = currentItemBab;
+      syncMediaBabPresetFromInput();
       const mapelSel = document.getElementById('selectMediaMapel');
       if (mapelSel) {
         mapelSel.value = item.mapel || 'Matematika';
@@ -14753,6 +15589,8 @@
       const id = document.getElementById('inputMediaId').value;
       const judul = document.getElementById('inputMediaJudul').value.trim();
       const mapel = document.getElementById('selectMediaMapel').value;
+      const babInputEl = document.getElementById('inputMediaBab');
+      const bab = babInputEl ? normalizeMediaBabLabel_(babInputEl.value) : '';
       const tipeMedia = document.getElementById('selectMediaTipe').value;
       const deskripsi = document.getElementById('inputMediaDeskripsi').value.trim();
       const existingUrl = document.getElementById('inputMediaExistingUrl').value;
@@ -14833,6 +15671,7 @@
           id: id,
           judul: judul,
           mapel: mapel,
+          bab: bab,
           tipeMedia: tipeMedia,
           deskripsi: deskripsi,
           existingUrl: existingUrl,
@@ -14906,7 +15745,7 @@
     // VIEW FOLDER MATERI + KOTAK SOAL ACAK INTERAKTIF DI BAGIAN PALING BAWAH
     // =========================================================================
     function bukaFolderMateri(id, keepShuffleOrder) {
-      const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === id; });
+      const item = findMediaItemById_(id);
       if (!item) return;
       if (typeof stopAllAbsensiCameras_ === 'function') {
         stopAllAbsensiCameras_({ closeBarcodeModal: true });
@@ -14920,6 +15759,16 @@
       const isi = ekstrakIsiFolderMateri(item);
       window._activeFolderRenderCache = { videos: isi.videos, dokumen: isi.dokumen, gambar: isi.gambar };
 
+      const folderBabEl = document.getElementById('folderViewBabBadge');
+      const folderBabClean = normalizeMediaBabLabel_(item.bab || '');
+      if (folderBabEl) {
+        if (folderBabClean) {
+          folderBabEl.textContent = '📘 ' + folderBabClean;
+          folderBabEl.classList.remove('hidden');
+        } else {
+          folderBabEl.classList.add('hidden');
+        }
+      }
       document.getElementById('folderViewMapelBadge').textContent = item.mapel || 'Umum';
       document.getElementById('folderViewTipeBadge').textContent = '📂 Folder Materi (' + (isi.videos.length + isi.dokumen.length + isi.gambar.length) + ' Berkas)';
       document.getElementById('folderViewJudul').textContent = item.judul || 'Folder Materi';
@@ -15447,7 +16296,7 @@
     // KELOLA KOTAK SOAL CEPAT (KHUSUS GURU LANGSUNG DARI FOLDER MATERI)
     // =========================================================================
     function openModalKelolaSoalCepat() {
-      const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === window._activeFolderMediaId; });
+      const item = findMediaItemById_(window._activeFolderMediaId);
       if (!item) return;
       document.getElementById('quickSoalFolderTitle').textContent = item.judul || 'Folder Materi';
       resetQuickSoalForm();
@@ -15674,7 +16523,7 @@
     }
 
     function editQuickSoalIdx(idx) {
-      const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === window._activeFolderMediaId; });
+      const item = findMediaItemById_(window._activeFolderMediaId);
       if (!item || !Array.isArray(item.daftarSoal) || !item.daftarSoal[idx]) return;
       const q = item.daftarSoal[idx];
       document.getElementById('inputQuickSoalEditIdx').value = String(idx);
@@ -15710,6 +16559,7 @@
         id: item.id,
         judul: item.judul,
         mapel: item.mapel || 'Umum',
+        bab: item.bab || '',
         tipeMedia: item.tipeMedia || 'Folder',
         deskripsi: item.deskripsi || '',
         existingUrl: item.urlMedia || '',
@@ -15727,7 +16577,7 @@
           window._shuffledSoalBoxes = fisherYatesShuffleArray(isiUpdated.soal);
           renderQuickSoalExistingList(item);
           renderKotakSoalAcakGrid();
-          renderMediaList(STATE.cache.mediaList || []);
+          applyMediaFiltersAndRender_();
           if (onComplete) onComplete();
         } else {
           if (onFail) onFail();
@@ -15741,7 +16591,7 @@
     }
 
     function simpanQuickSoalFolder() {
-      const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === window._activeFolderMediaId; });
+      const item = findMediaItemById_(window._activeFolderMediaId);
       if (!item) return;
 
       const p = document.getElementById('inputQuickSoalPertanyaan').value.trim();
@@ -15819,7 +16669,7 @@
     }
 
     function hapusQuickSoalIdx(idx) {
-      const item = (STATE.cache.mediaList || []).find(function (m) { return m.id === window._activeFolderMediaId; });
+      const item = findMediaItemById_(window._activeFolderMediaId);
       if (!item || !Array.isArray(item.daftarSoal)) return;
       if (!confirm('Hapus kotak soal ini dari materi?')) return;
       const nextList = item.daftarSoal.slice();
@@ -16514,6 +17364,9 @@
       callBackend('apiGetDiskusiFeed', [50], function (res) {
         if (res && res.success && Array.isArray(res.data)) {
           STATE.cache.diskusiFeed = res.data;
+          if (typeof markDiskusiMessagesAsRead_ === 'function') {
+            markDiskusiMessagesAsRead_(res.data);
+          }
           renderDiskusiFeed(res.data);
         } else {
           showToast(res && res.message ? res.message : 'Gagal memuat diskusi kelas', 'error');
