@@ -528,7 +528,8 @@
                 <div>
                   <p class="text-[10px] font-extrabold uppercase tracking-widest text-[#2D6A4F]">JAM BELAJAR HARI INI
                   </p>
-                  <h3 id="bannerShiftTime" class="text-xs sm:text-sm font-bold text-slate-800">Masuk: 07.15 • Pulang 11.15
+                  <h3 id="bannerShiftTime" class="text-xs sm:text-sm font-bold text-slate-800">Masuk: 07.15 • Pulang
+                    11.15
                   </h3>
                 </div>
                 <div onclick="switchTab('kalender')" title="Klik untuk membuka Kalender Pendidikan &amp; Tanggal"
@@ -1030,11 +1031,14 @@
           <div id="muridPresensiSubSectionHadir" class="space-y-4">
             <div>
               <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-0.5">Presensi Kehadiran Siswa</h3>
-              <p class="text-xs text-slate-400">Jam Absen Masuk: <span class="font-bold text-slate-600">06.30 - 07.15 WIB</span> (lewat 07.15 terlambat) • Jam Absen Pulang: <span class="font-bold text-slate-600">11.00 - 24.00 WIB</span></p>
+              <p class="text-xs text-slate-400">Jam Absen Masuk: <span class="font-bold text-slate-600">06.30 - 07.15
+                  WIB</span> (lewat 07.15 terlambat) • Jam Absen Pulang: <span class="font-bold text-slate-600">11.00 -
+                  24.00 WIB</span></p>
             </div>
 
             <!-- Banner Status Jendela Waktu / Selesai Absen Masuk & Pulang (v1.55.0) -->
-            <div id="muridPresensiWindowNotice" class="hidden p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-between gap-2"></div>
+            <div id="muridPresensiWindowNotice"
+              class="hidden p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-between gap-2"></div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Kartu Presensi Masuk -->
@@ -1068,7 +1072,8 @@
                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-2">atau masuk
                     dengan barcode</p>
                   <div class="grid grid-cols-2 gap-2">
-                    <button id="btnBarcodeCardMasuk" type="button" onclick="showStudentBarcodeCard(STATE.currentUser.id, 'masuk')"
+                    <button id="btnBarcodeCardMasuk" type="button"
+                      onclick="showStudentBarcodeCard(STATE.currentUser.id, 'masuk')"
                       class="py-2 px-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 shadow-2xs">
                       <span>🪪 Kartu Barcode</span>
                     </button>
@@ -1168,7 +1173,8 @@
                   Hadir: 0 • Tidak Hadir: 0 • Izin: 0 • Sakit: 0
                 </span>
               </div>
-              <p class="text-xs text-slate-400 mt-0.5">Ketuk Centang (Hadir), Silang (Tidak Hadir), atau Izin/Sakit langsung pada daftar seluruh murid</p>
+              <p class="text-xs text-slate-400 mt-0.5">Ketuk Centang (Hadir), Silang (Tidak Hadir), atau Izin/Sakit
+                langsung pada daftar seluruh murid</p>
             </div>
 
             <!-- Tanggal & Tombol Scan Barcode Guru -->
@@ -1191,14 +1197,16 @@
             <button type="button" id="btnGuruPresensiTabManual" onclick="switchGuruPresensiSubTab('manual')"
               class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center space-x-1.5 bg-white text-brand-blue shadow-xs">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <span>Absen Manual (Semua Murid)</span>
             </button>
             <button type="button" id="btnGuruPresensiTabLog" onclick="switchGuruPresensiSubTab('log')"
               class="py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold transition-all flex items-center justify-center space-x-1.5 text-slate-600 hover:text-slate-900">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               <span>Log Scan &amp; Bukti Foto</span>
             </button>
@@ -1207,16 +1215,20 @@
           <!-- SUB-SEKSI GURU 1: ABSEN MANUAL SELURUH MURID -->
           <div id="guruPresensiSubManual" class="space-y-3">
             <!-- Bar Ringkasan & Pencarian Nama Murid -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50/90 p-3 rounded-2xl border border-slate-200/70">
+            <div
+              class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50/90 p-3 rounded-2xl border border-slate-200/70">
               <div id="manualAbsenSummaryBar" class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold">
-                <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700">Total: 0 Murid</span>
+                <span class="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700">Total: 0
+                  Murid</span>
               </div>
               <div class="relative w-full sm:w-64">
                 <input id="searchManualPresensiInput" type="text" oninput="renderGuruManualAttendanceList()"
                   placeholder="Cari nama atau no. absen murid..."
                   class="w-full py-1.5 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-200">
-                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none"
+                  stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
             </div>
@@ -2259,7 +2271,8 @@
         </div>
 
         <!-- Filter Urutan BAB Dinamis (BAB 1, BAB 2, dst.) -->
-        <div id="mediaBabFilterBar" class="hidden flex items-center space-x-2 overflow-x-auto pb-1 text-xs no-scrollbar"></div>
+        <div id="mediaBabFilterBar"
+          class="hidden flex items-center space-x-2 overflow-x-auto pb-1 text-xs no-scrollbar"></div>
 
         <!-- Loading State -->
         <div id="mediaLoadingState" class="hidden p-8 text-center bg-white rounded-3xl border border-slate-100">
@@ -2406,7 +2419,8 @@
                   <span>💬 Ruang Diskusi Kelas</span>
                 </h2>
                 <span id="diskusiUnreadHeaderBadge"
-                  class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Semua pesan terbaca</span>
+                  class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">Semua
+                  pesan terbaca</span>
               </div>
               <p class="text-xs text-slate-500">Berbagi informasi, berdiskusi materi pelajaran, dan bertanya jawab</p>
             </div>
@@ -2623,9 +2637,13 @@
 
             <!-- Kartu Status Kunci Kamera Absen Siswa (v1.55.0) -->
             <div id="qrisStudentLockNotice" class="hidden p-5 rounded-3xl border-2 text-center space-y-2 shadow-sm">
-              <div id="qrisStudentLockIcon" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-2xl bg-emerald-100 text-emerald-700">✅</div>
-              <h4 id="qrisStudentLockTitle" class="text-sm sm:text-base font-extrabold text-slate-800">Anda sudah absen masuk dan pulang</h4>
-              <p id="qrisStudentLockSubtitle" class="text-xs text-slate-600 leading-relaxed">Kamera scan absen dikunci dan akan dibuka kembali pukul 06.30 WIB.</p>
+              <div id="qrisStudentLockIcon"
+                class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-2xl bg-emerald-100 text-emerald-700">
+                ✅</div>
+              <h4 id="qrisStudentLockTitle" class="text-sm sm:text-base font-extrabold text-slate-800">Anda sudah absen
+                masuk dan pulang</h4>
+              <p id="qrisStudentLockSubtitle" class="text-xs text-slate-600 leading-relaxed">Kamera scan absen dikunci
+                dan akan dibuka kembali pukul 06.30 WIB.</p>
             </div>
 
             <!-- Tombol Utama: Buka Kamera Scan Barcode (Bypass Iframe Sandbox Google Apps Script) -->
@@ -2943,14 +2961,16 @@
         <button id="btnConfirmManualIzin" type="button" onclick="confirmManualIzinSakit('izin')"
           class="py-3 px-3 bg-sky-600 hover:bg-sky-700 text-white font-extrabold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
           <span>Izin</span>
         </button>
         <button id="btnConfirmManualSakit" type="button" onclick="confirmManualIzinSakit('sakit')"
           class="py-3 px-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
           <span>Sakit</span>
         </button>
@@ -2975,7 +2995,8 @@
             <p class="text-[11px] text-slate-400">Absen, Pengumuman &amp; Tugas Terbaru</p>
           </div>
         </div>
-        <button type="button" onclick="closeModal('modalNotifikasiKelas')" class="text-slate-400 hover:text-slate-600 p-1">
+        <button type="button" onclick="closeModal('modalNotifikasiKelas')"
+          class="text-slate-400 hover:text-slate-600 p-1">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -3500,7 +3521,8 @@
             alt="Foto Profil"
             class="w-20 h-20 rounded-2xl object-cover border-2 border-brand-blue shadow-xs group-hover:opacity-90 group-hover:scale-105 transition-custom">
           <!-- Tombol overlay untuk ganti foto -->
-          <button type="button" onclick="event.stopPropagation(); document.getElementById('profilInputFotoFile').click()"
+          <button type="button"
+            onclick="event.stopPropagation(); document.getElementById('profilInputFotoFile').click()"
             class="absolute inset-0 bg-slate-900/40 rounded-2xl opacity-0 group-hover:opacity-100 transition-custom flex items-center justify-center text-white text-xs font-bold"
             title="Pilih foto baru">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -4403,25 +4425,31 @@
         <!-- Pilihan & Edit Urutan BAB Materi -->
         <div class="p-3 bg-slate-50/90 border border-slate-200/80 rounded-2xl space-y-2">
           <div class="flex flex-wrap items-center justify-between gap-1">
-            <label for="inputMediaBab" class="block text-xs font-bold text-slate-700">Pilihan &amp; Urutan BAB Materi</label>
-            <span class="text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">Bisa dipilih atau diedit bebas</span>
+            <label for="inputMediaBab" class="block text-xs font-bold text-slate-700">Pilihan &amp; Urutan BAB
+              Materi</label>
+            <span
+              class="text-[10px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">Bisa
+              dipilih atau diedit bebas</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
-              <label for="selectMediaBabPreset" class="block text-[10px] font-bold text-slate-500 mb-1">Pilih Cepat BAB</label>
+              <label for="selectMediaBabPreset" class="block text-[10px] font-bold text-slate-500 mb-1">Pilih Cepat
+                BAB</label>
               <select id="selectMediaBabPreset" onchange="handleMediaBabPresetChange(this.value)"
                 class="w-full py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-600">
                 <option value="BAB 1">📘 BAB 1</option>
               </select>
             </div>
             <div>
-              <label for="inputMediaBab" class="block text-[10px] font-bold text-slate-500 mb-1">Edit / Tulis Nama BAB</label>
+              <label for="inputMediaBab" class="block text-[10px] font-bold text-slate-500 mb-1">Edit / Tulis Nama
+                BAB</label>
               <input type="text" id="inputMediaBab" oninput="syncMediaBabPresetFromInput()"
                 placeholder="Contoh: BAB 1, BAB 2, BAB 3..."
                 class="w-full py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-purple-600">
             </div>
           </div>
-          <p class="text-[10px] text-slate-500 font-medium">Semua materi otomatis diurutkan sesuai nomor BAB dari <strong>BAB 1</strong> sampai seterusnya. Kosongkan jika materi tidak memakai BAB.</p>
+          <p class="text-[10px] text-slate-500 font-medium">Semua materi otomatis diurutkan sesuai nomor BAB dari
+            <strong>BAB 1</strong> sampai seterusnya. Kosongkan jika materi tidak memakai BAB.</p>
         </div>
 
         <!-- Media Sampul / Video Utama -->
@@ -4477,7 +4505,8 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-[11px] font-extrabold text-slate-800">Sampul Video Pembelajaran</p>
-                <p id="mediaPrimaryCoverLabel" class="text-[10px] text-slate-500 font-medium truncate">Default Otomatis (Belum dipilih)</p>
+                <p id="mediaPrimaryCoverLabel" class="text-[10px] text-slate-500 font-medium truncate">Default Otomatis
+                  (Belum dipilih)</p>
               </div>
             </div>
             <div class="flex items-center space-x-1.5 flex-shrink-0 ml-auto">
@@ -4573,16 +4602,16 @@
           <div id="folderDraftLampiranList" class="space-y-1.5 max-h-44 overflow-y-auto pr-0.5"></div>
         </div>
 
-        <!-- BAGIAN B: KELOLA KOTAK SOAL ACAK (PILIHAN BERGANDA A, B, C, D) -->
+        <!-- BAGIAN B: KELOLA KOTAK SOAL ACAK (PILIHAN BERGANDA DINAMIS A–F) -->
         <div class="p-3.5 sm:p-4 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
               <h4 class="text-xs sm:text-sm font-black text-amber-950 flex items-center space-x-1.5">
                 <span>🎁</span>
-                <span>Kotak Soal Acak (Pilihan Berganda A, B, C, D)</span>
+                <span>Kotak Soal Acak (Pilihan Berganda Dinamis)</span>
               </h4>
               <p class="text-[11px] text-amber-800 font-medium">Tampil paling bawah di folder materi sebagai kotak
-                tertutup acak.</p>
+                tertutup acak. Guru dapat memilih jumlah opsi jawaban (A–B s.d. A–F).</p>
             </div>
             <span id="folderDraftSoalCount"
               class="px-2.5 py-0.5 rounded-full bg-white text-amber-900 border border-amber-200 text-[10px] font-black">0
@@ -4602,29 +4631,45 @@
                   Tambah / Kelola Soal</strong> di dalam folder).
               </div>
             </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+              <label class="text-[11px] font-bold text-slate-700">Jumlah Pilihan Jawaban:</label>
+              <div id="formSoalCountBar" class="flex flex-wrap items-center gap-1"></div>
+            </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div class="flex items-center space-x-1.5">
+              <div id="formSoalOptWrapA" class="flex items-center space-x-1.5">
                 <span
                   class="w-6 h-6 rounded-md bg-amber-100 text-amber-900 font-black text-xs flex items-center justify-center flex-shrink-0">A</span>
                 <input type="text" id="inputFormSoalA" placeholder="Pilihan A"
                   class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
               </div>
-              <div class="flex items-center space-x-1.5">
+              <div id="formSoalOptWrapB" class="flex items-center space-x-1.5">
                 <span
                   class="w-6 h-6 rounded-md bg-sky-100 text-sky-900 font-black text-xs flex items-center justify-center flex-shrink-0">B</span>
                 <input type="text" id="inputFormSoalB" placeholder="Pilihan B"
                   class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
               </div>
-              <div class="flex items-center space-x-1.5">
+              <div id="formSoalOptWrapC" class="flex items-center space-x-1.5">
                 <span
                   class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-900 font-black text-xs flex items-center justify-center flex-shrink-0">C</span>
                 <input type="text" id="inputFormSoalC" placeholder="Pilihan C"
                   class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
               </div>
-              <div class="flex items-center space-x-1.5">
+              <div id="formSoalOptWrapD" class="flex items-center space-x-1.5">
                 <span
                   class="w-6 h-6 rounded-md bg-purple-100 text-purple-900 font-black text-xs flex items-center justify-center flex-shrink-0">D</span>
                 <input type="text" id="inputFormSoalD" placeholder="Pilihan D"
+                  class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
+              </div>
+              <div id="formSoalOptWrapE" class="hidden flex items-center space-x-1.5">
+                <span
+                  class="w-6 h-6 rounded-md bg-rose-100 text-rose-900 font-black text-xs flex items-center justify-center flex-shrink-0">E</span>
+                <input type="text" id="inputFormSoalE" placeholder="Pilihan E"
+                  class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
+              </div>
+              <div id="formSoalOptWrapF" class="hidden flex items-center space-x-1.5">
+                <span
+                  class="w-6 h-6 rounded-md bg-teal-100 text-teal-900 font-black text-xs flex items-center justify-center flex-shrink-0">F</span>
+                <input type="text" id="inputFormSoalF" placeholder="Pilihan F"
                   class="flex-1 py-1.5 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
               </div>
             </div>
@@ -4689,7 +4734,8 @@
         <div class="min-w-0">
           <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
             <span id="folderViewBabBadge"
-              class="hidden px-2.5 py-0.5 rounded-full bg-emerald-300/95 text-emerald-950 text-[10px] font-black uppercase tracking-wider">BAB 1</span>
+              class="hidden px-2.5 py-0.5 rounded-full bg-emerald-300/95 text-emerald-950 text-[10px] font-black uppercase tracking-wider">BAB
+              1</span>
             <span id="folderViewMapelBadge"
               class="px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[10px] font-black uppercase tracking-wider">Matematika</span>
             <span id="folderViewTipeBadge"
@@ -4880,6 +4926,32 @@
               class="max-h-32 w-auto max-w-full object-contain rounded-lg">
           </div>
         </button>
+        <button type="button" id="btnOpsiSoalE" onclick="jawabSoalKotak('E')"
+          class="hidden w-full text-left p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-400 flex flex-col items-stretch justify-center gap-2 transition-all cursor-pointer">
+          <div class="flex items-center space-x-3 w-full">
+            <span data-opt-badge="E"
+              class="w-8 h-8 rounded-xl bg-rose-500 text-white font-black text-sm flex items-center justify-center flex-shrink-0">E</span>
+            <span id="tanyaOpsiTextE" class="text-xs sm:text-sm font-bold text-slate-800 break-words"></span>
+          </div>
+          <div id="tanyaOpsiImgWrapE"
+            class="hidden w-full rounded-xl bg-white border border-slate-200/80 p-1.5 flex items-center justify-center">
+            <img id="tanyaOpsiImgE" src="" alt="Gambar Pilihan E"
+              class="max-h-32 w-auto max-w-full object-contain rounded-lg">
+          </div>
+        </button>
+        <button type="button" id="btnOpsiSoalF" onclick="jawabSoalKotak('F')"
+          class="hidden w-full text-left p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-400 flex flex-col items-stretch justify-center gap-2 transition-all cursor-pointer">
+          <div class="flex items-center space-x-3 w-full">
+            <span data-opt-badge="F"
+              class="w-8 h-8 rounded-xl bg-teal-600 text-white font-black text-sm flex items-center justify-center flex-shrink-0">F</span>
+            <span id="tanyaOpsiTextF" class="text-xs sm:text-sm font-bold text-slate-800 break-words"></span>
+          </div>
+          <div id="tanyaOpsiImgWrapF"
+            class="hidden w-full rounded-xl bg-white border border-slate-200/80 p-1.5 flex items-center justify-center">
+            <img id="tanyaOpsiImgF" src="" alt="Gambar Pilihan F"
+              class="max-h-32 w-auto max-w-full object-contain rounded-lg">
+          </div>
+        </button>
       </div>
 
       <div id="tanyaSoalFeedback" class="hidden p-3.5 rounded-2xl text-center space-y-1">
@@ -4940,8 +5012,12 @@
               Hapus Gambar</button>
           </div>
         </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+          <label class="text-xs font-bold text-slate-700">Jumlah Pilihan Jawaban:</label>
+          <div id="quickSoalCountBar" class="flex flex-wrap items-center gap-1.5"></div>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <div class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
+          <div id="quickSoalOptWrapA" class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
             <div class="flex items-center space-x-1.5">
               <span
                 class="w-6 h-6 rounded-md bg-amber-500 text-white font-black text-xs flex items-center justify-center flex-shrink-0">A</span>
@@ -4968,7 +5044,7 @@
                 class="py-1 px-2 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold flex-shrink-0 cursor-pointer">✕</button>
             </div>
           </div>
-          <div class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
+          <div id="quickSoalOptWrapB" class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
             <div class="flex items-center space-x-1.5">
               <span
                 class="w-6 h-6 rounded-md bg-sky-500 text-white font-black text-xs flex items-center justify-center flex-shrink-0">B</span>
@@ -4995,7 +5071,7 @@
                 class="py-1 px-2 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold flex-shrink-0 cursor-pointer">✕</button>
             </div>
           </div>
-          <div class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
+          <div id="quickSoalOptWrapC" class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
             <div class="flex items-center space-x-1.5">
               <span
                 class="w-6 h-6 rounded-md bg-emerald-500 text-white font-black text-xs flex items-center justify-center flex-shrink-0">C</span>
@@ -5022,7 +5098,7 @@
                 class="py-1 px-2 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold flex-shrink-0 cursor-pointer">✕</button>
             </div>
           </div>
-          <div class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
+          <div id="quickSoalOptWrapD" class="p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
             <div class="flex items-center space-x-1.5">
               <span
                 class="w-6 h-6 rounded-md bg-purple-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0">D</span>
@@ -5046,6 +5122,60 @@
                 onclick="bukaZoomFotoProfil(this.src, 'Gambar Pilihan D', 'Kotak Soal')"
                 class="h-14 max-w-[130px] object-contain rounded bg-white border border-slate-200 cursor-pointer">
               <button type="button" onclick="clearQuickSoalImage('D')"
+                class="py-1 px-2 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold flex-shrink-0 cursor-pointer">✕</button>
+            </div>
+          </div>
+          <div id="quickSoalOptWrapE" class="hidden p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
+            <div class="flex items-center space-x-1.5">
+              <span
+                class="w-6 h-6 rounded-md bg-rose-500 text-white font-black text-xs flex items-center justify-center flex-shrink-0">E</span>
+              <input type="text" id="inputQuickSoalE" placeholder="Pilihan E (teks/opsional)"
+                class="flex-1 min-w-0 py-1.5 px-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
+              <input type="file" id="inputQuickSoalFileE" accept="image/*" class="hidden"
+                onchange="handleQuickSoalFileChange('E', event)">
+              <button type="button" onclick="triggerQuickSoalFile('E')" title="Upload Gambar Pilihan E"
+                class="h-7 px-2 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 border border-slate-200 text-xs flex items-center justify-center flex-shrink-0 cursor-pointer">🖼️</button>
+              <button type="button" onclick="toggleQuickSoalUrlInput('E')" title="Link Gambar Pilihan E"
+                class="h-7 px-2 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 border border-slate-200 text-xs flex items-center justify-center flex-shrink-0 cursor-pointer">🔗</button>
+            </div>
+            <div id="quickSoalUrlWrapE" class="hidden">
+              <input type="url" id="inputQuickSoalUrlE" oninput="handleQuickSoalUrlInput('E', this.value)"
+                placeholder="https://... (gambar E)"
+                class="w-full py-1 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700">
+            </div>
+            <div id="quickSoalPreviewWrapE"
+              class="hidden flex items-center justify-between gap-2 p-1.5 bg-slate-50 rounded-lg border border-slate-200">
+              <img id="quickSoalPreviewImgE" src="" alt="Preview Pilihan E"
+                onclick="bukaZoomFotoProfil(this.src, 'Gambar Pilihan E', 'Kotak Soal')"
+                class="h-14 max-w-[130px] object-contain rounded bg-white border border-slate-200 cursor-pointer">
+              <button type="button" onclick="clearQuickSoalImage('E')"
+                class="py-1 px-2 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold flex-shrink-0 cursor-pointer">✕</button>
+            </div>
+          </div>
+          <div id="quickSoalOptWrapF" class="hidden p-2 bg-white/80 rounded-xl border border-amber-200/70 space-y-1.5">
+            <div class="flex items-center space-x-1.5">
+              <span
+                class="w-6 h-6 rounded-md bg-teal-600 text-white font-black text-xs flex items-center justify-center flex-shrink-0">F</span>
+              <input type="text" id="inputQuickSoalF" placeholder="Pilihan F (teks/opsional)"
+                class="flex-1 min-w-0 py-1.5 px-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800">
+              <input type="file" id="inputQuickSoalFileF" accept="image/*" class="hidden"
+                onchange="handleQuickSoalFileChange('F', event)">
+              <button type="button" onclick="triggerQuickSoalFile('F')" title="Upload Gambar Pilihan F"
+                class="h-7 px-2 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 border border-slate-200 text-xs flex items-center justify-center flex-shrink-0 cursor-pointer">🖼️</button>
+              <button type="button" onclick="toggleQuickSoalUrlInput('F')" title="Link Gambar Pilihan F"
+                class="h-7 px-2 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 border border-slate-200 text-xs flex items-center justify-center flex-shrink-0 cursor-pointer">🔗</button>
+            </div>
+            <div id="quickSoalUrlWrapF" class="hidden">
+              <input type="url" id="inputQuickSoalUrlF" oninput="handleQuickSoalUrlInput('F', this.value)"
+                placeholder="https://... (gambar F)"
+                class="w-full py-1 px-2 bg-slate-50 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700">
+            </div>
+            <div id="quickSoalPreviewWrapF"
+              class="hidden flex items-center justify-between gap-2 p-1.5 bg-slate-50 rounded-lg border border-slate-200">
+              <img id="quickSoalPreviewImgF" src="" alt="Preview Pilihan F"
+                onclick="bukaZoomFotoProfil(this.src, 'Gambar Pilihan F', 'Kotak Soal')"
+                class="h-14 max-w-[130px] object-contain rounded bg-white border border-slate-200 cursor-pointer">
+              <button type="button" onclick="clearQuickSoalImage('F')"
                 class="py-1 px-2 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold flex-shrink-0 cursor-pointer">✕</button>
             </div>
           </div>
@@ -5116,13 +5246,16 @@
       class="hidden py-2.5 px-4 bg-slate-950 border-t border-slate-800 flex flex-col items-center justify-center gap-1.5">
       <div class="flex items-center justify-center space-x-2">
         <button type="button" onclick="ubahZoomBerkasGambar(-0.25)"
-          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">🔍- Perkecil</button>
+          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">🔍-
+          Perkecil</button>
         <button type="button" onclick="resetZoomBerkasGambar()" id="zoomBerkasPercentText"
           class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">100%</button>
         <button type="button" onclick="ubahZoomBerkasGambar(0.25)"
-          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">🔍+ Perbesar</button>
+          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">🔍+
+          Perbesar</button>
       </div>
-      <p class="text-[10px] text-slate-400 font-medium text-center">Cubit layar HP atau scroll mouse laptop untuk zoom • Geser gambar saat diperbesar • Klik 2x reset</p>
+      <p class="text-[10px] text-slate-400 font-medium text-center">Cubit layar HP atau scroll mouse laptop untuk zoom •
+        Geser gambar saat diperbesar • Klik 2x reset</p>
     </div>
   </div>
 
@@ -5150,7 +5283,8 @@
         </div>
         <div class="min-w-0 flex-1 space-y-1">
           <p class="text-xs font-extrabold text-slate-800">Sampul Aktif Saat Ini</p>
-          <p id="pilihSampulCurrentStatus" class="text-[11px] text-slate-500 font-medium break-words">Belum memilih sampul khusus</p>
+          <p id="pilihSampulCurrentStatus" class="text-[11px] text-slate-500 font-medium break-words">Belum memilih
+            sampul khusus</p>
         </div>
       </div>
 
@@ -5169,7 +5303,8 @@
       <div class="space-y-2">
         <div class="flex items-center justify-between">
           <label class="block text-xs font-bold text-slate-700">2. Pilih Tema Sampul Menarik (Siap Pakai)</label>
-          <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Instan 1 Klik</span>
+          <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Instan 1
+            Klik</span>
         </div>
         <div id="pilihSampulPresetGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
       </div>
@@ -5182,7 +5317,8 @@
 
       <!-- 4. Tautan URL Gambar Eksternal -->
       <div class="space-y-1.5">
-        <label for="inputPilihSampulUrl" class="block text-xs font-bold text-slate-700">4. Atau Tempel Link URL Gambar</label>
+        <label for="inputPilihSampulUrl" class="block text-xs font-bold text-slate-700">4. Atau Tempel Link URL
+          Gambar</label>
         <div class="flex flex-col sm:flex-row gap-2">
           <input type="url" id="inputPilihSampulUrl" placeholder="https://drive.google.com/... atau https://..."
             class="flex-1 py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600">
@@ -5375,7 +5511,8 @@
       </div>
 
       <!-- Toolbar Kontrol Perbesar / Perkecil -->
-      <div class="flex flex-wrap items-center justify-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
+      <div
+        class="flex flex-wrap items-center justify-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
         <button type="button" onclick="ubahZoomProfil(-0.25)"
           class="py-1.5 px-3 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl text-xs transition-custom flex items-center space-x-1"
           title="Perkecil">
@@ -5397,7 +5534,8 @@
           <span>✏️ Ganti Foto</span>
         </button>
       </div>
-      <p class="text-[10px] text-slate-300 font-medium text-center">Cubit layar HP atau scroll mouse laptop untuk zoom • Geser saat diperbesar</p>
+      <p class="text-[10px] text-slate-300 font-medium text-center">Cubit layar HP atau scroll mouse laptop untuk zoom •
+        Geser saat diperbesar</p>
     </div>
   </div>
 
@@ -6657,8 +6795,8 @@
 
         var mockUngraded = (role === 'guru')
           ? (MOCK_DB.submissions || []).filter(s => s.statusNilai !== 'Sudah Dinilai').map(s => ({
-              id: s.id, taskId: s.idTugas, namaSiswa: s.namaSiswa, waktuKumpul: s.waktuKumpul
-            }))
+            id: s.id, taskId: s.idTugas, namaSiswa: s.namaSiswa, waktuKumpul: s.waktuKumpul
+          }))
           : [];
         var mockNotifTugas = (MOCK_DB.assignments || []).map(t => {
           var mySub = (MOCK_DB.submissions || []).find(s => s.idTugas === t.id && s.idPengguna === uId) || null;
@@ -6868,8 +7006,8 @@
           return { success: false, message: 'Status absen manual tidak valid.' };
         }
 
-        var clearLeaveMock = function() {
-          MOCK_DB.leaveRequests = (MOCK_DB.leaveRequests || []).filter(function(lv) {
+        var clearLeaveMock = function () {
+          MOCK_DB.leaveRequests = (MOCK_DB.leaveRequests || []).filter(function (lv) {
             if (lv.idPengguna !== stObj.id) return true;
             var sEnd = lv.tglSelesai || lv.tglMulai;
             return !(tDate >= lv.tglMulai && tDate <= sEnd);
@@ -9858,7 +9996,7 @@
       const buttons = Array.isArray(btnEls) ? btnEls.filter(Boolean) : [];
       buttons.forEach(b => { b.disabled = true; b.classList.add('opacity-60'); });
 
-      const restoreButtons = function() {
+      const restoreButtons = function () {
         buttons.forEach(b => { b.disabled = false; b.classList.remove('opacity-60'); });
       };
 
@@ -10792,8 +10930,8 @@
       const visibleList = isGuru
         ? (Array.isArray(list) ? list : [])
         : (Array.isArray(list) ? list : []).filter(item =>
-            currentUidUpper !== '' && String(item.idPengguna || '').trim().toUpperCase() === currentUidUpper
-          );
+          currentUidUpper !== '' && String(item.idPengguna || '').trim().toUpperCase() === currentUidUpper
+        );
       STATE.rekapNilaiList = visibleList;
 
       if (subtitleEl) {
@@ -15058,8 +15196,8 @@
       }
 
       var primaryUrl = String(item.urlMedia || item.fileUrl || item.url || '').trim();
-      var tipe = String(item.tipeMedia || 'Video').toLowerCase();
       var primaryCoverVal = normalizeMediaVideoCoverValueClient_(item.sampulVideo || item.coverUrl || '');
+      var tipe = String(item.tipeMedia || 'Video').toLowerCase();
       if (primaryUrl) {
         if (tipe === 'video' || (tipe === 'folder' && (isUrlVideoLike(primaryUrl) || (primaryCoverVal && !isUrlDokumenLike(primaryUrl))))) {
           addUnique(res.videos, {
@@ -15638,24 +15776,111 @@
       renderDraftLampiranList();
     }
 
+    const ALL_SOAL_LETTERS_ = ['A', 'B', 'C', 'D', 'E', 'F'];
+    const SOAL_COUNT_CHOICES_ = [
+      { count: 2, label: 'A–B' },
+      { count: 3, label: 'A–C' },
+      { count: 4, label: 'A–D' },
+      { count: 5, label: 'A–E' },
+      { count: 6, label: 'A–F' }
+    ];
+    window._formSoalOptionCount = 4;
+    window._quickSoalOptionCount = 4;
+
+    function resolveSoalOptionCount_(q) {
+      if (!q || typeof q !== 'object') return 4;
+      var explicitCount = parseInt(q.jumlahOpsi, 10);
+      if (!isNaN(explicitCount) && explicitCount >= 2 && explicitCount <= ALL_SOAL_LETTERS_.length) {
+        return explicitCount;
+      }
+      if (String(q.opsiF || '').trim() || resolveSoalMediaUrl(q.opsiFImg)) return 6;
+      if (String(q.opsiE || '').trim() || resolveSoalMediaUrl(q.opsiEImg)) return 5;
+      return 4;
+    }
+
+    function resolveSoalActiveLetters_(q) {
+      return ALL_SOAL_LETTERS_.slice(0, resolveSoalOptionCount_(q));
+    }
+
+    function normalizeSoalItemClient_(q, fallbackId) {
+      if (!q || typeof q !== 'object') return null;
+      var count = resolveSoalOptionCount_(q);
+      var activeLetters = ALL_SOAL_LETTERS_.slice(0, count);
+      var k = String(q.kunci || 'A').trim().toUpperCase();
+      if (activeLetters.indexOf(k) === -1) k = 'A';
+      var out = {
+        id: String(q.id || fallbackId || ('Q-' + Date.now() + '-' + Math.floor(Math.random() * 1000))),
+        pertanyaan: String(q.pertanyaan || '').trim(),
+        pertanyaanImg: String(q.pertanyaanImg || '').trim(),
+        jumlahOpsi: count,
+        kunci: k
+      };
+      ALL_SOAL_LETTERS_.forEach(function (h, idx) {
+        var active = idx < count;
+        out['opsi' + h] = active ? String(q['opsi' + h] || '').trim() : '';
+        out['opsi' + h + 'Img'] = active ? String(q['opsi' + h + 'Img'] || '').trim() : '';
+      });
+      return out;
+    }
+
+    function syncKunciSelectOptions_(selectEl, count, preferredKey, withJawabanPrefix) {
+      if (!selectEl) return;
+      var activeLetters = ALL_SOAL_LETTERS_.slice(0, count);
+      var curVal = String(preferredKey || selectEl.value || 'A').trim().toUpperCase();
+      if (activeLetters.indexOf(curVal) === -1) curVal = 'A';
+      selectEl.innerHTML = '';
+      activeLetters.forEach(function (h) {
+        var opt = document.createElement('option');
+        opt.value = h;
+        opt.textContent = withJawabanPrefix ? ('Jawaban ' + h) : h;
+        selectEl.appendChild(opt);
+      });
+      selectEl.value = curVal;
+    }
+
+    function renderSoalCountSelectorBar_(barEl, activeCount, onSelectFn) {
+      if (!barEl) return;
+      barEl.innerHTML = '';
+      SOAL_COUNT_CHOICES_.forEach(function (item) {
+        var isSel = (item.count === activeCount);
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.setAttribute('data-opsi-count', String(item.count));
+        btn.className = isSel
+          ? 'px-2.5 py-1 rounded-lg bg-amber-500 text-white text-[11px] font-black shadow-xs transition-custom cursor-pointer'
+          : 'px-2.5 py-1 rounded-lg bg-white hover:bg-amber-50 text-slate-600 hover:text-amber-800 border border-slate-200 text-[11px] font-bold transition-custom cursor-pointer';
+        btn.textContent = item.label + ' (' + item.count + ')';
+        btn.onclick = function () { onSelectFn(item.count); };
+        barEl.appendChild(btn);
+      });
+    }
+
+    function setFormSoalOptionCount(count, preferredKey) {
+      var clamped = Math.max(2, Math.min(ALL_SOAL_LETTERS_.length, parseInt(count, 10) || 4));
+      window._formSoalOptionCount = clamped;
+      renderSoalCountSelectorBar_(document.getElementById('formSoalCountBar'), clamped, setFormSoalOptionCount);
+      ALL_SOAL_LETTERS_.forEach(function (h, idx) {
+        var wrap = document.getElementById('formSoalOptWrap' + h);
+        if (!wrap) return;
+        if (idx < clamped) wrap.classList.remove('hidden');
+        else wrap.classList.add('hidden');
+      });
+      syncKunciSelectOptions_(document.getElementById('selectFormSoalKunci'), clamped, preferredKey, true);
+    }
+
     function resetBuilderDraftSoal() {
       const idxEl = document.getElementById('inputFormSoalEditIdx');
       const pEl = document.getElementById('inputFormSoalPertanyaan');
-      const aEl = document.getElementById('inputFormSoalA');
-      const bEl = document.getElementById('inputFormSoalB');
-      const cEl = document.getElementById('inputFormSoalC');
-      const dEl = document.getElementById('inputFormSoalD');
-      const kEl = document.getElementById('selectFormSoalKunci');
       const btnSave = document.getElementById('btnSimpanDraftSoal');
       const btnBatal = document.getElementById('btnBatalEditDraftSoal');
 
       if (idxEl) idxEl.value = '-1';
       if (pEl) pEl.value = '';
-      if (aEl) aEl.value = '';
-      if (bEl) bEl.value = '';
-      if (cEl) cEl.value = '';
-      if (dEl) dEl.value = '';
-      if (kEl) kEl.value = 'A';
+      ALL_SOAL_LETTERS_.forEach(function (h) {
+        var el = document.getElementById('inputFormSoal' + h);
+        if (el) el.value = '';
+      });
+      setFormSoalOptionCount(window._formSoalOptionCount || 4, 'A');
       if (btnSave) btnSave.textContent = '+ Tambah Kotak Soal';
       if (btnBatal) btnBatal.classList.add('hidden');
       const imgNotice = document.getElementById('formSoalImgNotice');
@@ -15686,8 +15911,10 @@
           '</div>'
           : '';
 
+        const activeLetters = resolveSoalActiveLetters_(q);
+        const opsiRangeLabel = activeLetters.length + ' Opsi (' + activeLetters[0] + '–' + activeLetters[activeLetters.length - 1] + ')';
         var optHtml = '';
-        ['A', 'B', 'C', 'D'].forEach(function (h) {
+        activeLetters.forEach(function (h) {
           const oText = String(q['opsi' + h] || '').trim();
           const oImgSrc = resolveSoalMediaUrl(q['opsi' + h + 'Img']);
           optHtml += '<div class="flex items-center space-x-1.5 min-w-0 bg-slate-50/90 rounded-lg px-2 py-1 border border-slate-100">' +
@@ -15703,6 +15930,7 @@
           '<div class="flex flex-wrap items-center gap-1.5 mb-0.5">' +
           '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-900">' + escapeHtml(labelPrefix) + ' #' + visibleNo + '</span>' +
           '<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Kunci: ' + escapeHtml(q.kunci || 'A') + '</span>' +
+          '<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">' + escapeHtml(opsiRangeLabel) + '</span>' +
           '</div>' +
           qTextHtml +
           qImgHtml +
@@ -15712,7 +15940,7 @@
           '<button type="button" onclick="' + delFn + '(' + idx + ')" class="py-1 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-[10px] font-bold cursor-pointer">Hapus</button>' +
           '</div>' +
           '</div>' +
-          '<div class="grid grid-cols-2 gap-1.5 text-[10px] font-semibold pt-0.5">' +
+          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[10px] font-semibold pt-0.5">' +
           optHtml +
           '</div>' +
           '</div>';
@@ -15739,46 +15967,40 @@
     function simpanDraftSoalKeForm() {
       const idxEl = document.getElementById('inputFormSoalEditIdx');
       const pEl = document.getElementById('inputFormSoalPertanyaan');
-      const aEl = document.getElementById('inputFormSoalA');
-      const bEl = document.getElementById('inputFormSoalB');
-      const cEl = document.getElementById('inputFormSoalC');
-      const dEl = document.getElementById('inputFormSoalD');
       const kEl = document.getElementById('selectFormSoalKunci');
 
       const pertanyaan = pEl ? pEl.value.trim() : '';
-      const opsiA = aEl ? aEl.value.trim() : '';
-      const opsiB = bEl ? bEl.value.trim() : '';
-      const opsiC = cEl ? cEl.value.trim() : '';
-      const opsiD = dEl ? dEl.value.trim() : '';
+      const count = Math.max(2, Math.min(ALL_SOAL_LETTERS_.length, window._formSoalOptionCount || 4));
+      const activeLetters = ALL_SOAL_LETTERS_.slice(0, count);
       const kunci = kEl ? kEl.value : 'A';
 
       const editIdx = idxEl ? parseInt(idxEl.value, 10) : -1;
       const existingQ = (editIdx >= 0 && window._draftMediaSoal[editIdx]) ? window._draftMediaSoal[editIdx] : null;
       const pertImg = existingQ ? (existingQ.pertanyaanImg || '') : '';
-      const optImgA = existingQ ? (existingQ.opsiAImg || '') : '';
-      const optImgB = existingQ ? (existingQ.opsiBImg || '') : '';
-      const optImgC = existingQ ? (existingQ.opsiCImg || '') : '';
-      const optImgD = existingQ ? (existingQ.opsiDImg || '') : '';
 
-      if ((!pertanyaan && !pertImg) || (!opsiA && !optImgA) || (!opsiB && !optImgB) || (!opsiC && !optImgC) || (!opsiD && !optImgD)) {
-        showToast('Lengkapi pertanyaan serta pilihan A, B, C, dan D terlebih dahulu!', 'warning');
-        return;
-      }
-
-      const objSoal = {
+      var missingOption = false;
+      var rawObj = {
         id: existingQ ? existingQ.id : ('Q-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
         pertanyaan: pertanyaan,
         pertanyaanImg: pertImg,
-        opsiA: opsiA,
-        opsiAImg: optImgA,
-        opsiB: opsiB,
-        opsiBImg: optImgB,
-        opsiC: opsiC,
-        opsiCImg: optImgC,
-        opsiD: opsiD,
-        opsiDImg: optImgD,
+        jumlahOpsi: count,
         kunci: kunci
       };
+      activeLetters.forEach(function (h) {
+        var el = document.getElementById('inputFormSoal' + h);
+        var txt = el ? el.value.trim() : '';
+        var imgVal = existingQ ? (existingQ['opsi' + h + 'Img'] || '') : '';
+        rawObj['opsi' + h] = txt;
+        rawObj['opsi' + h + 'Img'] = imgVal;
+        if (!txt && !imgVal) missingOption = true;
+      });
+
+      if ((!pertanyaan && !pertImg) || missingOption) {
+        showToast('Lengkapi pertanyaan serta pilihan ' + activeLetters.join(', ') + ' terlebih dahulu!', 'warning');
+        return;
+      }
+
+      const objSoal = normalizeSoalItemClient_(rawObj, rawObj.id);
 
       if (editIdx >= 0 && editIdx < window._draftMediaSoal.length) {
         window._draftMediaSoal[editIdx] = objSoal;
@@ -15795,16 +16017,17 @@
     function editDraftSoalDiForm(idx) {
       const q = window._draftMediaSoal[idx];
       if (!q) return;
+      const count = resolveSoalOptionCount_(q);
       document.getElementById('inputFormSoalEditIdx').value = String(idx);
       document.getElementById('inputFormSoalPertanyaan').value = q.pertanyaan || '';
-      document.getElementById('inputFormSoalA').value = q.opsiA || '';
-      document.getElementById('inputFormSoalB').value = q.opsiB || '';
-      document.getElementById('inputFormSoalC').value = q.opsiC || '';
-      document.getElementById('inputFormSoalD').value = q.opsiD || '';
-      document.getElementById('selectFormSoalKunci').value = q.kunci || 'A';
+      ALL_SOAL_LETTERS_.forEach(function (h) {
+        var el = document.getElementById('inputFormSoal' + h);
+        if (el) el.value = q['opsi' + h] || '';
+      });
+      setFormSoalOptionCount(count, q.kunci || 'A');
       document.getElementById('btnSimpanDraftSoal').textContent = 'Simpan Perubahan Soal';
       document.getElementById('btnBatalEditDraftSoal').classList.remove('hidden');
-      const hasAnyImg = Boolean(q.pertanyaanImg || q.opsiAImg || q.opsiBImg || q.opsiCImg || q.opsiDImg);
+      const hasAnyImg = Boolean(q.pertanyaanImg || resolveSoalActiveLetters_(q).some(function (h) { return Boolean(q['opsi' + h + 'Img']); }));
       const imgNotice = document.getElementById('formSoalImgNotice');
       if (imgNotice) {
         if (hasAnyImg) imgNotice.classList.remove('hidden');
@@ -15855,6 +16078,7 @@
 
       window._draftMediaLampiran = [];
       window._draftMediaSoal = [];
+      window._formSoalOptionCount = 4;
       const linkPanel = document.getElementById('panelFolderAddLink');
       if (linkPanel) linkPanel.classList.add('hidden');
       resetBuilderDraftSoal();
@@ -15929,6 +16153,9 @@
       window._draftMediaSoal = Array.isArray(item.daftarSoal)
         ? item.daftarSoal.map(function (q) { return Object.assign({}, q); })
         : [];
+      window._formSoalOptionCount = (window._draftMediaSoal.length > 0)
+        ? resolveSoalOptionCount_(window._draftMediaSoal[window._draftMediaSoal.length - 1])
+        : 4;
 
       const linkPanel = document.getElementById('panelFolderAddLink');
       if (linkPanel) linkPanel.classList.add('hidden');
@@ -16117,28 +16344,25 @@
 
       // Otomatis masukkan pertanyaan jika guru sudah menulis lengkap tapi belum menekan "+ Tambah Kotak Soal"
       const pEl = document.getElementById('inputFormSoalPertanyaan');
-      const aEl = document.getElementById('inputFormSoalA');
-      const bEl = document.getElementById('inputFormSoalB');
-      const cEl = document.getElementById('inputFormSoalC');
-      const dEl = document.getElementById('inputFormSoalD');
       const formSoalEditIdxEl = document.getElementById('inputFormSoalEditIdx');
       const formSoalEditIdx = formSoalEditIdxEl ? parseInt(formSoalEditIdxEl.value, 10) : -1;
       const pendingP = pEl ? pEl.value.trim() : '';
-      const pendingA = aEl ? aEl.value.trim() : '';
-      const pendingB = bEl ? bEl.value.trim() : '';
-      const pendingC = cEl ? cEl.value.trim() : '';
-      const pendingD = dEl ? dEl.value.trim() : '';
+      const activeFormLetters = ALL_SOAL_LETTERS_.slice(0, window._formSoalOptionCount || 4);
+      const pendingOptValues = activeFormLetters.map(function (h) {
+        var el = document.getElementById('inputFormSoal' + h);
+        return el ? el.value.trim() : '';
+      });
+      const anyPendingOptText = pendingOptValues.some(Boolean);
       const editingHasImg = (formSoalEditIdx >= 0 && window._draftMediaSoal && window._draftMediaSoal[formSoalEditIdx]);
-      if (pendingP || pendingA || pendingB || pendingC || pendingD || editingHasImg) {
+      if (pendingP || anyPendingOptText || editingHasImg) {
         const hasQ = Boolean(pendingP || (editingHasImg && editingHasImg.pertanyaanImg));
-        const hasA = Boolean(pendingA || (editingHasImg && editingHasImg.opsiAImg));
-        const hasB = Boolean(pendingB || (editingHasImg && editingHasImg.opsiBImg));
-        const hasC = Boolean(pendingC || (editingHasImg && editingHasImg.opsiCImg));
-        const hasD = Boolean(pendingD || (editingHasImg && editingHasImg.opsiDImg));
-        if (hasQ && hasA && hasB && hasC && hasD) {
+        const allActiveOptsFilled = activeFormLetters.every(function (h, idx) {
+          return Boolean(pendingOptValues[idx] || (editingHasImg && editingHasImg['opsi' + h + 'Img']));
+        });
+        if (hasQ && allActiveOptsFilled) {
           simpanDraftSoalKeForm();
         } else if (!editingHasImg) {
-          showToast('Ada isian Kotak Soal yang belum lengkap (A/B/C/D). Lengkapi atau kosongkan sebelum menyimpan.', 'warning');
+          showToast('Ada isian Kotak Soal yang belum lengkap (' + activeFormLetters.join('/') + '). Lengkapi atau kosongkan sebelum menyimpan.', 'warning');
           return;
         }
       }
@@ -16164,21 +16388,8 @@
           };
         });
         const cleanSoal = (window._draftMediaSoal || []).map(function (q) {
-          return {
-            id: q.id,
-            pertanyaan: q.pertanyaan || '',
-            pertanyaanImg: q.pertanyaanImg || '',
-            opsiA: q.opsiA || '',
-            opsiAImg: q.opsiAImg || '',
-            opsiB: q.opsiB || '',
-            opsiBImg: q.opsiBImg || '',
-            opsiC: q.opsiC || '',
-            opsiCImg: q.opsiCImg || '',
-            opsiD: q.opsiD || '',
-            opsiDImg: q.opsiDImg || '',
-            kunci: q.kunci || 'A'
-          };
-        });
+          return normalizeSoalItemClient_(q, q && q.id);
+        }).filter(Boolean);
 
         var primaryCovState = window._draftPrimaryVideoCover || { url: '', sourceAttId: '' };
         if (primaryCovState.sourceAttId) {
@@ -16931,18 +17142,23 @@
       showToast('Posisi kotak soal berhasil diacak!', 'success');
     }
 
-    function resetOpsiTombolSoalStyle() {
+    function resetOpsiTombolSoalStyle(activeLetters) {
       const styles = {
         A: 'bg-amber-500',
         B: 'bg-sky-500',
         C: 'bg-emerald-500',
-        D: 'bg-purple-600'
+        D: 'bg-purple-600',
+        E: 'bg-rose-500',
+        F: 'bg-teal-600'
       };
-      ['A', 'B', 'C', 'D'].forEach(function (huruf) {
+      const activeSet = Array.isArray(activeLetters) ? activeLetters : ['A', 'B', 'C', 'D'];
+      ALL_SOAL_LETTERS_.forEach(function (huruf) {
         const btn = document.getElementById('btnOpsiSoal' + huruf);
         if (!btn) return;
+        const isActive = activeSet.indexOf(huruf) > -1;
         btn.disabled = false;
-        btn.className = 'w-full text-left p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-400 flex flex-col items-stretch justify-center gap-2 transition-all cursor-pointer';
+        btn.className = (isActive ? '' : 'hidden ') +
+          'w-full text-left p-3 rounded-2xl bg-slate-50 hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-400 flex flex-col items-stretch justify-center gap-2 transition-all cursor-pointer';
         const badge = btn.querySelector('[data-opt-badge]') || btn.querySelector('span:first-child');
         if (badge) {
           badge.className = 'w-8 h-8 rounded-xl ' + styles[huruf] + ' text-white font-black text-sm flex items-center justify-center flex-shrink-0';
@@ -16985,7 +17201,8 @@
         }
       }
 
-      const hasAnyOptImg = ['A', 'B', 'C', 'D'].some(function (h) {
+      const activeLetters = resolveSoalActiveLetters_(q);
+      const hasAnyOptImg = activeLetters.some(function (h) {
         return Boolean(resolveSoalMediaUrl(q['opsi' + h + 'Img']));
       });
       const optWrap = document.getElementById('tanyaSoalOptionsWrap');
@@ -16993,9 +17210,10 @@
         optWrap.className = hasAnyOptImg ? 'grid grid-cols-1 sm:grid-cols-2 gap-2.5' : 'grid grid-cols-1 gap-2.5';
       }
 
-      ['A', 'B', 'C', 'D'].forEach(function (huruf) {
-        const optText = String(q['opsi' + huruf] || '').trim();
-        const optImgSrc = resolveSoalMediaUrl(q['opsi' + huruf + 'Img']);
+      ALL_SOAL_LETTERS_.forEach(function (huruf) {
+        const isActive = activeLetters.indexOf(huruf) > -1;
+        const optText = isActive ? String(q['opsi' + huruf] || '').trim() : '';
+        const optImgSrc = isActive ? resolveSoalMediaUrl(q['opsi' + huruf + 'Img']) : '';
         const textEl = document.getElementById('tanyaOpsiText' + huruf);
         const imgWrapEl = document.getElementById('tanyaOpsiImgWrap' + huruf);
         const imgEl = document.getElementById('tanyaOpsiImg' + huruf);
@@ -17004,7 +17222,7 @@
           if (optText) {
             textEl.textContent = optText;
             textEl.classList.remove('hidden');
-          } else if (!optImgSrc) {
+          } else if (isActive && !optImgSrc) {
             textEl.textContent = '-';
             textEl.classList.remove('hidden');
           } else {
@@ -17023,7 +17241,7 @@
         }
       });
 
-      resetOpsiTombolSoalStyle();
+      resetOpsiTombolSoalStyle(activeLetters);
       document.getElementById('modalTanyaSoalBox').classList.remove('hidden');
     }
 
@@ -17081,10 +17299,16 @@
       const isBenar = (chosen === kunci);
 
       // Nonaktifkan seluruh pilihan setelah satu jawaban diklik
-      ['A', 'B', 'C', 'D'].forEach(function (huruf) {
+      const activeLetters = resolveSoalActiveLetters_(q);
+      ALL_SOAL_LETTERS_.forEach(function (huruf) {
         const btn = document.getElementById('btnOpsiSoal' + huruf);
         if (!btn) return;
+        const isActive = activeLetters.indexOf(huruf) > -1;
         btn.disabled = true;
+        if (!isActive) {
+          btn.classList.add('hidden');
+          return;
+        }
         if (huruf === chosen) {
           btn.className = isBenar
             ? 'w-full text-left p-3 rounded-2xl bg-emerald-50 border-2 border-emerald-500 flex flex-col items-stretch justify-center gap-2 transition-all'
@@ -17136,6 +17360,10 @@
       const item = findMediaItemById_(window._activeFolderMediaId);
       if (!item) return;
       document.getElementById('quickSoalFolderTitle').textContent = item.judul || 'Folder Materi';
+      const existingSoal = Array.isArray(item.daftarSoal) ? item.daftarSoal : [];
+      window._quickSoalOptionCount = (existingSoal.length > 0)
+        ? resolveSoalOptionCount_(existingSoal[existingSoal.length - 1])
+        : 4;
       resetQuickSoalForm();
       renderQuickSoalExistingList(item);
       document.getElementById('modalKelolaSoalCepat').classList.remove('hidden');
@@ -17145,13 +17373,26 @@
       document.getElementById('modalKelolaSoalCepat').classList.add('hidden');
     }
 
-    const QUICK_SOAL_SLOTS = ['Q', 'A', 'B', 'C', 'D'];
+    const QUICK_SOAL_SLOTS = ['Q', 'A', 'B', 'C', 'D', 'E', 'F'];
 
     function initQuickSoalImgState() {
       if (!window._quickSoalImgState) {
-        window._quickSoalImgState = { Q: null, A: null, B: null, C: null, D: null };
+        window._quickSoalImgState = { Q: null, A: null, B: null, C: null, D: null, E: null, F: null };
       }
       return window._quickSoalImgState;
+    }
+
+    function setQuickSoalOptionCount(count, preferredKey) {
+      var clamped = Math.max(2, Math.min(ALL_SOAL_LETTERS_.length, parseInt(count, 10) || 4));
+      window._quickSoalOptionCount = clamped;
+      renderSoalCountSelectorBar_(document.getElementById('quickSoalCountBar'), clamped, setQuickSoalOptionCount);
+      ALL_SOAL_LETTERS_.forEach(function (h, idx) {
+        var wrap = document.getElementById('quickSoalOptWrap' + h);
+        if (!wrap) return;
+        if (idx < clamped) wrap.classList.remove('hidden');
+        else wrap.classList.add('hidden');
+      });
+      syncKunciSelectOptions_(document.getElementById('selectQuickSoalKunci'), clamped, preferredKey, false);
     }
 
     function setQuickSoalPreviewDom(slot, displaySrc) {
@@ -17334,12 +17575,12 @@
     function resetQuickSoalForm() {
       document.getElementById('inputQuickSoalEditIdx').value = '-1';
       document.getElementById('inputQuickSoalPertanyaan').value = '';
-      document.getElementById('inputQuickSoalA').value = '';
-      document.getElementById('inputQuickSoalB').value = '';
-      document.getElementById('inputQuickSoalC').value = '';
-      document.getElementById('inputQuickSoalD').value = '';
+      ALL_SOAL_LETTERS_.forEach(function (h) {
+        var el = document.getElementById('inputQuickSoal' + h);
+        if (el) el.value = '';
+      });
       QUICK_SOAL_SLOTS.forEach(clearQuickSoalImage);
-      document.getElementById('selectQuickSoalKunci').value = 'A';
+      setQuickSoalOptionCount(window._quickSoalOptionCount || 4, 'A');
       document.getElementById('btnSimpanQuickSoal').textContent = '+ Simpan Kotak Soal';
       document.getElementById('btnSimpanQuickSoal').disabled = false;
       document.getElementById('btnBatalEditQuickSoal').classList.add('hidden');
@@ -17363,17 +17604,18 @@
       const item = findMediaItemById_(window._activeFolderMediaId);
       if (!item || !Array.isArray(item.daftarSoal) || !item.daftarSoal[idx]) return;
       const q = item.daftarSoal[idx];
+      const count = resolveSoalOptionCount_(q);
       document.getElementById('inputQuickSoalEditIdx').value = String(idx);
       document.getElementById('inputQuickSoalPertanyaan').value = q.pertanyaan || '';
-      document.getElementById('inputQuickSoalA').value = q.opsiA || '';
-      document.getElementById('inputQuickSoalB').value = q.opsiB || '';
-      document.getElementById('inputQuickSoalC').value = q.opsiC || '';
-      document.getElementById('inputQuickSoalD').value = q.opsiD || '';
-      document.getElementById('selectQuickSoalKunci').value = q.kunci || 'A';
+      ALL_SOAL_LETTERS_.forEach(function (h) {
+        var el = document.getElementById('inputQuickSoal' + h);
+        if (el) el.value = q['opsi' + h] || '';
+      });
+      setQuickSoalOptionCount(count, q.kunci || 'A');
 
       const st = initQuickSoalImgState();
-      QUICK_SOAL_SLOTS.forEach(function (slot) {
-        clearQuickSoalImage(slot);
+      QUICK_SOAL_SLOTS.forEach(clearQuickSoalImage);
+      ['Q'].concat(ALL_SOAL_LETTERS_.slice(0, count)).forEach(function (slot) {
         const fieldName = (slot === 'Q') ? 'pertanyaanImg' : ('opsi' + slot + 'Img');
         const imgUrl = String(q[fieldName] || '').trim();
         if (imgUrl) {
@@ -17433,23 +17675,26 @@
       if (!item) return;
 
       const p = document.getElementById('inputQuickSoalPertanyaan').value.trim();
-      const a = document.getElementById('inputQuickSoalA').value.trim();
-      const b = document.getElementById('inputQuickSoalB').value.trim();
-      const c = document.getElementById('inputQuickSoalC').value.trim();
-      const d = document.getElementById('inputQuickSoalD').value.trim();
+      const count = Math.max(2, Math.min(ALL_SOAL_LETTERS_.length, window._quickSoalOptionCount || 4));
+      const activeLetters = ALL_SOAL_LETTERS_.slice(0, count);
+      const optTexts = {};
+      var missingActiveOpt = false;
+      activeLetters.forEach(function (h) {
+        var el = document.getElementById('inputQuickSoal' + h);
+        var txt = el ? el.value.trim() : '';
+        optTexts[h] = txt;
+        if (!hasQuickSoalSlotContent(h, txt)) missingActiveOpt = true;
+      });
       const k = document.getElementById('selectQuickSoalKunci').value;
       const editIdx = parseInt(document.getElementById('inputQuickSoalEditIdx').value || '-1', 10);
 
-      if (
-        !hasQuickSoalSlotContent('Q', p) ||
-        !hasQuickSoalSlotContent('A', a) ||
-        !hasQuickSoalSlotContent('B', b) ||
-        !hasQuickSoalSlotContent('C', c) ||
-        !hasQuickSoalSlotContent('D', d)
-      ) {
-        showToast('Lengkapi pertanyaan serta pilihan A, B, C, dan D (isi teks atau gambar)!', 'warning');
+      if (!hasQuickSoalSlotContent('Q', p) || missingActiveOpt) {
+        showToast('Lengkapi pertanyaan serta pilihan ' + activeLetters.join(', ') + ' (isi teks atau gambar)!', 'warning');
         return;
       }
+
+      // Bersihkan gambar slot yang tidak aktif apabila jumlah opsi diperkecil
+      ALL_SOAL_LETTERS_.slice(count).forEach(clearQuickSoalImage);
 
       const btn = document.getElementById('btnSimpanQuickSoal');
       const idleLabel = (editIdx >= 0) ? 'Simpan Perubahan' : '+ Simpan Kotak Soal';
@@ -17465,27 +17710,26 @@
         }
       }
 
+      const activeUploadSlots = ['Q'].concat(activeLetters);
       uploadQuickSoalImagesSequential(
-        QUICK_SOAL_SLOTS,
+        activeUploadSlots,
         btn,
         function () {
           if (btn) btn.textContent = 'Menyimpan soal...';
           const st = initQuickSoalImgState();
           const currentSoal = Array.isArray(item.daftarSoal) ? item.daftarSoal.slice() : [];
-          const newEntry = {
+          var rawEntry = {
             id: (editIdx >= 0 && currentSoal[editIdx]) ? currentSoal[editIdx].id : ('Q-' + Date.now() + '-' + Math.floor(Math.random() * 1000)),
             pertanyaan: p,
             pertanyaanImg: st.Q ? (st.Q.url || '') : '',
-            opsiA: a,
-            opsiAImg: st.A ? (st.A.url || '') : '',
-            opsiB: b,
-            opsiBImg: st.B ? (st.B.url || '') : '',
-            opsiC: c,
-            opsiCImg: st.C ? (st.C.url || '') : '',
-            opsiD: d,
-            opsiDImg: st.D ? (st.D.url || '') : '',
+            jumlahOpsi: count,
             kunci: k
           };
+          activeLetters.forEach(function (h) {
+            rawEntry['opsi' + h] = optTexts[h] || '';
+            rawEntry['opsi' + h + 'Img'] = st[h] ? (st[h].url || '') : '';
+          });
+          const newEntry = normalizeSoalItemClient_(rawEntry, rawEntry.id);
 
           if (editIdx >= 0 && editIdx < currentSoal.length) {
             currentSoal[editIdx] = newEntry;
