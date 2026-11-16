@@ -4466,6 +4466,31 @@
               placeholder="https://www.youtube.com/watch?v=... atau https://drive.google.com/..."
               class="w-full py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-purple-600">
           </div>
+
+          <!-- Pilihan Sampul Khusus Video Utama -->
+          <div id="mediaPrimaryCoverBox"
+            class="p-2.5 bg-white rounded-xl border border-purple-200 flex flex-wrap items-center justify-between gap-2.5">
+            <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+              <div id="mediaPrimaryCoverThumb"
+                class="w-16 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center flex-shrink-0 text-xs font-bold text-slate-400">
+                🎬
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-[11px] font-extrabold text-slate-800">Sampul Video Pembelajaran</p>
+                <p id="mediaPrimaryCoverLabel" class="text-[10px] text-slate-500 font-medium truncate">Default Otomatis (Belum dipilih)</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-1.5 flex-shrink-0 ml-auto">
+              <button type="button" id="btnResetPrimaryCover" onclick="resetPrimaryVideoCoverDraft()"
+                class="hidden py-1.5 px-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-lg text-[11px] transition-custom cursor-pointer">
+                Reset
+              </button>
+              <button type="button" onclick="openModalPilihSampulVideo('primary')"
+                class="py-1.5 px-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-[11px] shadow-xs transition-custom cursor-pointer">
+                🖼️ Pilih Sampul
+              </button>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -5084,17 +5109,100 @@
     </div>
 
     <div id="previewBerkasContent"
-      class="relative flex-1 w-full h-full overflow-auto bg-slate-900 flex items-center justify-center p-2 sm:p-4">
+      class="relative flex-1 w-full h-full overflow-hidden touch-none select-none bg-slate-900 flex items-center justify-center p-2 sm:p-4">
     </div>
 
     <div id="previewBerkasZoomBar"
-      class="hidden py-2.5 px-4 bg-slate-950 border-t border-slate-800 flex items-center justify-center space-x-2">
-      <button type="button" onclick="ubahZoomBerkasGambar(-0.25)"
-        class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs">🔍- Perkecil</button>
-      <button type="button" onclick="resetZoomBerkasGambar()" id="zoomBerkasPercentText"
-        class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs">100%</button>
-      <button type="button" onclick="ubahZoomBerkasGambar(0.25)"
-        class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs">🔍+ Perbesar</button>
+      class="hidden py-2.5 px-4 bg-slate-950 border-t border-slate-800 flex flex-col items-center justify-center gap-1.5">
+      <div class="flex items-center justify-center space-x-2">
+        <button type="button" onclick="ubahZoomBerkasGambar(-0.25)"
+          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">🔍- Perkecil</button>
+        <button type="button" onclick="resetZoomBerkasGambar()" id="zoomBerkasPercentText"
+          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">100%</button>
+        <button type="button" onclick="ubahZoomBerkasGambar(0.25)"
+          class="py-1.5 px-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-xs transition-custom cursor-pointer">🔍+ Perbesar</button>
+      </div>
+      <p class="text-[10px] text-slate-400 font-medium text-center">Cubit layar HP atau scroll mouse laptop untuk zoom • Geser gambar saat diperbesar • Klik 2x reset</p>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL 2F: PEMILIH SAMPUL VIDEO PEMBELAJARAN (UPLOAD / TEMA / GAMBAR FOLDER) -->
+  <!-- ========================================================================= -->
+  <div id="modalPilihSampulVideo"
+    class="fixed inset-0 bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-[78] hidden">
+    <div
+      class="bg-white rounded-3xl max-w-xl w-full p-4 sm:p-6 shadow-2xl space-y-4 animate-scale-up max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 sticky top-0 bg-white z-10">
+        <div class="min-w-0 pr-2">
+          <h3 class="text-base font-extrabold text-slate-800">🖼️ Pilih Sampul Video Pembelajaran</h3>
+          <p id="pilihSampulTargetName" class="text-[11px] text-purple-700 font-semibold truncate">Untuk Video Utama</p>
+        </div>
+        <button type="button" onclick="closeModalPilihSampulVideo()"
+          class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-700 font-bold text-base flex items-center justify-center flex-shrink-0 cursor-pointer">✕</button>
+      </div>
+
+      <!-- Pratinjau Sampul Saat Ini -->
+      <div class="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center space-x-3">
+        <div id="pilihSampulCurrentPreview"
+          class="w-28 aspect-video rounded-xl overflow-hidden bg-slate-200 border border-slate-300 flex items-center justify-center flex-shrink-0 text-xl">
+          🎬
+        </div>
+        <div class="min-w-0 flex-1 space-y-1">
+          <p class="text-xs font-extrabold text-slate-800">Sampul Aktif Saat Ini</p>
+          <p id="pilihSampulCurrentStatus" class="text-[11px] text-slate-500 font-medium break-words">Belum memilih sampul khusus</p>
+        </div>
+      </div>
+
+      <!-- 1. Unggah Foto Sampul Sendiri -->
+      <div class="space-y-1.5">
+        <label class="block text-xs font-bold text-slate-700">1. Unggah Gambar Sampul dari HP / Laptop</label>
+        <input type="file" id="inputPilihSampulFile" accept="image/*,.jpg,.jpeg,.png,.webp" class="hidden"
+          onchange="handlePilihSampulFileSelected(event)">
+        <button type="button" onclick="document.getElementById('inputPilihSampulFile').click()"
+          class="w-full py-2.5 px-3 bg-purple-50 hover:bg-purple-100 border-2 border-dashed border-purple-300 text-purple-800 font-bold rounded-xl text-xs flex items-center justify-center space-x-2 transition-custom cursor-pointer">
+          <span>📁 Pilih Foto Sampul (JPG / PNG / WebP)</span>
+        </button>
+      </div>
+
+      <!-- 2. Galeri Tema Sampul Edukatif Siap Pakai -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="block text-xs font-bold text-slate-700">2. Pilih Tema Sampul Menarik (Siap Pakai)</label>
+          <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full">Instan 1 Klik</span>
+        </div>
+        <div id="pilihSampulPresetGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+      </div>
+
+      <!-- 3. Ambil dari Gambar yang Sudah Ada di Folder -->
+      <div id="pilihSampulFolderSection" class="hidden space-y-2">
+        <label class="block text-xs font-bold text-slate-700">3. Ambil dari Gambar di Folder Materi Ini</label>
+        <div id="pilihSampulFolderImagesGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-2"></div>
+      </div>
+
+      <!-- 4. Tautan URL Gambar Eksternal -->
+      <div class="space-y-1.5">
+        <label for="inputPilihSampulUrl" class="block text-xs font-bold text-slate-700">4. Atau Tempel Link URL Gambar</label>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input type="url" id="inputPilihSampulUrl" placeholder="https://drive.google.com/... atau https://..."
+            class="flex-1 py-2 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:bg-white focus:outline-none focus:border-purple-600">
+          <button type="button" onclick="terapkanUrlSampulVideo()"
+            class="py-2 px-4 bg-sky-600 hover:bg-sky-700 text-white font-bold rounded-xl text-xs whitespace-nowrap transition-custom cursor-pointer">
+            Terapkan Link
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+        <button type="button" onclick="hapusSampulVideoTarget()"
+          class="py-2 px-3 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold rounded-xl text-xs transition-custom cursor-pointer">
+          ↺ Gunakan Default Otomatis
+        </button>
+        <button type="button" onclick="closeModalPilihSampulVideo()"
+          class="py-2 px-5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs shadow-sm transition-custom cursor-pointer">
+          Selesai
+        </button>
+      </div>
     </div>
   </div>
 
@@ -5251,14 +5359,15 @@
     </div>
 
     <!-- Container Gambar Terpusat -->
-    <div class="relative max-w-full max-h-[75vh] flex items-center justify-center overflow-hidden p-2"
+    <div id="zoomFotoProfilStage"
+      class="relative max-w-4xl w-full h-[64vh] sm:h-[70vh] flex items-center justify-center overflow-hidden touch-none select-none p-2"
       onclick="event.stopPropagation()">
-      <img id="zoomFotoProfilImg" src="" alt=""
-        class="max-w-full max-h-[70vh] rounded-3xl object-contain shadow-2xl transition-transform duration-200 select-none border-4 border-white/20">
+      <img id="zoomFotoProfilImg" src="" alt="" draggable="false"
+        class="max-w-full max-h-[62vh] sm:max-h-[68vh] rounded-3xl object-contain shadow-2xl select-none border-4 border-white/20">
     </div>
 
     <!-- Metadata Pengguna & Toolbar Kontrol Zoom di Bawah -->
-    <div class="mt-4 flex flex-col items-center space-y-2.5 z-10" onclick="event.stopPropagation()">
+    <div class="mt-3 flex flex-col items-center space-y-2 z-10" onclick="event.stopPropagation()">
       <div class="text-center">
         <h4 id="zoomFotoProfilNama" class="text-white font-extrabold text-sm sm:text-base">Nama Pengguna</h4>
         <span id="zoomFotoProfilRole" class="text-sky-300 text-xs font-semibold">Guru • Kelas 1-B SD NEGERI
@@ -5266,7 +5375,7 @@
       </div>
 
       <!-- Toolbar Kontrol Perbesar / Perkecil -->
-      <div class="flex items-center space-x-2 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
+      <div class="flex flex-wrap items-center justify-center gap-1.5 bg-white/10 backdrop-blur-md p-1.5 rounded-2xl border border-white/20">
         <button type="button" onclick="ubahZoomProfil(-0.25)"
           class="py-1.5 px-3 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl text-xs transition-custom flex items-center space-x-1"
           title="Perkecil">
@@ -5288,6 +5397,7 @@
           <span>✏️ Ganti Foto</span>
         </button>
       </div>
+      <p class="text-[10px] text-slate-300 font-medium text-center">Cubit layar HP atau scroll mouse laptop untuk zoom • Geser saat diperbesar</p>
     </div>
   </div>
 
@@ -5932,6 +6042,7 @@
               judul: 'Mengenal Bangun Ruang & Bangun Datar',
               mapel: 'Matematika',
               bab: 'BAB 1',
+              sampulVideo: 'PRESET_COVER:geometri',
               tipeMedia: 'Folder',
               urlMedia: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
               deskripsi: 'Folder materi lengkap bangun ruang & bangun datar berisi video, dokumen panduan, gambar ilustrasi, serta kotak soal acak interaktif.',
@@ -6044,11 +6155,18 @@
         var resolvedBab = (mItem.bab !== undefined && mItem.bab !== null)
           ? (typeof normalizeMediaBabLabel_ === 'function' ? normalizeMediaBabLabel_(mItem.bab) : String(mItem.bab || '').trim())
           : (targetMed ? (targetMed.bab || '') : '');
+        var resolvedSampulVideo = (mItem.sampulVideo !== undefined && mItem.sampulVideo !== null)
+          ? String(mItem.sampulVideo || '').trim()
+          : (targetMed ? (targetMed.sampulVideo || '') : '');
+        if (mItem.sampulBase64 && String(mItem.sampulBase64).trim() !== '') {
+          resolvedSampulVideo = mItem.sampulBase64;
+        }
         var savedMed = {
           id: mItem.id || ('MED-' + Date.now().toString().slice(-4)),
           judul: mItem.judul || '',
           mapel: mItem.mapel || 'Umum',
           bab: resolvedBab,
+          sampulVideo: resolvedSampulVideo,
           tipeMedia: mItem.tipeMedia || 'Video',
           urlMedia: resolvedPrimaryUrl,
           fileUrl: resolvedPrimaryUrl,
@@ -6056,7 +6174,9 @@
           deskripsi: mItem.deskripsi || '',
           tanggalUnggah: new Date().toISOString().replace('T', ' ').slice(0, 19),
           diunggahOleh: (STATE.currentUser ? STATE.currentUser.nama : 'Guru'),
-          lampiran: Array.isArray(mItem.lampiran) ? mItem.lampiran : (targetMed && Array.isArray(targetMed.lampiran) ? targetMed.lampiran : []),
+          lampiran: Array.isArray(mItem.lampiran) ? mItem.lampiran.map(function (att) {
+            return Object.assign({}, att, { coverUrl: (att && (att.coverBase64 || att.coverUrl)) || '' });
+          }) : (targetMed && Array.isArray(targetMed.lampiran) ? targetMed.lampiran : []),
           daftarSoal: Array.isArray(mItem.daftarSoal) ? mItem.daftarSoal : (targetMed && Array.isArray(targetMed.daftarSoal) ? targetMed.daftarSoal : [])
         };
         if (targetMed) {
@@ -14854,6 +14974,75 @@
       return Boolean(pert || pertImg);
     }
 
+    var MEDIA_VIDEO_COVER_PRESETS_ = [
+      { id: 'PRESET_COVER:geometri', label: 'Bentuk & Bangun', bg: 'from-indigo-600 via-blue-600 to-sky-500', svg: '<circle cx="38" cy="36" r="14" fill="#fde047" fill-opacity="0.92"/><polygon points="74,20 94,54 54,54" fill="#a7f3d0" fill-opacity="0.95"/><rect x="88" y="26" width="22" height="22" rx="4" fill="#f9a8d4" fill-opacity="0.92"/>' },
+      { id: 'PRESET_COVER:membaca', label: 'Membaca & Bahasa', bg: 'from-amber-500 via-orange-500 to-rose-500', svg: '<path d="M24 22 C24 18 46 18 60 26 C74 18 96 18 96 22 L96 58 C96 58 74 52 60 60 C46 52 24 58 24 58 Z" fill="#ffffff" fill-opacity="0.95"/><line x1="60" y1="26" x2="60" y2="60" stroke="#fb923c" stroke-width="3"/><text x="34" y="45" font-size="13" font-weight="900" fill="#ea580c">ABC</text>' },
+      { id: 'PRESET_COVER:berhitung', label: 'Berhitung & Angka', bg: 'from-emerald-600 via-teal-600 to-cyan-500', svg: '<rect x="26" y="18" width="68" height="44" rx="10" fill="#ffffff" fill-opacity="0.2" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/><text x="36" y="47" font-size="20" font-weight="900" fill="#ffffff">1 + 2</text>' },
+      { id: 'PRESET_COVER:kebersihan', label: 'Sains & Kebersihan', bg: 'from-cyan-500 via-sky-500 to-emerald-500', svg: '<path d="M60 16 C60 16 40 37 40 49 C40 60 49 68 60 68 C71 68 80 60 80 49 C80 37 60 16 60 16 Z" fill="#ffffff" fill-opacity="0.95"/><path d="M78 20 L81 27 L88 30 L81 33 L78 40 L75 33 L68 30 L75 27 Z" fill="#fef08a"/>' },
+      { id: 'PRESET_COVER:budaya', label: 'Budaya & PPKn', bg: 'from-rose-600 via-red-500 to-amber-500', svg: '<polygon points="60,14 96,36 24,36" fill="#fef08a" fill-opacity="0.95"/><rect x="34" y="36" width="52" height="26" rx="4" fill="#ffffff" fill-opacity="0.9"/><rect x="52" y="44" width="16" height="18" rx="2" fill="#e11d48"/>' },
+      { id: 'PRESET_COVER:agama', label: 'Nilai Agama & Budi', bg: 'from-teal-700 via-emerald-600 to-lime-500', svg: '<path d="M64 16 A22 22 0 1 0 84 48 A17 17 0 1 1 64 16 Z" fill="#fef08a"/><polygon points="78,22 81,28 87,29 82,33 84,39 78,36 72,39 74,33 69,29 75,28" fill="#ffffff"/>' },
+      { id: 'PRESET_COVER:olahraga', label: 'PJOK & Kesehatan', bg: 'from-blue-600 via-indigo-600 to-purple-600', svg: '<circle cx="60" cy="40" r="21" fill="#ffffff" fill-opacity="0.92"/><path d="M44 26 L76 54 M76 26 L44 54" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"/><circle cx="60" cy="40" r="7" fill="#fbbf24"/>' },
+      { id: 'PRESET_COVER:pelangi', label: 'Ceria Nusantara', bg: 'from-fuchsia-600 via-purple-600 to-sky-500', svg: '<path d="M26 56 A34 34 0 0 1 94 56" fill="none" stroke="#fde047" stroke-width="7" stroke-linecap="round"/><path d="M36 56 A24 24 0 0 1 84 56" fill="none" stroke="#a7f3d0" stroke-width="6" stroke-linecap="round"/><path d="M46 56 A14 14 0 0 1 74 56" fill="none" stroke="#fbcfe8" stroke-width="5" stroke-linecap="round"/>' }
+    ];
+
+    function normalizeMediaVideoCoverValueClient_(rawCover) {
+      var clean = String(rawCover || '').trim();
+      if (!clean || clean === 'null' || clean === 'undefined') return '';
+      if (clean.indexOf('PRESET_COVER:') === 0) return clean;
+      return clean;
+    }
+
+    function findPresetVideoCover_(val) {
+      var key = String(val || '').trim();
+      if (!key) return null;
+      return MEDIA_VIDEO_COVER_PRESETS_.find(function (p) { return p.id === key; }) || null;
+    }
+
+    function buildPresetCoverPosterHtml_(presetObj, title, compact) {
+      var bgCls = (presetObj && presetObj.bg) ? presetObj.bg : 'from-purple-600 via-indigo-600 to-sky-500';
+      var lbl = (presetObj && presetObj.label) ? presetObj.label : 'Video Belajar';
+      var svgShapes = (presetObj && presetObj.svg) ? presetObj.svg : '';
+      var titleText = String(title || '').trim();
+      return '<div class="w-full h-full bg-gradient-to-br ' + bgCls + ' relative flex flex-col items-center justify-center p-2 text-center select-none overflow-hidden">' +
+        '<svg viewBox="0 0 120 72" class="' + (compact ? 'w-12 h-8' : 'w-28 h-16 sm:w-32 sm:h-20') + ' drop-shadow-md flex-shrink-0">' + svgShapes + '</svg>' +
+        (compact ? '' : '<div class="mt-0.5 max-w-[92%] px-2.5 py-0.5 rounded-full bg-black/25 backdrop-blur-xs text-white text-[10px] sm:text-xs font-extrabold truncate">' + escapeHtml(titleText || lbl) + '</div>') +
+        '</div>';
+    }
+
+    function buildVideoThumbVisualHtml_(coverUrl, rawUrl, cleanVideoUrl, title) {
+      var cleanCover = normalizeMediaVideoCoverValueClient_(coverUrl);
+      if (cleanCover) {
+        var presetObj = findPresetVideoCover_(cleanCover);
+        if (presetObj) {
+          return buildPresetCoverPosterHtml_(presetObj, title, false);
+        }
+        var resolvedCover = resolveDriveImageUrl(cleanCover, title || 'Sampul Video');
+        return '<img src="' + resolvedCover + '" alt="' + escapeHtml(title || 'Sampul Video') + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">';
+      }
+
+      var videoUrl = String(cleanVideoUrl || resolveMediaVideoUrl(rawUrl || '') || '');
+      var ytMatch = videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+      if (ytMatch && ytMatch[1]) {
+        var ytThumb = 'https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg';
+        return '<img src="' + ytThumb + '" alt="' + escapeHtml(title || 'Video') + '" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">';
+      }
+
+      var driveMatch = (String(rawUrl || '') + ' ' + videoUrl).match(/(?:lh3\.googleusercontent\.com\/d\/|drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=))([a-zA-Z0-9_-]{20,})/);
+      if ((driveMatch && driveMatch[1]) || videoUrl.indexOf('drive.google.com/file/d/') > -1) {
+        var dId = (driveMatch && driveMatch[1]) ? driveMatch[1] : '';
+        var driveThumb = dId ? ('https://drive.google.com/thumbnail?id=' + dId + '&sz=w800') : '';
+        return '<div class="w-full h-full bg-gradient-to-br from-slate-800 via-indigo-950 to-purple-950 relative flex items-center justify-center">' +
+          (driveThumb ? '<img src="' + driveThumb + '" alt="' + escapeHtml(title || 'Video') + '" class="w-full h-full object-cover relative z-[1] group-hover:scale-105 transition-transform duration-300" onerror="this.style.display=\'none\'">' : '') +
+          '</div>';
+      }
+
+      if (videoUrl.indexOf('data:video/') === 0 || videoUrl.indexOf('blob:') === 0 || videoUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i)) {
+        return '<video src="' + videoUrl + '" preload="metadata" playsinline muted class="w-full h-full object-cover pointer-events-none"></video>';
+      }
+
+      return '<div class="w-full h-full bg-gradient-to-br from-slate-800 via-purple-950 to-indigo-950 flex items-center justify-center text-white/90 text-3xl">🎬</div>';
+    }
+
     function ekstrakIsiFolderMateri(item) {
       var res = { videos: [], dokumen: [], gambar: [], soal: [] };
       if (!item) return res;
@@ -14870,9 +15059,15 @@
 
       var primaryUrl = String(item.urlMedia || item.fileUrl || item.url || '').trim();
       var tipe = String(item.tipeMedia || 'Video').toLowerCase();
+      var primaryCoverVal = normalizeMediaVideoCoverValueClient_(item.sampulVideo || item.coverUrl || '');
       if (primaryUrl) {
-        if (tipe === 'video' || (tipe === 'folder' && isUrlVideoLike(primaryUrl))) {
-          addUnique(res.videos, { nama: item.judul || 'Video Utama', url: primaryUrl, isPrimary: true });
+        if (tipe === 'video' || (tipe === 'folder' && (isUrlVideoLike(primaryUrl) || (primaryCoverVal && !isUrlDokumenLike(primaryUrl))))) {
+          addUnique(res.videos, {
+            nama: item.judul || 'Video Utama',
+            url: primaryUrl,
+            coverUrl: primaryCoverVal,
+            isPrimary: true
+          });
         } else if (tipe === 'folder' && isUrlDokumenLike(primaryUrl)) {
           addUnique(res.dokumen, { nama: item.judul || 'Dokumen Utama', url: primaryUrl, mimeType: '' });
         } else {
@@ -14886,7 +15081,12 @@
         var j = String(att.jenis || 'dokumen').toLowerCase();
         var nama = att.nama || ('Lampiran #' + (idx + 1));
         if (j === 'video') {
-          addUnique(res.videos, { nama: nama, url: att.url, isPrimary: false });
+          addUnique(res.videos, {
+            nama: nama,
+            url: att.url,
+            coverUrl: normalizeMediaVideoCoverValueClient_(att.coverUrl || att.sampulUrl || ''),
+            isPrimary: false
+          });
         } else if (j === 'gambar' || j === 'foto' || j === 'image') {
           addUnique(res.gambar, { nama: nama, url: att.url });
         } else {
@@ -14961,40 +15161,20 @@
         if (isVideo || (tipeLower === 'folder' && isi.videos.length > 0)) {
           const rawUrl = primaryUrl || (isi.videos[0] ? isi.videos[0].url : '');
           const videoUrl = resolveMediaVideoUrl(rawUrl);
-          const ytMatch = videoUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-          const driveMatch = (rawUrl || videoUrl).match(/(?:lh3\.googleusercontent\.com\/d\/|drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=))([a-zA-Z0-9_-]{20,})/);
           const safeTitleArg = escapeHtml(item.judul).replace(/'/g, "\\'");
           const safeUrlArg = videoUrl.replace(/'/g, "\\'");
+          const itemCover = normalizeMediaVideoCoverValueClient_(item.sampulVideo || (isi.videos[0] ? isi.videos[0].coverUrl : ''));
 
-          const playOverlayHtml = '<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-all">' +
+          const playOverlayHtml = '<div class="absolute inset-0 z-[2] flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-all">' +
             '<div class="w-14 h-12 rounded-2xl bg-slate-900/85 group-hover:bg-purple-600 text-white flex items-center justify-center shadow-xl border border-white/25 transform group-hover:scale-110 transition-all">' +
             '<svg class="w-7 h-7 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
             '</div>' +
             '</div>';
 
-          if (ytMatch && ytMatch[1]) {
-            const ytThumb = 'https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg';
-            mediaPreview = '<div onclick="bukaModalVideoPlayer(\'' + safeUrlArg + '\', \'' + safeTitleArg + '\')" class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black mb-2.5 shadow-inner cursor-pointer group" title="Klik Play untuk memutar video layar penuh">' +
-              '<img src="' + ytThumb + '" alt="' + escapeHtml(item.judul) + '" class="w-full h-full object-contain bg-black group-hover:scale-105 transition-transform duration-300">' +
-              playOverlayHtml +
-              '</div>';
-          } else if ((driveMatch && driveMatch[1]) || videoUrl.includes('drive.google.com/file/d/')) {
-            const dId = (driveMatch && driveMatch[1]) ? driveMatch[1] : '';
-            const driveThumb = dId ? ('https://drive.google.com/thumbnail?id=' + dId + '&sz=w800') : '';
-            mediaPreview = '<div onclick="bukaModalVideoPlayer(\'' + safeUrlArg + '\', \'' + safeTitleArg + '\')" class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black mb-2.5 shadow-inner cursor-pointer group flex items-center justify-center" title="Klik Play untuk memutar video layar penuh">' +
-              (driveThumb ? '<img src="' + driveThumb + '" alt="' + escapeHtml(item.judul) + '" class="w-full h-full object-contain bg-black group-hover:scale-105 transition-transform duration-300" onerror="this.style.display=\'none\'">' : '') +
-              playOverlayHtml +
-              '</div>';
-          } else if (videoUrl.startsWith('data:video/') || videoUrl.match(/\.(mp4|webm|ogg|mov)($|\?)/i)) {
-            mediaPreview = '<div onclick="bukaModalVideoPlayer(\'' + safeUrlArg + '\', \'' + safeTitleArg + '\')" class="relative w-full aspect-video rounded-2xl overflow-hidden bg-black mb-2.5 shadow-inner cursor-pointer group">' +
-              '<video src="' + videoUrl + '" preload="metadata" playsinline muted class="w-full h-full object-contain pointer-events-none"></video>' +
-              playOverlayHtml +
-              '</div>';
-          } else {
-            mediaPreview = '<div onclick="bukaModalVideoPlayer(\'' + safeUrlArg + '\', \'' + safeTitleArg + '\')" class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 mb-2.5 shadow-inner cursor-pointer group flex items-center justify-center">' +
-              playOverlayHtml +
-              '</div>';
-          }
+          mediaPreview = '<div onclick="bukaModalVideoPlayer(\'' + safeUrlArg + '\', \'' + safeTitleArg + '\')" class="relative w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 mb-2.5 shadow-inner cursor-pointer group" title="Klik Play untuk memutar video layar penuh">' +
+            buildVideoThumbVisualHtml_(itemCover, rawUrl, videoUrl, item.judul) +
+            playOverlayHtml +
+            '</div>';
         } else if (isi.gambar.length > 0) {
           const rawImg = primaryUrl || isi.gambar[0].url;
           const imgUrl = resolveDriveImageUrl(rawImg, item.judul);
@@ -15089,6 +15269,247 @@
     // =========================================================================
     // FORM TAMBAH & EDIT FOLDER MATERI + DRAFT BUILDER
     // =========================================================================
+    window._draftPrimaryVideoCover = window._draftPrimaryVideoCover || { url: '', previewUrl: '', fileObj: null, pendingUpload: false, sourceAttId: '' };
+    window._pilihSampulContext = { mode: 'primary', attIndex: -1 };
+
+    function renderMiniCoverThumbHtml_(coverVal, labelTitle, isPending) {
+      var clean = normalizeMediaVideoCoverValueClient_(coverVal);
+      if (isPending && window._draftPrimaryVideoCover && !coverVal) clean = '';
+      if (!clean) {
+        return '<div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 text-base">🎬</div>';
+      }
+      var preset = findPresetVideoCover_(clean);
+      if (preset) {
+        return buildPresetCoverPosterHtml_(preset, labelTitle, true);
+      }
+      var resolved = (clean.indexOf('blob:') === 0 || clean.indexOf('data:') === 0) ? clean : resolveDriveImageUrl(clean, labelTitle || 'Sampul');
+      return '<img src="' + resolved + '" alt="' + escapeHtml(labelTitle || 'Sampul') + '" class="w-full h-full object-cover">';
+    }
+
+    function renderPrimaryVideoCoverDraftUi_() {
+      var st = window._draftPrimaryVideoCover || { url: '', previewUrl: '', fileObj: null, pendingUpload: false, sourceAttId: '' };
+      var thumbEl = document.getElementById('mediaPrimaryCoverThumb');
+      var lblEl = document.getElementById('mediaPrimaryCoverLabel');
+      var resetBtn = document.getElementById('btnResetPrimaryCover');
+      var activeVal = st.previewUrl || st.url || '';
+      var presetObj = findPresetVideoCover_(activeVal);
+
+      if (thumbEl) {
+        thumbEl.innerHTML = renderMiniCoverThumbHtml_(activeVal, 'Sampul Video Utama');
+      }
+      if (lblEl) {
+        if (!activeVal) {
+          lblEl.textContent = 'Default Otomatis (Belum dipilih)';
+        } else if (presetObj) {
+          lblEl.textContent = 'Tema Terpilih: ' + presetObj.label;
+        } else if (st.pendingUpload && st.fileObj) {
+          lblEl.textContent = 'Foto Pilihan: ' + (st.fileObj.name || 'Siap Unggah');
+        } else {
+          lblEl.textContent = 'Sampul Gambar Khusus Terpasang ✓';
+        }
+      }
+      if (resetBtn) {
+        if (activeVal) resetBtn.classList.remove('hidden');
+        else resetBtn.classList.add('hidden');
+      }
+    }
+
+    function resetPrimaryVideoCoverDraft() {
+      window._draftPrimaryVideoCover = { url: '', previewUrl: '', fileObj: null, pendingUpload: false, sourceAttId: '' };
+      renderPrimaryVideoCoverDraftUi_();
+    }
+
+    function getActiveSampulTargetState_() {
+      var ctx = window._pilihSampulContext || { mode: 'primary', attIndex: -1 };
+      if (ctx.mode === 'att' && ctx.attIndex >= 0 && window._draftMediaLampiran && window._draftMediaLampiran[ctx.attIndex]) {
+        var att = window._draftMediaLampiran[ctx.attIndex];
+        return {
+          title: att.nama || 'Video Lampiran',
+          value: att.coverPreviewUrl || att.coverUrl || '',
+          pendingFile: Boolean(att.coverPendingUpload && att.coverFileObj),
+          fileName: att.coverFileObj ? att.coverFileObj.name : ''
+        };
+      }
+      var st = window._draftPrimaryVideoCover || { url: '', previewUrl: '', fileObj: null, pendingUpload: false };
+      return {
+        title: (document.getElementById('inputMediaJudul') ? document.getElementById('inputMediaJudul').value.trim() : '') || 'Video Utama Materi',
+        value: st.previewUrl || st.url || '',
+        pendingFile: Boolean(st.pendingUpload && st.fileObj),
+        fileName: st.fileObj ? st.fileObj.name : ''
+      };
+    }
+
+    function applySampulToActiveTarget_(newVal, fileObj, sourceAttId) {
+      var ctx = window._pilihSampulContext || { mode: 'primary', attIndex: -1 };
+      var previewUrl = '';
+      if (fileObj) {
+        try { previewUrl = URL.createObjectURL(fileObj); } catch (e) { }
+      }
+      if (ctx.mode === 'att' && ctx.attIndex >= 0 && window._draftMediaLampiran && window._draftMediaLampiran[ctx.attIndex]) {
+        var att = window._draftMediaLampiran[ctx.attIndex];
+        if (fileObj) {
+          att.coverUrl = '';
+          att.coverPreviewUrl = previewUrl;
+          att.coverFileObj = fileObj;
+          att.coverPendingUpload = true;
+          att.coverSourceAttId = '';
+        } else if (sourceAttId) {
+          att.coverUrl = newVal || '';
+          att.coverPreviewUrl = newVal || '';
+          att.coverFileObj = null;
+          att.coverPendingUpload = false;
+          att.coverSourceAttId = sourceAttId;
+        } else {
+          att.coverUrl = normalizeMediaVideoCoverValueClient_(newVal || '');
+          att.coverPreviewUrl = att.coverUrl;
+          att.coverFileObj = null;
+          att.coverPendingUpload = false;
+          att.coverSourceAttId = '';
+        }
+        renderDraftLampiranList();
+      } else {
+        if (fileObj) {
+          window._draftPrimaryVideoCover = { url: '', previewUrl: previewUrl, fileObj: fileObj, pendingUpload: true, sourceAttId: '' };
+        } else if (sourceAttId) {
+          window._draftPrimaryVideoCover = { url: newVal || '', previewUrl: newVal || '', fileObj: null, pendingUpload: false, sourceAttId: sourceAttId };
+        } else {
+          var cleanUrl = normalizeMediaVideoCoverValueClient_(newVal || '');
+          window._draftPrimaryVideoCover = { url: cleanUrl, previewUrl: cleanUrl, fileObj: null, pendingUpload: false, sourceAttId: '' };
+        }
+        renderPrimaryVideoCoverDraftUi_();
+      }
+      refreshPilihSampulModalUi_();
+    }
+
+    function refreshPilihSampulModalUi_() {
+      var info = getActiveSampulTargetState_();
+      var targetEl = document.getElementById('pilihSampulTargetName');
+      var previewEl = document.getElementById('pilihSampulCurrentPreview');
+      var statusEl = document.getElementById('pilihSampulCurrentStatus');
+      var urlInput = document.getElementById('inputPilihSampulUrl');
+
+      if (targetEl) targetEl.textContent = 'Target: ' + info.title;
+      if (previewEl) previewEl.innerHTML = renderMiniCoverThumbHtml_(info.value, info.title);
+      if (statusEl) {
+        var preset = findPresetVideoCover_(info.value);
+        if (!info.value) statusEl.textContent = 'Default otomatis (mengikuti thumbnail YouTube/Drive atau warna standar)';
+        else if (preset) statusEl.textContent = 'Tema ilustrasi aktif: ' + preset.label;
+        else if (info.pendingFile) statusEl.textContent = 'Foto terpilih (' + (info.fileName || 'Siap unggah') + ')';
+        else statusEl.textContent = 'Gambar sampul khusus aktif ✓';
+      }
+      if (urlInput) {
+        urlInput.value = (info.value && info.value.indexOf('http') === 0) ? info.value : '';
+      }
+
+      // Render grid tema preset siap pakai
+      var presetGrid = document.getElementById('pilihSampulPresetGrid');
+      if (presetGrid) {
+        presetGrid.innerHTML = '';
+        MEDIA_VIDEO_COVER_PRESETS_.forEach(function (preset) {
+          var isSel = (info.value === preset.id);
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.setAttribute('data-preset-cover', preset.id);
+          btn.className = 'rounded-2xl overflow-hidden border-2 text-left transition-all cursor-pointer ' +
+            (isSel ? 'border-purple-600 ring-2 ring-purple-300 shadow-md scale-[1.02]' : 'border-slate-200 hover:border-purple-400');
+          btn.innerHTML = '<div class="w-full aspect-video">' + buildPresetCoverPosterHtml_(preset, '', true) + '</div>' +
+            '<div class="px-2 py-1.5 bg-white flex items-center justify-between gap-1">' +
+            '<span class="text-[10px] font-extrabold text-slate-700 truncate">' + escapeHtml(preset.label) + '</span>' +
+            (isSel ? '<span class="text-[10px] font-black text-purple-600">✓</span>' : '') +
+            '</div>';
+          btn.onclick = function () { pilihPresetSampulVideo(preset.id); };
+          presetGrid.appendChild(btn);
+        });
+      }
+
+      // Render daftar gambar yang sudah ada di folder ini (jika ada)
+      var folderSec = document.getElementById('pilihSampulFolderSection');
+      var folderGrid = document.getElementById('pilihSampulFolderImagesGrid');
+      if (folderSec && folderGrid) {
+        folderGrid.innerHTML = '';
+        var folderImgs = (window._draftMediaLampiran || []).filter(function (att) {
+          var j = String((att && att.jenis) || '').toLowerCase();
+          return att && att.url && (j === 'gambar' || j === 'foto' || j === 'image');
+        });
+        if (folderImgs.length > 0) {
+          folderSec.classList.remove('hidden');
+          folderImgs.forEach(function (imgAtt) {
+            var resolved = (imgAtt.url.indexOf('blob:') === 0 || imgAtt.url.indexOf('data:') === 0)
+              ? imgAtt.url
+              : resolveDriveImageUrl(imgAtt.url, imgAtt.nama || 'Gambar');
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'rounded-xl overflow-hidden border border-emerald-200 hover:border-purple-600 bg-slate-50 text-left transition-all cursor-pointer';
+            btn.innerHTML = '<div class="aspect-video overflow-hidden"><img src="' + resolved + '" alt="' + escapeHtml(imgAtt.nama || 'Gambar') + '" class="w-full h-full object-cover"></div>' +
+              '<div class="px-1.5 py-1 bg-white text-[10px] font-bold text-slate-700 truncate">' + escapeHtml(imgAtt.nama || 'Gambar') + '</div>';
+            btn.onclick = function () { pilihGambarFolderUntukSampul(imgAtt.id); };
+            folderGrid.appendChild(btn);
+          });
+        } else {
+          folderSec.classList.add('hidden');
+        }
+      }
+    }
+
+    function openModalPilihSampulVideo(mode, attIndex) {
+      window._pilihSampulContext = {
+        mode: (mode === 'att') ? 'att' : 'primary',
+        attIndex: (typeof attIndex === 'number') ? attIndex : -1
+      };
+      var fileEl = document.getElementById('inputPilihSampulFile');
+      if (fileEl) fileEl.value = '';
+      refreshPilihSampulModalUi_();
+      var modal = document.getElementById('modalPilihSampulVideo');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModalPilihSampulVideo() {
+      var modal = document.getElementById('modalPilihSampulVideo');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function handlePilihSampulFileSelected(event) {
+      var file = event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      applySampulToActiveTarget_('', file, '');
+      event.target.value = '';
+      showToast('Foto sampul video dipilih & siap disimpan!', 'success');
+    }
+
+    function pilihPresetSampulVideo(presetId) {
+      applySampulToActiveTarget_(presetId, null, '');
+      showToast('Tema sampul video diterapkan!', 'success');
+    }
+
+    function pilihGambarFolderUntukSampul(attId) {
+      var srcAtt = (window._draftMediaLampiran || []).find(function (x) { return x && x.id === attId; });
+      if (!srcAtt) return;
+      if (srcAtt.pendingUpload && srcAtt.fileObj) {
+        applySampulToActiveTarget_(srcAtt.url || '', null, srcAtt.id);
+      } else {
+        applySampulToActiveTarget_(srcAtt.url || '', null, '');
+      }
+      showToast('Sampul diambil dari gambar di dalam folder!', 'success');
+    }
+
+    function terapkanUrlSampulVideo() {
+      var input = document.getElementById('inputPilihSampulUrl');
+      if (!input) return;
+      var url = input.value.trim();
+      if (!url) {
+        showToast('Masukkan tautan URL gambar terlebih dahulu!', 'warning');
+        return;
+      }
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      applySampulToActiveTarget_(url, null, '');
+      showToast('Tautan sampul video diterapkan!', 'success');
+    }
+
+    function hapusSampulVideoTarget() {
+      applySampulToActiveTarget_('', null, '');
+      showToast('Sampul dikembalikan ke default otomatis.', 'info');
+    }
+
     function renderDraftLampiranList() {
       const container = document.getElementById('folderDraftLampiranList');
       const countBadge = document.getElementById('folderDraftLampiranCount');
@@ -15108,19 +15529,33 @@
         var labelBadge = jenis === 'video' ? 'Video' : (jenis === 'gambar' ? 'Gambar' : 'Dokumen');
         var badgeCls = jenis === 'video' ? 'bg-rose-100 text-rose-700' : (jenis === 'gambar' ? 'bg-emerald-100 text-emerald-800' : 'bg-sky-100 text-sky-800');
         var statusTxt = att.pendingUpload ? '<span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">Siap Upload</span>' : '<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Tersimpan</span>';
+        var coverVal = att.coverPreviewUrl || att.coverUrl || '';
+        var leftThumb = (jenis === 'video' && coverVal)
+          ? '<div class="w-14 h-9 rounded-lg overflow-hidden border border-rose-200 flex-shrink-0">' + renderMiniCoverThumbHtml_(coverVal, att.nama || 'Video') + '</div>'
+          : '<span class="text-base flex-shrink-0">' + ikon + '</span>';
+        var coverStatusPill = (jenis === 'video' && coverVal)
+          ? '<span class="text-[10px] font-bold text-purple-700 bg-purple-100 px-1.5 py-0.5 rounded">Sampul ✓</span>'
+          : '';
+        var pickCoverBtn = (jenis === 'video')
+          ? '<button type="button" onclick="openModalPilihSampulVideo(\'att\', ' + idx + ')" class="py-1 px-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-extrabold flex-shrink-0 cursor-pointer" title="Pilih Sampul Video Ini">🖼️ Sampul</button>'
+          : '';
 
         html += '<div class="flex items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-sky-100 shadow-2xs">' +
           '<div class="flex items-center space-x-2 min-w-0 flex-1">' +
-          '<span class="text-base flex-shrink-0">' + ikon + '</span>' +
+          leftThumb +
           '<div class="min-w-0 flex-1">' +
           '<p class="text-xs font-bold text-slate-800 truncate">' + escapeHtml(att.nama || 'Lampiran') + '</p>' +
-          '<div class="flex items-center space-x-1.5 mt-0.5">' +
+          '<div class="flex flex-wrap items-center gap-1 mt-0.5">' +
           '<span class="text-[10px] font-bold px-1.5 py-0.5 rounded ' + badgeCls + '">' + labelBadge + '</span>' +
           statusTxt +
+          coverStatusPill +
           '</div>' +
           '</div>' +
           '</div>' +
-          '<button type="button" onclick="hapusDraftLampiranIdx(' + idx + ')" class="py-1 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold flex-shrink-0 cursor-pointer" title="Hapus lampiran ini">✕</button>' +
+          '<div class="flex items-center space-x-1 flex-shrink-0">' +
+          pickCoverBtn +
+          '<button type="button" onclick="hapusDraftLampiranIdx(' + idx + ')" class="py-1 px-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 text-[11px] font-bold cursor-pointer" title="Hapus lampiran ini">✕</button>' +
+          '</div>' +
           '</div>';
       });
       container.innerHTML = html;
@@ -15142,6 +15577,11 @@
           jenis: jenis,
           nama: file.name,
           url: previewUrl,
+          coverUrl: '',
+          coverPreviewUrl: '',
+          coverFileObj: null,
+          coverPendingUpload: false,
+          coverSourceAttId: '',
           mimeType: file.type || '',
           fileObj: file,
           pendingUpload: true
@@ -15149,7 +15589,8 @@
       });
       event.target.value = '';
       renderDraftLampiranList();
-      showToast(files.length + ' berkas ' + jenis + ' ditambahkan ke folder.', 'success');
+      var tip = (jenis === 'video') ? ' Klik tombol "🖼️ Sampul" untuk memilih sampul video.' : '';
+      showToast(files.length + ' berkas ' + jenis + ' ditambahkan ke folder.' + tip, 'success');
     }
 
     function tambahkanLampiranLinkKeDraft() {
@@ -15174,6 +15615,11 @@
         jenis: jenis,
         nama: nama,
         url: url,
+        coverUrl: '',
+        coverPreviewUrl: '',
+        coverFileObj: null,
+        coverPendingUpload: false,
+        coverSourceAttId: '',
         mimeType: '',
         pendingUpload: false
       });
@@ -15403,6 +15849,10 @@
       document.getElementById('inputMediaExternalUrl').value = '';
       document.getElementById('inputMediaDeskripsi').value = '';
 
+      window._draftPrimaryVideoCover = { url: '', previewUrl: '', fileObj: null, pendingUpload: false, sourceAttId: '' };
+      renderPrimaryVideoCoverDraftUi_();
+      toggleMediaInputSource('Video');
+
       window._draftMediaLampiran = [];
       window._draftMediaSoal = [];
       const linkPanel = document.getElementById('panelFolderAddLink');
@@ -15459,8 +15909,22 @@
       document.getElementById('inputMediaExternalUrl').value = (item.urlMedia && item.urlMedia.startsWith('http')) ? item.urlMedia : '';
       document.getElementById('inputMediaDeskripsi').value = item.deskripsi || '';
 
+      var initSampul = normalizeMediaVideoCoverValueClient_(item.sampulVideo || '');
+      window._draftPrimaryVideoCover = { url: initSampul, previewUrl: initSampul, fileObj: null, pendingUpload: false, sourceAttId: '' };
+      renderPrimaryVideoCoverDraftUi_();
+
       window._draftMediaLampiran = Array.isArray(item.lampiran)
-        ? item.lampiran.map(function (att) { return Object.assign({}, att, { pendingUpload: false }); })
+        ? item.lampiran.map(function (att) {
+          var cUrl = normalizeMediaVideoCoverValueClient_(att && (att.coverUrl || att.sampulUrl || ''));
+          return Object.assign({}, att, {
+            coverUrl: cUrl,
+            coverPreviewUrl: cUrl,
+            coverFileObj: null,
+            coverPendingUpload: false,
+            coverSourceAttId: '',
+            pendingUpload: false
+          });
+        })
         : [];
       window._draftMediaSoal = Array.isArray(item.daftarSoal)
         ? item.daftarSoal.map(function (q) { return Object.assign({}, q); })
@@ -15490,6 +15954,11 @@
 
     function toggleMediaInputSource(tipe) {
       const fileInput = document.getElementById('inputMediaFile');
+      const coverBox = document.getElementById('mediaPrimaryCoverBox');
+      if (coverBox) {
+        if (tipe === 'Foto') coverBox.classList.add('hidden');
+        else coverBox.classList.remove('hidden');
+      }
       if (!fileInput) return;
       if (tipe === 'Video') {
         fileInput.setAttribute('accept', 'video/*,.mp4,.mov,.webm,.m4v');
@@ -15544,19 +16013,62 @@
       if (nameEl) nameEl.textContent = '';
     }
 
+    function uploadAttachmentCoverFileThenNext_(item, list, onDone, onError, idx, btnEl) {
+      if (!item || !item.coverPendingUpload || !item.coverFileObj) {
+        uploadPendingFolderAttachmentsSequential(list, onDone, onError, idx + 1, btnEl);
+        return;
+      }
+      if (btnEl) {
+        btnEl.textContent = 'Mengunggah sampul video ' + (idx + 1) + '...';
+      }
+      compressQuestionImageFile(item.coverFileObj).then(function (cData) {
+        callBackend('apiUploadMediaAttachment', [{
+          fileBase64: cData.base64,
+          fileName: (item.nama || ('Video_' + idx)) + '_Sampul.jpg',
+          mimeType: cData.mimeType || 'image/jpeg',
+          jenis: 'gambar'
+        }], function (res) {
+          if (res && res.success && res.url) {
+            item.coverUrl = res.url;
+            item.coverPreviewUrl = res.url;
+            item.coverPendingUpload = false;
+            delete item.coverFileObj;
+            uploadPendingFolderAttachmentsSequential(list, onDone, onError, idx + 1, btnEl);
+          } else {
+            onError((res && res.message) ? res.message : ('Gagal mengunggah sampul video "' + item.nama + '"'));
+          }
+        }, function (err) {
+          onError((err && err.message) ? err.message : ('Gagal mengunggah sampul video "' + item.nama + '"'));
+        });
+      }).catch(function (err) {
+        onError('Gagal memproses sampul video "' + item.nama + '": ' + err.message);
+      });
+    }
+
     function uploadPendingFolderAttachmentsSequential(list, onDone, onError, idx, btnEl) {
       idx = idx || 0;
       if (idx >= list.length) {
+        // Selesaikan referensi sampul yang mengambil gambar dari isi folder baru diupload
+        list.forEach(function (att) {
+          if (att && att.coverSourceAttId) {
+            var refImg = list.find(function (x) { return x && x.id === att.coverSourceAttId; });
+            if (refImg && refImg.url) att.coverUrl = refImg.url;
+            att.coverSourceAttId = '';
+          }
+        });
         onDone();
         return;
       }
       var item = list[idx];
-      if (!item || !item.pendingUpload || !item.fileObj) {
+      if (!item) {
         uploadPendingFolderAttachmentsSequential(list, onDone, onError, idx + 1, btnEl);
         return;
       }
+      if (!item.pendingUpload || !item.fileObj) {
+        uploadAttachmentCoverFileThenNext_(item, list, onDone, onError, idx, btnEl);
+        return;
+      }
 
-      var pendingTotal = list.filter(function (x) { return x && x.pendingUpload && x.fileObj; }).length;
       if (btnEl) {
         btnEl.textContent = 'Mengunggah lampiran ' + (idx + 1) + ' (' + item.nama.slice(0, 16) + ')...';
       }
@@ -15572,7 +16084,7 @@
             item.url = res.url;
             item.pendingUpload = false;
             delete item.fileObj;
-            uploadPendingFolderAttachmentsSequential(list, onDone, onError, idx + 1, btnEl);
+            uploadAttachmentCoverFileThenNext_(item, list, onDone, onError, idx, btnEl);
           } else {
             onError((res && res.message) ? res.message : ('Gagal mengunggah berkas "' + item.nama + '"'));
           }
@@ -15647,6 +16159,7 @@
             jenis: att.jenis,
             nama: att.nama,
             url: att.url,
+            coverUrl: normalizeMediaVideoCoverValueClient_(att.coverUrl || ''),
             mimeType: att.mimeType || ''
           };
         });
@@ -15667,11 +16180,18 @@
           };
         });
 
+        var primaryCovState = window._draftPrimaryVideoCover || { url: '', sourceAttId: '' };
+        if (primaryCovState.sourceAttId) {
+          var matchedImg = cleanLampiran.find(function (x) { return x && x.id === primaryCovState.sourceAttId; });
+          if (matchedImg && matchedImg.url) primaryCovState.url = matchedImg.url;
+        }
+
         const payload = {
           id: id,
           judul: judul,
           mapel: mapel,
           bab: bab,
+          sampulVideo: normalizeMediaVideoCoverValueClient_(primaryCovState.url || ''),
           tipeMedia: tipeMedia,
           deskripsi: deskripsi,
           existingUrl: existingUrl,
@@ -15698,19 +16218,53 @@
         });
       }
 
-      // Langkah 1: Unggah semua lampiran folder baru satu per satu
+      function proceedPrimaryUpload_() {
+        if (fileInput.files && fileInput.files[0]) {
+          submitBtn.textContent = 'Mengunggah Media Utama...';
+          fileToBase64(fileInput.files[0]).then(finalizeSave).catch(function (err) {
+            restoreBtn();
+            showToast('Gagal memproses berkas utama: ' + err.message, 'error');
+          });
+        } else {
+          finalizeSave(null);
+        }
+      }
+
+      // Langkah 1: Unggah semua lampiran folder + sampul video lampiran
       uploadPendingFolderAttachmentsSequential(
         window._draftMediaLampiran || [],
         function () {
-          // Langkah 2: Proses berkas utama (jika dipilih)
-          if (fileInput.files && fileInput.files[0]) {
-            submitBtn.textContent = 'Mengunggah Media Utama...';
-            fileToBase64(fileInput.files[0]).then(finalizeSave).catch(function (err) {
+          // Langkah 2: Unggah sampul video utama jika dipilih dari file lokal
+          var cov = window._draftPrimaryVideoCover;
+          if (cov && cov.pendingUpload && cov.fileObj) {
+            submitBtn.textContent = 'Mengunggah Sampul Video...';
+            compressQuestionImageFile(cov.fileObj).then(function (cData) {
+              callBackend('apiUploadMediaAttachment', [{
+                fileBase64: cData.base64,
+                fileName: (cov.fileObj.name || 'Sampul_Video') + '.jpg',
+                mimeType: cData.mimeType || 'image/jpeg',
+                jenis: 'gambar'
+              }], function (res) {
+                if (res && res.success && res.url) {
+                  cov.url = res.url;
+                  cov.previewUrl = res.url;
+                  cov.pendingUpload = false;
+                  cov.fileObj = null;
+                  proceedPrimaryUpload_();
+                } else {
+                  restoreBtn();
+                  showToast((res && res.message) ? res.message : 'Gagal mengunggah sampul video utama', 'error');
+                }
+              }, function (err) {
+                restoreBtn();
+                showToast((err && err.message) ? err.message : 'Gagal mengunggah sampul video utama', 'error');
+              });
+            }).catch(function (err) {
               restoreBtn();
-              showToast('Gagal memproses berkas utama: ' + err.message, 'error');
+              showToast('Gagal memproses sampul video: ' + err.message, 'error');
             });
           } else {
-            finalizeSave(null);
+            proceedPrimaryUpload_();
           }
         },
         function (errMsg) {
@@ -15806,19 +16360,12 @@
         var vHtml = '';
         isi.videos.forEach(function (v, idx) {
           const cleanV = resolveMediaVideoUrl(v.url);
-          const ytMatch = cleanV.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-          const dMatch = (v.url || cleanV).match(/(?:lh3\.googleusercontent\.com\/d\/|drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=))([a-zA-Z0-9_-]{20,})/);
-          var thumbHtml = '<div class="w-full h-full bg-slate-900 flex items-center justify-center text-white text-2xl">🎬</div>';
-          if (ytMatch && ytMatch[1]) {
-            thumbHtml = '<img src="https://img.youtube.com/vi/' + ytMatch[1] + '/hqdefault.jpg" alt="' + escapeHtml(v.nama) + '" class="w-full h-full object-cover">';
-          } else if (dMatch && dMatch[1]) {
-            thumbHtml = '<img src="https://drive.google.com/thumbnail?id=' + dMatch[1] + '&sz=w600" alt="' + escapeHtml(v.nama) + '" class="w-full h-full object-cover" onerror="this.style.display=\'none\'">';
-          }
+          const thumbHtml = buildVideoThumbVisualHtml_(v.coverUrl || '', v.url, cleanV, v.nama);
 
           vHtml += '<div onclick="bukaVideoFolderByIdx(' + idx + ')" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all cursor-pointer group">' +
-            '<div class="relative aspect-video bg-black flex items-center justify-center overflow-hidden">' +
+            '<div class="relative aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">' +
             thumbHtml +
-            '<div class="absolute inset-0 bg-black/25 group-hover:bg-black/40 flex items-center justify-center transition-colors">' +
+            '<div class="absolute inset-0 z-[2] bg-black/20 group-hover:bg-black/35 flex items-center justify-center transition-colors">' +
             '<div class="w-12 h-10 rounded-xl bg-purple-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">' +
             '<svg class="w-6 h-6 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>' +
             '</div>' +
@@ -15943,6 +16490,298 @@
       return clean;
     }
 
+    window._panZoomViewers = window._panZoomViewers || {};
+
+    function getPanZoomState_(viewerKey) {
+      if (!window._panZoomViewers[viewerKey]) {
+        window._panZoomViewers[viewerKey] = {
+          scale: 1,
+          panX: 0,
+          panY: 0,
+          minScale: 0.5,
+          maxScale: 5.0,
+          justDraggedAt: 0,
+          isDragging: false,
+          getImg: null,
+          getPct: null,
+          container: null
+        };
+      }
+      return window._panZoomViewers[viewerKey];
+    }
+
+    function clampPanZoomOffsets_(st) {
+      if (!st || st.scale <= 1.001) {
+        if (st) {
+          st.panX = 0;
+          st.panY = 0;
+        }
+        return;
+      }
+      var cEl = st.container;
+      var imgEl = (typeof st.getImg === 'function') ? st.getImg() : null;
+      var cW = (cEl && cEl.clientWidth) ? cEl.clientWidth : 360;
+      var cH = (cEl && cEl.clientHeight) ? cEl.clientHeight : 480;
+      var baseW = (imgEl && imgEl.offsetWidth) ? imgEl.offsetWidth : Math.round(cW * 0.75);
+      var baseH = (imgEl && imgEl.offsetHeight) ? imgEl.offsetHeight : Math.round(cH * 0.75);
+      var maxPanX = Math.max(90, Math.abs(baseW * st.scale - cW) / 2 + 80);
+      var maxPanY = Math.max(90, Math.abs(baseH * st.scale - cH) / 2 + 80);
+      st.panX = Math.max(-maxPanX, Math.min(maxPanX, st.panX));
+      st.panY = Math.max(-maxPanY, Math.min(maxPanY, st.panY));
+    }
+
+    function applyPanZoomTransform_(viewerKey, animate) {
+      var st = getPanZoomState_(viewerKey);
+      var img = (typeof st.getImg === 'function') ? st.getImg() : null;
+      var pctEl = (typeof st.getPct === 'function') ? st.getPct() : null;
+      clampPanZoomOffsets_(st);
+      if (viewerKey === 'berkas') window._previewBerkasZoomScale = st.scale;
+      if (viewerKey === 'profil') currentZoomScale = st.scale;
+
+      if (img) {
+        img.style.transition = animate ? 'transform 0.18s ease-out' : 'none';
+        img.style.transformOrigin = 'center center';
+        img.style.transform = 'translate3d(' + st.panX.toFixed(1) + 'px, ' + st.panY.toFixed(1) + 'px, 0) scale(' + st.scale.toFixed(3) + ')';
+        img.style.cursor = (st.scale > 1.001) ? (st.isDragging ? 'grabbing' : 'grab') : 'zoom-in';
+      }
+      if (st.container) {
+        st.container.style.cursor = (st.scale > 1.001) ? (st.isDragging ? 'grabbing' : 'grab') : 'default';
+      }
+      if (pctEl) {
+        pctEl.textContent = Math.round(st.scale * 100) + '%';
+      }
+    }
+
+    function setPanZoomTargetScale_(viewerKey, nextScale, focalX, focalY, animate) {
+      var st = getPanZoomState_(viewerKey);
+      var prevScale = st.scale;
+      var clampedScale = Math.max(st.minScale, Math.min(st.maxScale, nextScale));
+      if (clampedScale > 1.001 && prevScale > 0.01 && typeof focalX === 'number' && typeof focalY === 'number') {
+        var ratio = clampedScale / prevScale;
+        st.panX = focalX - (focalX - st.panX) * ratio;
+        st.panY = focalY - (focalY - st.panY) * ratio;
+      }
+      st.scale = clampedScale;
+      applyPanZoomTransform_(viewerKey, animate);
+    }
+
+    function stepInteractivePanZoom_(viewerKey, delta) {
+      var st = getPanZoomState_(viewerKey);
+      setPanZoomTargetScale_(viewerKey, st.scale + delta, 0, 0, true);
+    }
+
+    function resetInteractivePanZoom_(viewerKey, animate) {
+      var st = getPanZoomState_(viewerKey);
+      st.scale = 1;
+      st.panX = 0;
+      st.panY = 0;
+      st.isDragging = false;
+      applyPanZoomTransform_(viewerKey, Boolean(animate));
+    }
+
+    function bindInteractivePanZoomViewer_(viewerKey, containerEl, getImgFn, getPctFn) {
+      var st = getPanZoomState_(viewerKey);
+      st.container = containerEl;
+      st.getImg = getImgFn;
+      st.getPct = getPctFn;
+      if (!containerEl || containerEl.dataset.pzBound === '1') return;
+      containerEl.dataset.pzBound = '1';
+
+      function getRelPoint_(clientX, clientY) {
+        var r = containerEl.getBoundingClientRect();
+        return {
+          x: clientX - (r.left + r.width / 2),
+          y: clientY - (r.top + r.height / 2)
+        };
+      }
+
+      // 1. Scroll Mouse / Trackpad Zoom Laptop
+      containerEl.addEventListener('wheel', function (e) {
+        var img = (typeof st.getImg === 'function') ? st.getImg() : null;
+        if (!img) return;
+        if (e.cancelable) e.preventDefault();
+        e.stopPropagation();
+        var delta = e.ctrlKey
+          ? Math.max(-0.4, Math.min(0.4, -e.deltaY * 0.012))
+          : (e.deltaY < 0 ? 0.2 : -0.2);
+        var pt = getRelPoint_(e.clientX, e.clientY);
+        setPanZoomTargetScale_(viewerKey, st.scale + delta, pt.x, pt.y, false);
+      }, { passive: false });
+
+      // 2. Drag Mouse Geser Gambar Saat Diperbesar
+      var dragMouseActive = false;
+      var dragStartX = 0;
+      var dragStartY = 0;
+      var dragStartPanX = 0;
+      var dragStartPanY = 0;
+      var dragMoved = false;
+
+      containerEl.addEventListener('mousedown', function (e) {
+        var img = (typeof st.getImg === 'function') ? st.getImg() : null;
+        if (!img || e.button !== 0 || st.scale <= 1.001) return;
+        if (e.cancelable) e.preventDefault();
+        dragMouseActive = true;
+        st.isDragging = true;
+        dragMoved = false;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        dragStartPanX = st.panX;
+        dragStartPanY = st.panY;
+        applyPanZoomTransform_(viewerKey, false);
+      });
+
+      window.addEventListener('mousemove', function (e) {
+        if (!dragMouseActive) return;
+        var dx = e.clientX - dragStartX;
+        var dy = e.clientY - dragStartY;
+        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragMoved = true;
+        st.panX = dragStartPanX + dx;
+        st.panY = dragStartPanY + dy;
+        applyPanZoomTransform_(viewerKey, false);
+      });
+
+      window.addEventListener('mouseup', function () {
+        if (!dragMouseActive) return;
+        dragMouseActive = false;
+        st.isDragging = false;
+        if (dragMoved) st.justDraggedAt = Date.now();
+        applyPanZoomTransform_(viewerKey, false);
+      });
+
+      // 3. Klik Ganda Laptop -> Toggle 100% <-> 200%
+      containerEl.addEventListener('dblclick', function (e) {
+        var img = (typeof st.getImg === 'function') ? st.getImg() : null;
+        if (!img) return;
+        if (e.cancelable) e.preventDefault();
+        if (Math.abs(st.scale - 1) < 0.08) {
+          var pt = getRelPoint_(e.clientX, e.clientY);
+          setPanZoomTargetScale_(viewerKey, 2.0, pt.x, pt.y, true);
+        } else {
+          resetInteractivePanZoom_(viewerKey, true);
+        }
+      });
+
+      // 4. Touch Events HP (Cubit Layar 2 Jari Pinch-to-Zoom & Geser 1 Jari & Ketuk 2x)
+      var pinchActive = false;
+      var pinchStartDist = 1;
+      var pinchStartScale = 1;
+      var pinchLastMidX = 0;
+      var pinchLastMidY = 0;
+      var touchPanActive = false;
+      var touchStartX = 0;
+      var touchStartY = 0;
+      var touchStartPanX = 0;
+      var touchStartPanY = 0;
+      var touchMoved = false;
+      var lastTapTime = 0;
+      var lastTapX = 0;
+      var lastTapY = 0;
+
+      function getTouchDist_(t1, t2) {
+        var dx = t2.clientX - t1.clientX;
+        var dy = t2.clientY - t1.clientY;
+        return Math.max(1, Math.sqrt(dx * dx + dy * dy));
+      }
+
+      containerEl.addEventListener('touchstart', function (e) {
+        var img = (typeof st.getImg === 'function') ? st.getImg() : null;
+        if (!img) return;
+        if (e.touches.length === 2) {
+          if (e.cancelable) e.preventDefault();
+          pinchActive = true;
+          touchPanActive = false;
+          st.isDragging = true;
+          pinchStartDist = getTouchDist_(e.touches[0], e.touches[1]);
+          pinchStartScale = st.scale;
+          var mid = getRelPoint_((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+          pinchLastMidX = mid.x;
+          pinchLastMidY = mid.y;
+        } else if (e.touches.length === 1) {
+          var t = e.touches[0];
+          var now = Date.now();
+          if (now - lastTapTime < 280 && Math.abs(t.clientX - lastTapX) < 35 && Math.abs(t.clientY - lastTapY) < 35) {
+            if (e.cancelable) e.preventDefault();
+            lastTapTime = 0;
+            if (Math.abs(st.scale - 1) < 0.08) {
+              var pt = getRelPoint_(t.clientX, t.clientY);
+              setPanZoomTargetScale_(viewerKey, 2.0, pt.x, pt.y, true);
+            } else {
+              resetInteractivePanZoom_(viewerKey, true);
+            }
+            return;
+          }
+          lastTapTime = now;
+          lastTapX = t.clientX;
+          lastTapY = t.clientY;
+
+          if (st.scale > 1.001) {
+            if (e.cancelable) e.preventDefault();
+            touchPanActive = true;
+            st.isDragging = true;
+            touchMoved = false;
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartPanX = st.panX;
+            touchStartPanY = st.panY;
+          }
+        }
+      }, { passive: false });
+
+      containerEl.addEventListener('touchmove', function (e) {
+        var img = (typeof st.getImg === 'function') ? st.getImg() : null;
+        if (!img) return;
+        if (pinchActive && e.touches.length >= 2) {
+          if (e.cancelable) e.preventDefault();
+          var curDist = getTouchDist_(e.touches[0], e.touches[1]);
+          var nextScale = Math.max(st.minScale, Math.min(st.maxScale, pinchStartScale * (curDist / pinchStartDist)));
+          var mid = getRelPoint_((e.touches[0].clientX + e.touches[1].clientX) / 2, (e.touches[0].clientY + e.touches[1].clientY) / 2);
+          var ratioStep = (st.scale > 0.01) ? (nextScale / st.scale) : 1;
+          if (nextScale > 1.001) {
+            st.panX = mid.x - (pinchLastMidX - st.panX) * ratioStep;
+            st.panY = mid.y - (pinchLastMidY - st.panY) * ratioStep;
+          }
+          st.scale = nextScale;
+          pinchLastMidX = mid.x;
+          pinchLastMidY = mid.y;
+          touchMoved = true;
+          applyPanZoomTransform_(viewerKey, false);
+        } else if (touchPanActive && e.touches.length === 1 && st.scale > 1.001) {
+          if (e.cancelable) e.preventDefault();
+          var t = e.touches[0];
+          var dx = t.clientX - touchStartX;
+          var dy = t.clientY - touchStartY;
+          if (Math.abs(dx) > 4 || Math.abs(dy) > 4) touchMoved = true;
+          st.panX = touchStartPanX + dx;
+          st.panY = touchStartPanY + dy;
+          applyPanZoomTransform_(viewerKey, false);
+        }
+      }, { passive: false });
+
+      function finishTouch_(e) {
+        if (pinchActive && e.touches && e.touches.length === 1 && st.scale > 1.001) {
+          pinchActive = false;
+          touchPanActive = true;
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchStartPanX = st.panX;
+          touchStartPanY = st.panY;
+          return;
+        }
+        if (!e.touches || e.touches.length === 0) {
+          pinchActive = false;
+          touchPanActive = false;
+          st.isDragging = false;
+          if (touchMoved) st.justDraggedAt = Date.now();
+          applyPanZoomTransform_(viewerKey, false);
+        } else if (e.touches.length < 2) {
+          pinchActive = false;
+        }
+      }
+
+      containerEl.addEventListener('touchend', finishTouch_);
+      containerEl.addEventListener('touchcancel', finishTouch_);
+    }
+
     function bukaDokumenFolderByIdx(idx) {
       const docItem = (window._activeFolderRenderCache.dokumen || [])[idx];
       if (!docItem) return;
@@ -15954,6 +16793,7 @@
       const zoomBar = document.getElementById('previewBerkasZoomBar');
       if (!modal || !contentEl) return;
 
+      contentEl.className = 'relative flex-1 w-full h-full overflow-auto bg-slate-900 flex items-center justify-center p-2 sm:p-4';
       if (badgeEl) {
         badgeEl.textContent = '📄 Dokumen';
         badgeEl.className = 'px-2.5 py-1 rounded-lg bg-sky-600 text-white text-xs font-black flex-shrink-0';
@@ -15992,9 +16832,7 @@
       if (!modal || !contentEl) return;
 
       const resolved = resolveDriveImageUrl(imgItem.url, imgItem.nama);
-      window._previewBerkasZoomScale = 1;
-      const pctEl = document.getElementById('zoomBerkasPercentText');
-      if (pctEl) pctEl.textContent = '100%';
+      contentEl.className = 'relative flex-1 w-full h-full overflow-hidden touch-none select-none bg-slate-900 flex items-center justify-center p-2 sm:p-4';
 
       if (badgeEl) {
         badgeEl.textContent = '🖼️ Gambar';
@@ -16004,30 +16842,29 @@
       if (extBtn) extBtn.href = resolved;
       if (zoomBar) zoomBar.classList.remove('hidden');
 
-      contentEl.innerHTML = '<img id="previewBerkasZoomImgEl" src="' + resolved + '" alt="' + escapeHtml(imgItem.nama) + '" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-transform duration-200 border-2 border-white/15">';
+      contentEl.innerHTML = '<img id="previewBerkasZoomImgEl" src="' + resolved + '" alt="' + escapeHtml(imgItem.nama) + '" draggable="false" class="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl select-none border-2 border-white/15">';
+      bindInteractivePanZoomViewer_(
+        'berkas',
+        contentEl,
+        function () { return document.getElementById('previewBerkasZoomImgEl'); },
+        function () { return document.getElementById('zoomBerkasPercentText'); }
+      );
+      resetInteractivePanZoom_('berkas', false);
       modal.classList.remove('hidden');
     }
 
     function ubahZoomBerkasGambar(delta) {
-      const img = document.getElementById('previewBerkasZoomImgEl');
-      const pctEl = document.getElementById('zoomBerkasPercentText');
-      if (!img) return;
-      window._previewBerkasZoomScale = Math.max(0.5, Math.min(3.5, window._previewBerkasZoomScale + delta));
-      img.style.transform = 'scale(' + window._previewBerkasZoomScale + ')';
-      if (pctEl) pctEl.textContent = Math.round(window._previewBerkasZoomScale * 100) + '%';
+      stepInteractivePanZoom_('berkas', delta);
     }
 
     function resetZoomBerkasGambar() {
-      window._previewBerkasZoomScale = 1;
-      const img = document.getElementById('previewBerkasZoomImgEl');
-      const pctEl = document.getElementById('zoomBerkasPercentText');
-      if (img) img.style.transform = 'scale(1)';
-      if (pctEl) pctEl.textContent = '100%';
+      resetInteractivePanZoom_('berkas', true);
     }
 
     function tutupPreviewBerkasFolder() {
       const modal = document.getElementById('modalPreviewBerkasFolder');
       const contentEl = document.getElementById('previewBerkasContent');
+      resetInteractivePanZoom_('berkas', false);
       if (contentEl) contentEl.innerHTML = '';
       if (modal) modal.classList.add('hidden');
     }
@@ -16560,6 +17397,7 @@
         judul: item.judul,
         mapel: item.mapel || 'Umum',
         bab: item.bab || '',
+        sampulVideo: item.sampulVideo || '',
         tipeMedia: item.tipeMedia || 'Folder',
         deskripsi: item.deskripsi || '',
         existingUrl: item.urlMedia || '',
@@ -17206,6 +18044,7 @@
     function bukaZoomFotoProfil(customImgSrc, customNama, customRole) {
       const modal = document.getElementById('modalZoomFotoProfil');
       if (!modal) return;
+      const stageEl = document.getElementById('zoomFotoProfilStage');
       const img = document.getElementById('zoomFotoProfilImg');
       const namaEl = document.getElementById('zoomFotoProfilNama');
       const roleEl = document.getElementById('zoomFotoProfilRole');
@@ -17231,14 +18070,28 @@
         roleEl.textContent = roleText + ' • ' + (user.kelas || 'Kelas 1-B SD NEGERI 101770');
       }
 
+      if (stageEl) {
+        bindInteractivePanZoomViewer_(
+          'profil',
+          stageEl,
+          function () { return document.getElementById('zoomFotoProfilImg'); },
+          function () { return document.getElementById('zoomProfilPercentText'); }
+        );
+      }
       resetZoomProfil();
       modal.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
 
     function tutupZoomFotoProfil(event) {
-      if (event && event.target && event.target.id !== 'modalZoomFotoProfil' && !event.target.closest('#btnTutupZoomProfil')) {
-        return;
+      if (event) {
+        var st = getPanZoomState_('profil');
+        if (st && st.justDraggedAt && (Date.now() - st.justDraggedAt < 250)) {
+          return;
+        }
+        if (event.target && event.target.id !== 'modalZoomFotoProfil' && !event.target.closest('#btnTutupZoomProfil')) {
+          return;
+        }
       }
       const modal = document.getElementById('modalZoomFotoProfil');
       if (modal) modal.classList.add('hidden');
@@ -17247,25 +18100,16 @@
     }
 
     function ubahZoomProfil(delta) {
-      const img = document.getElementById('zoomFotoProfilImg');
-      const txt = document.getElementById('zoomProfilPercentText');
-      if (!img) return;
-      currentZoomScale = Math.max(0.5, Math.min(3.5, currentZoomScale + delta));
-      img.style.transform = 'scale(' + currentZoomScale + ')';
-      if (txt) txt.textContent = Math.round(currentZoomScale * 100) + '%';
+      stepInteractivePanZoom_('profil', delta);
     }
 
     function resetZoomProfil() {
-      currentZoomScale = 1;
-      const img = document.getElementById('zoomFotoProfilImg');
-      const txt = document.getElementById('zoomProfilPercentText');
-      if (img) img.style.transform = 'scale(1)';
-      if (txt) txt.textContent = '100%';
+      resetInteractivePanZoom_('profil', false);
     }
 
     function handleWheelZoomProfil(event) {
-      event.preventDefault();
-      const delta = event.deltaY < 0 ? 0.15 : -0.15;
+      if (event && event.cancelable) event.preventDefault();
+      const delta = event && event.deltaY < 0 ? 0.2 : -0.2;
       ubahZoomProfil(delta);
     }
 
