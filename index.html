@@ -1022,8 +1022,11 @@
           <div id="muridPresensiSubSectionHadir" class="space-y-4">
             <div>
               <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-0.5">Presensi Kehadiran Siswa</h3>
-              <p class="text-xs text-slate-400">Pilih opsi foto selfie kamera HP atau masuk dengan barcode siswa</p>
+              <p class="text-xs text-slate-400">Jam Absen Masuk: <span class="font-bold text-slate-600">06.30 - 07.15 WIB</span> (lewat 07.15 terlambat) • Jam Absen Pulang: <span class="font-bold text-slate-600">11.00 - 24.00 WIB</span></p>
             </div>
+
+            <!-- Banner Status Jendela Waktu / Selesai Absen Masuk & Pulang (v1.55.0) -->
+            <div id="muridPresensiWindowNotice" class="hidden p-3.5 rounded-2xl border text-xs font-bold flex items-center justify-between gap-2"></div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <!-- Kartu Presensi Masuk -->
@@ -1057,11 +1060,11 @@
                   <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center mb-2">atau masuk
                     dengan barcode</p>
                   <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="showStudentBarcodeCard(STATE.currentUser.id, 'masuk')"
+                    <button id="btnBarcodeCardMasuk" type="button" onclick="showStudentBarcodeCard(STATE.currentUser.id, 'masuk')"
                       class="py-2 px-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 shadow-2xs">
                       <span>🪪 Kartu Barcode</span>
                     </button>
-                    <button type="button" onclick="openStudentScanner('masuk')"
+                    <button id="btnScanBarcodeMasuk" type="button" onclick="openStudentScanner('masuk')"
                       class="py-2 px-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 shadow-2xs">
                       <span>📷 Scan Barcode</span>
                     </button>
@@ -2555,16 +2558,23 @@
                 untuk presensi.</p>
             </div>
 
+            <!-- Kartu Status Kunci Kamera Absen Siswa (v1.55.0) -->
+            <div id="qrisStudentLockNotice" class="hidden p-5 rounded-3xl border-2 text-center space-y-2 shadow-sm">
+              <div id="qrisStudentLockIcon" class="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-2xl bg-emerald-100 text-emerald-700">✅</div>
+              <h4 id="qrisStudentLockTitle" class="text-sm sm:text-base font-extrabold text-slate-800">Anda sudah absen masuk dan pulang</h4>
+              <p id="qrisStudentLockSubtitle" class="text-xs text-slate-600 leading-relaxed">Kamera scan absen dikunci dan akan dibuka kembali pukul 06.30 WIB.</p>
+            </div>
+
             <!-- Tombol Utama: Buka Kamera Scan Barcode (Bypass Iframe Sandbox Google Apps Script) -->
-            <button type="button" onclick="triggerQrisNativeCamera()"
+            <button id="btnQrisPrimaryOpenCamera" type="button" onclick="triggerQrisNativeCamera()"
               class="w-full py-4 px-5 bg-gradient-to-r from-[#0080FF] via-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 text-white font-extrabold rounded-2xl text-sm sm:text-base shadow-lg shadow-sky-500/30 flex items-center justify-center space-x-2.5 transition-all transform active:scale-95 border-2 border-white/30 group">
               <span
                 class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">📷</span>
-              <span>Buka Kamera Scan Barcode Sekarang</span>
+              <span id="btnQrisPrimaryOpenCameraLabel">Buka Kamera Scan Barcode Sekarang</span>
             </button>
 
             <!-- Viewport Kamera Scanner dengan Kemampuan Tap-to-Scan & Preview -->
-            <div onclick="triggerQrisNativeCamera()"
+            <div id="qrisScannerViewportBox" onclick="triggerQrisNativeCamera()"
               class="relative w-full max-w-sm mx-auto aspect-square rounded-3xl overflow-hidden bg-slate-950 border-4 border-slate-200 shadow-lg flex items-center justify-center cursor-pointer group"
               title="Ketuk untuk membuka kamera pemindai">
               <!-- Live Video Container (jika didukung peramban) -->
@@ -2621,7 +2631,7 @@
               onchange="handleQrisFileSelected(event)">
 
             <!-- Camera Controls & Secondary Buttons -->
-            <div class="flex items-center justify-center gap-2 pt-1 flex-wrap">
+            <div id="qrisSecondaryCameraBtns" class="flex items-center justify-center gap-2 pt-1 flex-wrap">
               <button type="button" onclick="triggerQrisNativeCamera()"
                 class="py-2.5 px-4 bg-sky-50 hover:bg-sky-100 text-[#0080FF] border border-sky-200 font-extrabold rounded-xl text-xs transition-custom flex items-center space-x-1.5 shadow-xs">
                 <span>📷</span>
@@ -5335,9 +5345,11 @@
       currentUser: null,
       sessionToken: null,
       classSettings: {
+        JamBukaMasuk: '06:30',
         JamMasuk: '07:15',
-        JamPulang: '13:00',
-        ToleransiMenit: '15',
+        JamPulang: '11:00',
+        JamBatasPulang: '24:00',
+        ToleransiMenit: '0',
         NamaKelas: 'Kelas 5-A SD SiCerdas',
         WaliKelas: 'Budi Santoso, S.Pd',
         Semester: 'Ganjil 2026/2027'
@@ -5537,7 +5549,7 @@
       ],
       attendances: [
         { id: 'PRS-20261103-001', idPengguna: 'SIS-001', namaSiswa: 'Ahmad Fauzi', tanggal: '2026-11-03', jamMasuk: '07:08:12', jamPulang: '', fotoMasuk: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600', fotoPulang: '', statusKeterlambatan: 'Tepat Waktu', statusVerifikasi: 'Menunggu Verifikasi', catatanGuru: '', waktuVerifikasi: '' },
-        { id: 'PRS-20261103-002', idPengguna: 'SIS-002', namaSiswa: 'Siti Nurhaliza', tanggal: '2026-11-03', jamMasuk: '07:22:45', jamPulang: '', fotoMasuk: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600', fotoPulang: '', statusKeterlambatan: 'Terlambat (7 menit)', statusVerifikasi: 'Menunggu Verifikasi', catatanGuru: '', waktuVerifikasi: '' }
+        { id: 'PRS-20261103-002', idPengguna: 'SIS-002', namaSiswa: 'Siti Nurhaliza', tanggal: '2026-11-03', jamMasuk: '07:22:45', jamPulang: '', fotoMasuk: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=600', fotoPulang: '', statusKeterlambatan: 'Anda terlambat 7 menit', statusVerifikasi: 'Menunggu Verifikasi', catatanGuru: '', waktuVerifikasi: '' }
       ],
       assignments: [
         { id: 'TGS-202611-001', judul: 'Latihan Pecahan Desimal Hal 45', mapel: 'Matematika Dasar', deskripsi: 'Kerjakan soal 1-10 di buku tulis folio, foto lalu unggah ke sistem.', batasWaktu: '2026-11-03 20:00', lampiran: '', dibuatOleh: 'Budi Santoso, S.Pd', dibuatPada: '2026-11-03 07:30:00', totalPengumpulan: 1 },
@@ -6136,9 +6148,9 @@
           time: curTime,
           indonesianDate: indoDate,
           kelas: kls,
-          jamMasuk: '07:15',
-          jamPulang: '11:15',
-          toleransi: 15,
+          jamMasuk: '06:30 - 07:15',
+          jamPulang: '11:00 - 24:00',
+          toleransi: 0,
           totalHadir: totalHadir,
           totalIzin: totalIzin,
           totalSakit: totalSakit,
@@ -6152,9 +6164,9 @@
         var qToken = payload.qrToken || '';
         var sId = payload.studentId || (STATE.currentUser ? STATE.currentUser.id : 'SIS-001');
         var sName = payload.studentName || (STATE.currentUser ? STATE.currentUser.nama : 'Siswa');
-        var now = new Date();
-        var todayStr = now.toISOString().slice(0, 10);
-        var curTime = now.toTimeString().slice(0, 8);
+        var todayStr = getTodayFormatted();
+        var curTime = getCurTimeFormatted();
+        var curMinutesQris = getMinutesFromTimeStr_(curTime);
         if (!qToken || !qToken.startsWith('SICERDAS|QRIS|')) {
           return { success: false, message: 'Kode QR tidak sah!' };
         }
@@ -6164,13 +6176,38 @@
         }
         if (!MOCK_DB.qrisAttendances) MOCK_DB.qrisAttendances = [];
         var existing = MOCK_DB.qrisAttendances.find(function (a) { return a.tanggal === todayStr && a.idPengguna === sId; });
-        if (existing) {
+        var mainExisting = MOCK_DB.attendances.find(function (a) { return a.tanggal === todayStr && a.idPengguna === sId; });
+        if (!existing && mainExisting) {
+          existing = {
+            id: mainExisting.id,
+            idPengguna: sId,
+            nama: sName,
+            tanggal: todayStr,
+            jamMasuk: mainExisting.jamMasuk || '',
+            jamPulang: mainExisting.jamPulang || '',
+            statusTerlambat: mainExisting.statusKeterlambatan || 'Tepat Waktu',
+            statusKeterlambatan: mainExisting.statusKeterlambatan || 'Tepat Waktu',
+            metode: 'QRIS Presensi'
+          };
+          MOCK_DB.qrisAttendances.unshift(existing);
+        }
+        if (existing && existing.jamMasuk && existing.jamMasuk !== '-') {
           if (!existing.jamPulang || existing.jamPulang === '-' || existing.jamPulang === '') {
+            if (curMinutesQris < ABSENSI_OPEN_PULANG_MINUTES) {
+              return {
+                success: false,
+                waitingPulangWindow: true,
+                message: 'Anda sudah absen masuk. Kamera absen pulang baru dibuka mulai pukul 11.00 - 24.00 WIB.',
+                student: { id: sId, nama: sName },
+                presensi: existing
+              };
+            }
             existing.jamPulang = curTime;
+            if (mainExisting) mainExisting.jamPulang = curTime;
             return {
               success: true,
               scanType: 'pulang',
-              message: '✓ Presensi Pulang Berhasil: ' + sName + ' (' + curTime + ' WIB - Scan ke-2)',
+              message: '✓ Presensi Pulang Berhasil: ' + sName + ' (' + curTime + ' WIB). Anda sudah absen masuk dan pulang.',
               student: { id: sId, nama: sName },
               presensi: existing
             };
@@ -6178,12 +6215,21 @@
             return {
               success: false,
               alreadyAttended: true,
-              message: sName + ' sudah menyelesaikan presensi Masuk (' + existing.jamMasuk + ') dan Pulang (' + existing.jamPulang + ') hari ini.',
+              completedAll: true,
+              message: 'Anda sudah absen masuk dan pulang',
               student: { id: sId, nama: sName },
               presensi: existing
             };
           }
         }
+        if (curMinutesQris < ABSENSI_OPEN_MASUK_MINUTES) {
+          return {
+            success: false,
+            beforeMasukWindow: true,
+            message: 'Absen masuk dibuka mulai pukul 06.30 WIB.'
+          };
+        }
+        var statusTelatQ = hitungStatusKeterlambatanMasuk_(curTime);
         var newRec = {
           id: 'PRS-' + Date.now().toString().slice(-4),
           idPengguna: sId,
@@ -6191,14 +6237,32 @@
           tanggal: todayStr,
           jamMasuk: curTime,
           jamPulang: '',
-          statusTerlambat: 'Tepat Waktu',
+          statusTerlambat: statusTelatQ,
+          statusKeterlambatan: statusTelatQ,
+          statusVerifikasi: 'Disetujui',
           metode: 'QRIS Presensi'
         };
         MOCK_DB.qrisAttendances.unshift(newRec);
+        if (!mainExisting) {
+          MOCK_DB.attendances.unshift({
+            id: newRec.id,
+            idPengguna: sId,
+            namaSiswa: sName,
+            tanggal: todayStr,
+            jamMasuk: curTime,
+            jamPulang: '',
+            fotoMasuk: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600',
+            fotoPulang: '',
+            statusKeterlambatan: statusTelatQ,
+            statusVerifikasi: 'Disetujui',
+            catatanGuru: 'Hadir via QRIS Guru',
+            waktuVerifikasi: getCurDateTimeFormatted()
+          });
+        }
         return {
           success: true,
           scanType: 'masuk',
-          message: '✓ Presensi Masuk Berhasil: ' + sName + ' (' + curTime + ' WIB - Tepat Waktu)',
+          message: '✓ Presensi Masuk Berhasil: ' + sName + ' (' + curTime + ' WIB - ' + statusTelatQ + ')',
           student: { id: sId, nama: sName },
           presensi: newRec
         };
@@ -6262,30 +6326,82 @@
       if (method === 'apiSubmitAttendance') {
         var p = args[0];
         var today = getTodayFormatted();
+        var curTimeAtt = getCurTimeFormatted();
+        var curMinutesAtt = getMinutesFromTimeStr_(curTimeAtt);
         var existing = MOCK_DB.attendances.find(a => a.idPengguna === p.userId && a.tanggal === today);
+        var hasMasukAtt = Boolean(existing && existing.jamMasuk && existing.jamMasuk !== '-');
+        var hasPulangAtt = Boolean(existing && existing.jamPulang && existing.jamPulang !== '-');
+
+        if (hasMasukAtt && hasPulangAtt) {
+          return {
+            success: false,
+            alreadyAttended: true,
+            completedAll: true,
+            message: 'Anda sudah absen masuk dan pulang'
+          };
+        }
+
         if (p.type === 'masuk') {
-          if (existing) return { success: false, message: 'Anda sudah presensi masuk hari ini!' };
+          if (hasMasukAtt) {
+            if (curMinutesAtt < ABSENSI_OPEN_PULANG_MINUTES) {
+              return {
+                success: false,
+                waitingPulangWindow: true,
+                message: 'Anda sudah absen masuk. Kamera absen pulang baru dibuka mulai pukul 11.00 - 24.00 WIB.'
+              };
+            }
+            return {
+              success: false,
+              alreadyAttended: true,
+              message: 'Anda sudah presensi masuk hari ini! Silakan lakukan presensi pulang (11.00 - 24.00 WIB).'
+            };
+          }
+          if (curMinutesAtt < ABSENSI_OPEN_MASUK_MINUTES) {
+            return {
+              success: false,
+              beforeMasukWindow: true,
+              message: 'Absen masuk dibuka mulai pukul 06.30 WIB.'
+            };
+          }
+          var statusTelatAtt = hitungStatusKeterlambatanMasuk_(curTimeAtt);
           var newRecord = {
             id: 'PRS-' + today.replace(/-/g, '') + '-00' + (MOCK_DB.attendances.length + 1),
             idPengguna: p.userId,
             namaSiswa: p.userName,
             tanggal: today,
-            jamMasuk: getCurTimeFormatted(),
+            jamMasuk: curTimeAtt,
             jamPulang: '',
             fotoMasuk: p.photoBase64 || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600',
             fotoPulang: '',
-            statusKeterlambatan: 'Tepat Waktu',
+            statusKeterlambatan: statusTelatAtt,
             statusVerifikasi: 'Disetujui',
             catatanGuru: 'Otomatis Terverifikasi Sistem',
             waktuVerifikasi: getCurDateTimeFormatted()
           };
           MOCK_DB.attendances.unshift(newRecord);
-          return { success: true, message: 'Presensi masuk berhasil dicatat dan terverifikasi!', data: newRecord };
+          return {
+            success: true,
+            message: statusTelatAtt !== 'Tepat Waktu'
+              ? 'Presensi masuk tercatat: ' + statusTelatAtt
+              : 'Presensi masuk berhasil dicatat dan terverifikasi! (Tepat Waktu)',
+            data: newRecord
+          };
         } else {
-          if (!existing) return { success: false, message: 'Belum presensi masuk!' };
-          existing.jamPulang = getCurTimeFormatted();
+          if (!existing || !hasMasukAtt) return { success: false, message: 'Belum presensi masuk!' };
+          if (curMinutesAtt < ABSENSI_OPEN_PULANG_MINUTES) {
+            return {
+              success: false,
+              waitingPulangWindow: true,
+              message: 'Belum waktunya absen pulang. Kamera absen pulang dibuka mulai pukul 11.00 - 24.00 WIB.'
+            };
+          }
+          existing.jamPulang = curTimeAtt;
           existing.fotoPulang = p.photoBase64 || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=600';
-          return { success: true, message: 'Presensi pulang berhasil dicatat dan terverifikasi!', data: existing };
+          return {
+            success: true,
+            message: 'Presensi pulang berhasil dicatat! Anda sudah absen masuk dan pulang.',
+            data: existing
+          };
         }
       }
       if (method === 'apiGetAttendanceList') {
@@ -6577,36 +6693,57 @@
         }
         var todayStr = getTodayFormatted();
         var curTimeStr = getCurTimeFormatted();
+        var curMinutesBar = getMinutesFromTimeStr_(curTimeStr);
         var existing = MOCK_DB.attendances.find(a => a.idPengguna === student.id && a.tanggal === todayStr);
+        var hasMasukBar = Boolean(existing && existing.jamMasuk && existing.jamMasuk !== '-');
+        var hasPulangBar = Boolean(existing && existing.jamPulang && existing.jamPulang !== '-');
+
+        if (hasMasukBar && hasPulangBar) {
+          return {
+            success: false,
+            alreadyAttended: true,
+            completedAll: true,
+            message: 'Anda sudah absen masuk dan pulang',
+            student: student,
+            presensi: existing
+          };
+        }
 
         // Jika scanType masuk tapi jamMasuk sudah ada (SCAN KE-2 OTOMATIS)
-        if (scanType === 'masuk' && existing && existing.jamMasuk && existing.jamMasuk !== '-') {
-          var exPulang = String(existing.jamPulang || '').trim();
-          if (!exPulang || exPulang === '' || exPulang === '-') {
-            // SCAN KE-2: JADI PULANG OTOMATIS!
-            existing.jamPulang = curTimeStr;
-            existing.fotoPulang = payload.photoBase64 || student.foto || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150';
-            existing.waktuVerifikasi = getCurDateTimeFormatted();
-            return {
-              success: true,
-              scanType: 'pulang',
-              isScan2: true,
-              message: '✓ Presensi Pulang Berhasil: ' + student.nama + ' (Absen #' + student.absen + ') pukul ' + curTimeStr + ' WIB (Scan ke-2 Selesai)',
-              student: student,
-              presensi: existing
-            };
-          } else {
+        if (scanType === 'masuk' && existing && hasMasukBar) {
+          if (curMinutesBar < ABSENSI_OPEN_PULANG_MINUTES) {
             return {
               success: false,
-              alreadyAttended: true,
-              message: student.nama + ' (Absen #' + student.absen + ') sudah menyelesaikan presensi Masuk (' + existing.jamMasuk + ') dan Pulang (' + existing.jamPulang + ') hari ini.',
+              waitingPulangWindow: true,
+              message: 'Anda sudah absen masuk. Kamera absen pulang baru dibuka mulai pukul 11.00 - 24.00 WIB.',
               student: student,
               presensi: existing
             };
           }
+          // SCAN KE-2: JADI PULANG OTOMATIS!
+          existing.jamPulang = curTimeStr;
+          existing.fotoPulang = payload.photoBase64 || student.foto || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150';
+          existing.waktuVerifikasi = getCurDateTimeFormatted();
+          return {
+            success: true,
+            scanType: 'pulang',
+            isScan2: true,
+            message: '✓ Presensi Pulang Berhasil: ' + student.nama + ' (Absen #' + student.absen + ') pukul ' + curTimeStr + ' WIB. Anda sudah absen masuk dan pulang.',
+            student: student,
+            presensi: existing
+          };
         }
 
         if (scanType === 'masuk') {
+          if (curMinutesBar < ABSENSI_OPEN_MASUK_MINUTES) {
+            return {
+              success: false,
+              beforeMasukWindow: true,
+              message: 'Absen masuk dibuka mulai pukul 06.30 WIB.',
+              student: student
+            };
+          }
+          var statusTelatBar = hitungStatusKeterlambatanMasuk_(curTimeStr);
           var newRecord = {
             id: 'PRS-00' + (MOCK_DB.attendances.length + 1),
             idPengguna: student.id,
@@ -6616,7 +6753,7 @@
             jamPulang: '',
             fotoMasuk: payload.photoBase64 || student.foto || 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150',
             fotoPulang: '',
-            statusKeterlambatan: 'Tepat Waktu',
+            statusKeterlambatan: statusTelatBar,
             statusVerifikasi: 'Disetujui',
             catatanGuru: 'Presensi via Scan Barcode',
             waktuVerifikasi: getCurDateTimeFormatted()
@@ -6625,23 +6762,23 @@
           return {
             success: true,
             scanType: 'masuk',
-            message: '✓ Presensi Masuk Berhasil: ' + student.nama + ' (Absen #' + student.absen + ') - Tepat Waktu (Scan ke-1)',
+            message: '✓ Presensi Masuk Berhasil: ' + student.nama + ' (Absen #' + student.absen + ') - ' + statusTelatBar,
             student: student,
             presensi: newRecord
           };
         } else {
           // Pulang
-          if (!existing) {
+          if (!existing || !hasMasukBar) {
             return {
               success: false,
               message: student.nama + ' belum melakukan presensi masuk hari ini!'
             };
           }
-          if (existing.jamPulang && existing.jamPulang !== '-') {
+          if (curMinutesBar < ABSENSI_OPEN_PULANG_MINUTES) {
             return {
               success: false,
-              alreadyAttended: true,
-              message: student.nama + ' sudah presensi pulang pada ' + existing.jamPulang + ' WIB.',
+              waitingPulangWindow: true,
+              message: 'Belum waktunya absen pulang. Kamera absen pulang dibuka mulai pukul 11.00 - 24.00 WIB.',
               student: student,
               presensi: existing
             };
@@ -6651,7 +6788,7 @@
           return {
             success: true,
             scanType: 'pulang',
-            message: '✓ Presensi Pulang Berhasil: ' + student.nama + ' (Absen #' + student.absen + ') pukul ' + curTimeStr + ' WIB',
+            message: '✓ Presensi Pulang Berhasil: ' + student.nama + ' (Absen #' + student.absen + ') pukul ' + curTimeStr + ' WIB. Anda sudah absen masuk dan pulang.',
             student: student,
             presensi: existing
           };
@@ -6743,11 +6880,266 @@
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
     function getCurTimeFormatted() {
+      if (typeof window !== 'undefined' && window.__MOCK_CURRENT_TIME_STR && /^\d{2}:\d{2}(:\d{2})?$/.test(String(window.__MOCK_CURRENT_TIME_STR))) {
+        var mParts = String(window.__MOCK_CURRENT_TIME_STR).split(':');
+        return String(mParts[0]).padStart(2, '0') + ':' + String(mParts[1]).padStart(2, '0') + ':' + String(mParts[2] || '00').padStart(2, '0');
+      }
       var d = new Date();
       return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
     }
     function getCurDateTimeFormatted() {
       return getTodayFormatted() + ' ' + getCurTimeFormatted();
+    }
+
+    /**
+     * CENTRALIZED ATTENDANCE TIME WINDOW & CAMERA LOCK GATE (v1.55.0)
+     * - Jam Buka Kamera Absen Masuk: 06.30 WIB (390 menit)
+     * - Batas Tepat Waktu Absen Masuk: 07.15 WIB (435 menit) -> lewat 07.15 = "Anda terlambat X menit"
+     * - Jam Buka Kamera Absen Pulang: 11.00 - 24.00 WIB (660 s/d 1439 menit)
+     * - Setelah Absen Masuk & Pulang selesai: Kamera dikunci penuh ("Anda sudah absen masuk dan pulang") s/d 06.30 esok hari
+     */
+    const ABSENSI_OPEN_MASUK_MINUTES = 6 * 60 + 30;  // 06:30
+    const ABSENSI_LATE_MASUK_MINUTES = 7 * 60 + 15;  // 07:15
+    const ABSENSI_OPEN_PULANG_MINUTES = 11 * 60;     // 11:00
+
+    function getMinutesFromTimeStr_(timeStr) {
+      const parts = String(timeStr || getCurTimeFormatted() || '00:00:00').split(':');
+      const hh = parseInt(parts[0], 10) || 0;
+      const mm = parseInt(parts[1], 10) || 0;
+      return hh * 60 + mm;
+    }
+
+    function hitungStatusKeterlambatanMasuk_(timeStr) {
+      const curMinutes = getMinutesFromTimeStr_(timeStr || getCurTimeFormatted());
+      const selisih = curMinutes - ABSENSI_LATE_MASUK_MINUTES;
+      if (selisih > 0) {
+        return 'Anda terlambat ' + selisih + ' menit';
+      }
+      return 'Tepat Waktu';
+    }
+
+    function formatStatusKeterlambatanDisplay_(rawStatus, jamMasukStr) {
+      const raw = String(rawStatus || '').trim();
+      if (/^anda\s+terlambat\s+\d+\s+menit/i.test(raw)) {
+        return raw.charAt(0).toUpperCase() + raw.slice(1);
+      }
+      const matchLegacy = raw.match(/terlambat\s*\(?(\d+)\s*(?:menit|mnt)\)?/i);
+      if (matchLegacy && matchLegacy[1]) {
+        return 'Anda terlambat ' + matchLegacy[1] + ' menit';
+      }
+      if (jamMasukStr && /^\d{2}:\d{2}/.test(String(jamMasukStr).trim())) {
+        const m = getMinutesFromTimeStr_(jamMasukStr);
+        if (m > ABSENSI_LATE_MASUK_MINUTES) {
+          return 'Anda terlambat ' + (m - ABSENSI_LATE_MASUK_MINUTES) + ' menit';
+        }
+      }
+      if (/toleransi/i.test(raw)) {
+        const matchTol = raw.match(/(\d+)\s*(?:menit|mnt)/i);
+        if (matchTol && matchTol[1]) {
+          return 'Anda terlambat ' + matchTol[1] + ' menit';
+        }
+      }
+      return raw || 'Tepat Waktu';
+    }
+
+    function getCurrentStudentPresensiRecord_() {
+      const dashP = (STATE.cache && STATE.cache.dashboardData && STATE.cache.dashboardData.presensiSayaHariIni)
+        ? STATE.cache.dashboardData.presensiSayaHariIni
+        : null;
+      const qrisP = (STATE.qrisData && STATE.qrisData.studentStatus)
+        ? STATE.qrisData.studentStatus
+        : null;
+      if (!dashP && !qrisP) return null;
+      const merged = Object.assign({}, qrisP || {}, dashP || {});
+      if (qrisP && qrisP.jamMasuk && qrisP.jamMasuk !== '-' && (!merged.jamMasuk || merged.jamMasuk === '-')) {
+        merged.jamMasuk = qrisP.jamMasuk;
+      }
+      if (qrisP && qrisP.jamPulang && qrisP.jamPulang !== '-' && (!merged.jamPulang || merged.jamPulang === '-')) {
+        merged.jamPulang = qrisP.jamPulang;
+      }
+      if (!merged.statusKeterlambatan && merged.statusTerlambat) {
+        merged.statusKeterlambatan = merged.statusTerlambat;
+      }
+      if (merged.jamMasuk && merged.jamMasuk !== '-') {
+        merged.statusKeterlambatan = formatStatusKeterlambatanDisplay_(merged.statusKeterlambatan, merged.jamMasuk);
+      }
+      return merged;
+    }
+
+    function syncStudentPresensiRecord_(partialRec) {
+      if (!partialRec) return;
+      if (!STATE.cache.dashboardData) {
+        STATE.cache.dashboardData = {
+          settings: STATE.classSettings,
+          todayHari: '',
+          todayStr: getTodayFormatted(),
+          jadwalHariIni: [],
+          presensiSayaHariIni: null,
+          antreanVerifikasiGuru: 0,
+          totalHadirHariIni: 0,
+          totalIzinHariIni: 0,
+          totalSakitHariIni: 0,
+          totalTugasAktif: 0
+        };
+      }
+      const prev = getCurrentStudentPresensiRecord_() || {};
+      const updated = Object.assign({}, prev, partialRec);
+      if (updated.jamMasuk && updated.jamMasuk !== '-') {
+        updated.statusKeterlambatan = formatStatusKeterlambatanDisplay_(updated.statusKeterlambatan || updated.statusTerlambat, updated.jamMasuk);
+        updated.statusTerlambat = updated.statusKeterlambatan;
+      }
+      if (!updated.statusVerifikasi) updated.statusVerifikasi = 'Disetujui';
+      STATE.cache.dashboardData.presensiSayaHariIni = updated;
+      if (STATE.qrisData) {
+        STATE.qrisData.studentStatus = updated;
+      }
+      refreshStudentAttendanceUiState_();
+    }
+
+    function evaluateStudentAttendanceGate_(requestedType) {
+      const isGuru = Boolean(STATE.currentUser && STATE.currentUser.role === 'guru');
+      if (isGuru) {
+        return {
+          canOpenCamera: true,
+          allowedType: requestedType === 'pulang' ? 'pulang' : 'masuk',
+          reasonCode: 'GURU_ALLOWED',
+          isGuru: true
+        };
+      }
+
+      const p = getCurrentStudentPresensiRecord_();
+      const jamMasukVal = p && p.jamMasuk ? String(p.jamMasuk).trim() : '';
+      const jamPulangVal = p && p.jamPulang ? String(p.jamPulang).trim() : '';
+      const hasMasuk = Boolean(jamMasukVal && jamMasukVal !== '-');
+      const hasPulang = Boolean(jamPulangVal && jamPulangVal !== '-');
+      const curTimeStr = getCurTimeFormatted();
+      const curMinutes = getMinutesFromTimeStr_(curTimeStr);
+      const statusMasukDisplay = hasMasuk ? formatStatusKeterlambatanDisplay_(p.statusKeterlambatan || p.statusTerlambat, jamMasukVal) : '';
+
+      // 1. Sudah absen masuk DAN sudah absen pulang -> Kunci kamera sampai 06.30 besok
+      if (hasMasuk && hasPulang) {
+        return {
+          canOpenCamera: false,
+          allowedType: null,
+          reasonCode: 'COMPLETED_ALL',
+          hasMasuk: true,
+          hasPulang: true,
+          jamMasuk: jamMasukVal,
+          jamPulang: jamPulangVal,
+          statusMasukDisplay: statusMasukDisplay,
+          titleText: 'Anda sudah absen masuk dan pulang',
+          messageText: 'Anda sudah absen masuk dan pulang. Kamera absen dibuka kembali pukul 06.30 WIB.',
+          buttonText: 'Anda sudah absen masuk dan pulang'
+        };
+      }
+
+      // 2. Sudah absen masuk, belum absen pulang
+      if (hasMasuk && !hasPulang) {
+        if (curMinutes < ABSENSI_OPEN_PULANG_MINUTES) {
+          return {
+            canOpenCamera: false,
+            allowedType: null,
+            reasonCode: 'WAIT_PULANG_WINDOW',
+            hasMasuk: true,
+            hasPulang: false,
+            jamMasuk: jamMasukVal,
+            jamPulang: '',
+            statusMasukDisplay: statusMasukDisplay,
+            titleText: 'Sudah Absen Masuk • Menunggu Jam Pulang (11.00 - 24.00)',
+            messageText: 'Anda sudah absen masuk (' + jamMasukVal + ' WIB - ' + statusMasukDisplay + '). Kamera absen pulang baru dapat dibuka mulai pukul 11.00 - 24.00 WIB.',
+            buttonText: 'Absen Pulang Dibuka Pukul 11.00 - 24.00'
+          };
+        }
+        if (requestedType === 'masuk') {
+          return {
+            canOpenCamera: false,
+            allowedType: 'pulang',
+            reasonCode: 'MASUK_ALREADY_DONE',
+            hasMasuk: true,
+            hasPulang: false,
+            jamMasuk: jamMasukVal,
+            jamPulang: '',
+            statusMasukDisplay: statusMasukDisplay,
+            titleText: 'Sudah Absen Masuk',
+            messageText: 'Anda sudah absen masuk hari ini. Silakan gunakan tombol Absen Pulang (11.00 - 24.00 WIB).',
+            buttonText: 'Presensi Pulang (11.00 - 24.00)'
+          };
+        }
+        return {
+          canOpenCamera: true,
+          allowedType: 'pulang',
+          reasonCode: 'OPEN_PULANG',
+          hasMasuk: true,
+          hasPulang: false,
+          jamMasuk: jamMasukVal,
+          jamPulang: '',
+          statusMasukDisplay: statusMasukDisplay,
+          titleText: 'Waktu Absen Pulang (11.00 - 24.00)',
+          messageText: 'Silakan buka kamera untuk melakukan absen pulang (11.00 - 24.00 WIB).',
+          buttonText: 'Presensi Pulang (Selfie)'
+        };
+      }
+
+      // 3. Belum absen masuk
+      if (requestedType === 'pulang') {
+        return {
+          canOpenCamera: false,
+          allowedType: null,
+          reasonCode: 'NEED_MASUK_FIRST',
+          hasMasuk: false,
+          hasPulang: false,
+          titleText: 'Belum Absen Masuk',
+          messageText: 'Anda belum melakukan absen masuk hari ini. Silakan lakukan absen masuk terlebih dahulu.',
+          buttonText: 'Belum Absen Masuk'
+        };
+      }
+
+      if (curMinutes < ABSENSI_OPEN_MASUK_MINUTES) {
+        return {
+          canOpenCamera: false,
+          allowedType: null,
+          reasonCode: 'BEFORE_MASUK_WINDOW',
+          hasMasuk: false,
+          hasPulang: false,
+          titleText: 'Absen Masuk Dibuka Pukul 06.30 WIB',
+          messageText: 'Kamera absen masuk belum dibuka. Absen masuk dibuka mulai pukul 06.30 WIB.',
+          buttonText: 'Absen Masuk Dibuka Pukul 06.30'
+        };
+      }
+
+      const isLateNow = curMinutes > ABSENSI_LATE_MASUK_MINUTES;
+      const lateMinutesNow = Math.max(0, curMinutes - ABSENSI_LATE_MASUK_MINUTES);
+      const lateStatusNow = isLateNow ? ('Anda terlambat ' + lateMinutesNow + ' menit') : 'Tepat Waktu';
+
+      return {
+        canOpenCamera: true,
+        allowedType: 'masuk',
+        reasonCode: 'OPEN_MASUK',
+        hasMasuk: false,
+        hasPulang: false,
+        isLateNow: isLateNow,
+        lateMinutesNow: lateMinutesNow,
+        lateStatusNow: lateStatusNow,
+        titleText: isLateNow ? ('Absen Masuk (' + lateStatusNow + ')') : 'Waktu Absen Masuk (06.30 - 07.15)',
+        messageText: isLateNow
+          ? ('Waktu telah melewati pukul 07.15 WIB (' + lateStatusNow + '). Silakan lakukan absen masuk.')
+          : 'Kamera absen masuk terbuka (06.30 - 07.15 WIB).',
+        buttonText: 'Presensi Masuk (Selfie)'
+      };
+    }
+
+    let lastEvaluatedGateKey_ = '';
+    function refreshStudentAttendanceUiState_() {
+      if (!STATE.currentUser || STATE.currentUser.role === 'guru') return;
+      if (STATE.cache && STATE.cache.dashboardData) {
+        renderDashboardData(STATE.cache.dashboardData);
+      }
+      if (typeof loadMuridPresensiDetail === 'function') {
+        loadMuridPresensiDetail();
+      }
+      if (typeof updateQrisStudentScannerGateUi_ === 'function') {
+        updateQrisStudentScannerGateUi_();
+      }
     }
 
     /**
@@ -7132,8 +7524,7 @@
     }
 
     function updateShiftBannerSettings() {
-      const s = STATE.classSettings;
-      document.getElementById('bannerShiftTime').textContent = `${s.JamMasuk || '07:15'} WIB - ${s.JamPulang || '13:00'} WIB`;
+      document.getElementById('bannerShiftTime').textContent = `Masuk 06:30 - 07:15 • Pulang 11:00 - 24:00 WIB`;
 
       const hariArr = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
       const now = new Date();
@@ -7206,6 +7597,14 @@
       if (!clockEl) return;
       STATE.liveClockTimer = setInterval(() => {
         clockEl.textContent = getCurTimeFormatted();
+        if (STATE.currentUser && STATE.currentUser.role === 'murid') {
+          const gate = evaluateStudentAttendanceGate_('auto');
+          const gateKey = `${gate.reasonCode}|${gate.allowedType || ''}|${gate.lateMinutesNow || 0}`;
+          if (gateKey !== lastEvaluatedGateKey_) {
+            lastEvaluatedGateKey_ = gateKey;
+            refreshStudentAttendanceUiState_();
+          }
+        }
       }, 1000);
     }
 
@@ -7872,30 +8271,62 @@
         if (guruBox) guruBox.classList.add('hidden');
         if (btnGuru) btnGuru.classList.add('hidden');
 
-        const p = data.presensiSayaHariIni;
-        if (p && p.jamMasuk) {
-          logVal.textContent = `${p.jamMasuk} WIB [${p.statusKeterlambatan}]`;
-          logIcon.classList.remove('hidden');
-          if (cardPresensiBadge) cardPresensiBadge.textContent = p.statusVerifikasi || 'Hadir';
+        const p = getCurrentStudentPresensiRecord_() || data.presensiSayaHariIni;
+        const gate = evaluateStudentAttendanceGate_('auto');
+        const logLabel = document.getElementById('bannerLogStatusLabel');
 
-          if (!p.jamPulang) {
-            btnMurid.innerHTML = `<span>Presensi Pulang</span>`;
+        if (gate.reasonCode === 'COMPLETED_ALL') {
+          if (logLabel) logLabel.textContent = 'Status Absen:';
+          logVal.textContent = `Anda sudah absen masuk dan pulang (Masuk ${gate.jamMasuk} [${gate.statusMasukDisplay}] • Pulang ${gate.jamPulang})`;
+          logVal.className = 'text-xs font-extrabold text-emerald-800';
+          logIcon.classList.remove('hidden');
+          if (cardPresensiBadge) cardPresensiBadge.textContent = 'Masuk & Pulang ✓';
+
+          btnMurid.innerHTML = `<span>Anda sudah absen masuk dan pulang</span>`;
+          btnMurid.disabled = true;
+          btnMurid.onclick = null;
+          btnMurid.className = 'w-full sm:w-auto px-4 py-2 rounded-2xl font-extrabold text-xs bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-not-allowed';
+        } else if (p && p.jamMasuk && p.jamMasuk !== '-') {
+          const statusTxt = formatStatusKeterlambatanDisplay_(p.statusKeterlambatan || p.statusTerlambat, p.jamMasuk);
+          const isLate = statusTxt.toLowerCase().indexOf('terlambat') > -1;
+          if (logLabel) logLabel.textContent = 'Presensi Masuk:';
+          logVal.textContent = `${p.jamMasuk} WIB [${statusTxt}]`;
+          logVal.className = isLate ? 'text-xs font-extrabold text-amber-700' : 'text-xs font-bold text-[#2D6A4F]';
+          logIcon.classList.remove('hidden');
+          if (cardPresensiBadge) cardPresensiBadge.textContent = isLate ? statusTxt : (p.statusVerifikasi || 'Hadir');
+
+          if (gate.reasonCode === 'WAIT_PULANG_WINDOW') {
+            btnMurid.innerHTML = `<span>🔒 Absen Pulang Dibuka Pukul 11.00 - 24.00</span>`;
+            btnMurid.disabled = true;
+            btnMurid.onclick = null;
+            btnMurid.className = 'w-full sm:w-auto px-4 py-2 rounded-2xl font-bold text-xs bg-amber-50 text-amber-800 border border-amber-300 cursor-not-allowed';
+          } else {
+            btnMurid.innerHTML = `<span>Presensi Pulang (11.00 - 24.00)</span>`;
             btnMurid.onclick = () => triggerNativeCamera('pulang');
             btnMurid.disabled = false;
             btnMurid.className = 'w-full sm:w-auto px-5 py-2 rounded-2xl font-bold text-xs sm:text-sm border-2 border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5';
-          } else {
-            btnMurid.innerHTML = `<span>Selesai (Pulang ${p.jamPulang})</span>`;
-            btnMurid.disabled = true;
-            btnMurid.className = 'px-4 py-2 rounded-2xl font-bold text-xs bg-emerald-100 text-emerald-800 cursor-default';
           }
         } else {
-          logVal.textContent = 'Belum Presensi';
-          logIcon.classList.add('hidden');
-          if (cardPresensiBadge) cardPresensiBadge.textContent = 'Belum Absen';
-          btnMurid.innerHTML = `<span>Presensi Masuk (Selfie)</span>`;
-          btnMurid.disabled = false;
-          btnMurid.className = 'w-full sm:w-auto px-5 py-2 rounded-2xl font-bold text-xs sm:text-sm border-2 border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5';
-          btnMurid.onclick = () => triggerNativeCamera('masuk');
+          if (logLabel) logLabel.textContent = 'Presensi Masuk:';
+          if (gate.reasonCode === 'BEFORE_MASUK_WINDOW') {
+            logVal.textContent = 'Dibuka pukul 06.30 WIB';
+            logVal.className = 'text-xs font-bold text-slate-600';
+            logIcon.classList.add('hidden');
+            if (cardPresensiBadge) cardPresensiBadge.textContent = 'Buka 06.30';
+            btnMurid.innerHTML = `<span>🔒 Absen Masuk Dibuka Pukul 06.30</span>`;
+            btnMurid.disabled = true;
+            btnMurid.onclick = null;
+            btnMurid.className = 'w-full sm:w-auto px-4 py-2 rounded-2xl font-bold text-xs bg-slate-100 text-slate-500 border border-slate-300 cursor-not-allowed';
+          } else {
+            logVal.textContent = gate.isLateNow ? `Belum Presensi (${gate.lateStatusNow})` : 'Belum Presensi (Buka 06.30 - 07.15)';
+            logVal.className = gate.isLateNow ? 'text-xs font-extrabold text-amber-700' : 'text-xs font-bold text-[#2D6A4F]';
+            logIcon.classList.add('hidden');
+            if (cardPresensiBadge) cardPresensiBadge.textContent = 'Belum Absen';
+            btnMurid.innerHTML = `<span>Presensi Masuk (Selfie)</span>`;
+            btnMurid.disabled = false;
+            btnMurid.className = 'w-full sm:w-auto px-5 py-2 rounded-2xl font-bold text-xs sm:text-sm border-2 border-emerald-600 text-emerald-900 bg-white hover:bg-emerald-50 active:scale-95 transition-custom shadow-xs flex items-center justify-center space-x-1.5';
+            btnMurid.onclick = () => triggerNativeCamera('masuk');
+          }
         }
       }
 
@@ -7907,16 +8338,31 @@
      * 5. LOGIKA KAMERA HP NATIVE & PRESENSI SELFIE
      */
     function openSelfieCameraModal() {
-      if (STATE.currentUser.role === 'guru') {
+      if (STATE.currentUser && STATE.currentUser.role === 'guru') {
         switchTab('presensi');
         return;
       }
-      triggerNativeCamera('masuk');
+      const gate = evaluateStudentAttendanceGate_('auto');
+      if (!gate.canOpenCamera) {
+        if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
+        showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+        return;
+      }
+      triggerNativeCamera(gate.allowedType || 'masuk');
     }
 
     function triggerNativeCamera(type) {
       if (typeof stopAllAbsensiCameras_ === 'function') {
         stopAllAbsensiCameras_({ closeBarcodeModal: true });
+      }
+      if (!STATE.currentUser || STATE.currentUser.role !== 'guru') {
+        const gate = evaluateStudentAttendanceGate_(type || 'auto');
+        if (!gate.canOpenCamera) {
+          closeModal('modalCameraSelfie');
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
+        type = gate.allowedType || type || 'masuk';
       }
       STATE.tempSelfieType = type;
       const modalTitle = document.getElementById('modalCameraTitle');
@@ -8015,6 +8461,9 @@
 
         if (res.success) {
           closeModal('modalCameraSelfie');
+          if (res.data) {
+            syncStudentPresensiRecord_(res.data);
+          }
           showToast(res.message, 'success');
           loadDashboardData(true);
           loadPresensiTab(true);
@@ -8044,14 +8493,18 @@
     }
 
     function loadMuridPresensiDetail() {
-      // Ambil data presensi murid hari ini dari cache/dashboard
-      const p = STATE.cache.dashboardData ? STATE.cache.dashboardData.presensiSayaHariIni : null;
+      // Ambil data presensi murid hari ini dari cache/dashboard + QRIS
+      const p = getCurrentStudentPresensiRecord_();
+      const gate = evaluateStudentAttendanceGate_('auto');
 
+      const windowNotice = document.getElementById('muridPresensiWindowNotice');
       const badgeMasuk = document.getElementById('badgeStatusMasukDetail');
       const prevMasukBox = document.getElementById('previewFotoMasukContainer');
       const imgMasuk = document.getElementById('imgFotoMasukDetail');
       const txtMasuk = document.getElementById('jamMasukDetailTxt');
       const btnMasuk = document.getElementById('btnActionPresensiMasuk');
+      const btnBarcodeCardMasuk = document.getElementById('btnBarcodeCardMasuk');
+      const btnScanBarcodeMasuk = document.getElementById('btnScanBarcodeMasuk');
 
       const badgePulang = document.getElementById('badgeStatusPulangDetail');
       const prevPulangBox = document.getElementById('previewFotoPulangContainer');
@@ -8062,21 +8515,110 @@
       const btnBarcodeCardPulang = document.getElementById('btnBarcodeCardPulang');
       const btnScanBarcodePulang = document.getElementById('btnScanBarcodePulang');
 
-      if (p && p.jamMasuk) {
-        badgeMasuk.textContent = p.statusVerifikasi || 'Tercatat';
-        badgeMasuk.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-        txtMasuk.innerHTML = `Waktu: <span class="font-bold text-slate-800">${p.jamMasuk} WIB</span>`;
-        if (p.fotoMasuk) {
+      const hasMasuk = Boolean(p && p.jamMasuk && p.jamMasuk !== '-');
+      const hasPulang = Boolean(p && p.jamPulang && p.jamPulang !== '-');
+
+      // 0. Render Banner Notice Jendela Waktu / Selesai Masuk & Pulang
+      if (windowNotice) {
+        if (gate.reasonCode === 'COMPLETED_ALL') {
+          windowNotice.className = 'p-3.5 rounded-2xl border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-extrabold flex items-center justify-between gap-2 shadow-2xs';
+          windowNotice.innerHTML = `<span>✅ Anda sudah absen masuk dan pulang</span><span class="text-[11px] font-semibold text-emerald-700">Kamera dibuka kembali pukul 06.30 WIB</span>`;
+        } else if (gate.reasonCode === 'WAIT_PULANG_WINDOW') {
+          windowNotice.className = 'p-3.5 rounded-2xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold flex items-center justify-between gap-2 shadow-2xs';
+          windowNotice.innerHTML = `<span>🔒 Anda sudah absen masuk (${escapeHtml(gate.statusMasukDisplay)})</span><span class="text-[11px] font-extrabold text-amber-800">Kamera absen pulang dibuka pukul 11.00 - 24.00 WIB</span>`;
+        } else if (gate.reasonCode === 'BEFORE_MASUK_WINDOW') {
+          windowNotice.className = 'p-3.5 rounded-2xl border border-slate-300 bg-slate-100 text-slate-700 text-xs font-bold flex items-center justify-between gap-2';
+          windowNotice.innerHTML = `<span>⏰ Kamera absen masuk belum dibuka</span><span class="text-[11px] font-extrabold text-slate-800">Dibuka mulai pukul 06.30 WIB</span>`;
+        } else if (gate.reasonCode === 'OPEN_MASUK' && gate.isLateNow) {
+          windowNotice.className = 'p-3.5 rounded-2xl border border-amber-300 bg-amber-50 text-amber-900 text-xs font-bold flex items-center justify-between gap-2';
+          windowNotice.innerHTML = `<span>⚠️ Lewat pukul 07.15 WIB: ${escapeHtml(gate.lateStatusNow)}</span><span class="text-[11px] font-semibold text-amber-800">Silakan segera absen masuk</span>`;
+        } else if (gate.reasonCode === 'OPEN_PULANG') {
+          windowNotice.className = 'p-3.5 rounded-2xl border border-sky-300 bg-sky-50 text-sky-900 text-xs font-bold flex items-center justify-between gap-2';
+          windowNotice.innerHTML = `<span>📷 Waktu Absen Pulang Aktif (11.00 - 24.00 WIB)</span><span class="text-[11px] font-semibold text-sky-700">Silakan buka kamera untuk absen pulang</span>`;
+        } else {
+          windowNotice.className = 'hidden';
+          windowNotice.innerHTML = '';
+        }
+      }
+
+      if (hasMasuk) {
+        const statusMasukTxt = formatStatusKeterlambatanDisplay_(p.statusKeterlambatan || p.statusTerlambat, p.jamMasuk);
+        const isLateMasuk = statusMasukTxt.toLowerCase().indexOf('terlambat') > -1;
+        badgeMasuk.textContent = statusMasukTxt;
+        badgeMasuk.className = isLateMasuk
+          ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300'
+          : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+        txtMasuk.innerHTML = `Waktu: <span class="font-bold text-slate-800">${escapeHtml(p.jamMasuk)} WIB</span> • <span class="font-bold ${isLateMasuk ? 'text-amber-700' : 'text-emerald-700'}">${escapeHtml(statusMasukTxt)}</span>`;
+        if (p.fotoMasuk && (p.fotoMasuk.startsWith('http') || p.fotoMasuk.startsWith('data:'))) {
           prevMasukBox.classList.remove('hidden');
           imgMasuk.src = p.fotoMasuk;
+        } else {
+          prevMasukBox.classList.add('hidden');
         }
 
-        btnMasuk.textContent = 'Sudah Presensi Masuk (Scan 1)';
+        btnMasuk.textContent = hasPulang ? 'Anda sudah absen masuk dan pulang' : 'Sudah Presensi Masuk (Terkunci)';
         btnMasuk.disabled = true;
-        btnMasuk.className = 'w-full py-2.5 bg-slate-100 text-slate-400 font-bold rounded-xl text-xs cursor-default';
+        btnMasuk.className = 'w-full py-2.5 bg-slate-100 text-slate-400 font-bold rounded-xl text-xs cursor-not-allowed';
 
-        // Aktifkan opsi selfie pulang & opsi barcode pulang jika belum pulang
+        if (btnScanBarcodeMasuk) {
+          btnScanBarcodeMasuk.disabled = true;
+          btnScanBarcodeMasuk.className = 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-not-allowed';
+        }
+      } else {
+        const canMasukNow = (gate.reasonCode === 'OPEN_MASUK');
+        badgeMasuk.textContent = canMasukNow ? (gate.isLateNow ? gate.lateStatusNow : 'Buka (06.30 - 07.15)') : 'Buka 06.30';
+        badgeMasuk.className = canMasukNow
+          ? (gate.isLateNow ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800' : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800')
+          : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600';
+        txtMasuk.innerHTML = `Waktu: <span class="font-bold text-slate-700">${canMasukNow ? 'Silakan Absen Masuk' : 'Dibuka pukul 06.30 WIB'}</span>`;
+        prevMasukBox.classList.add('hidden');
+
+        btnMasuk.disabled = !canMasukNow;
+        btnMasuk.innerHTML = canMasukNow
+          ? `<span>Foto Selfie Masuk</span>`
+          : `<span>🔒 Dibuka Pukul 06.30 WIB</span>`;
+        btnMasuk.className = canMasukNow
+          ? 'w-full py-2.5 bg-brand-blue hover:bg-sky-600 text-white font-bold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5'
+          : 'w-full py-2.5 bg-slate-200 text-slate-400 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center';
+
+        if (btnScanBarcodeMasuk) {
+          btnScanBarcodeMasuk.disabled = !canMasukNow;
+          btnScanBarcodeMasuk.className = canMasukNow
+            ? 'py-2 px-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 shadow-2xs cursor-pointer'
+            : 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-not-allowed';
+        }
+      }
+
+      if (hasPulang) {
+        badgePulang.textContent = 'Selesai (Scan 2)';
+        badgePulang.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+        txtPulang.innerHTML = `Waktu: <span class="font-bold text-slate-800">${escapeHtml(p.jamPulang)} WIB</span> • <span class="font-bold text-emerald-700">Anda sudah absen masuk dan pulang</span>`;
+        if (p.fotoPulang && (p.fotoPulang.startsWith('http') || p.fotoPulang.startsWith('data:'))) {
+          prevPulangBox.classList.remove('hidden');
+          imgPulang.src = p.fotoPulang;
+        } else {
+          prevPulangBox.classList.add('hidden');
+        }
+        btnPulang.disabled = true;
+        btnPulang.innerHTML = `<span>Anda sudah absen masuk dan pulang</span>`;
+        btnPulang.className = 'w-full py-2.5 bg-emerald-100 text-emerald-800 font-extrabold rounded-xl text-xs cursor-not-allowed';
+
+        if (btnBarcodeCardPulang) {
+          btnBarcodeCardPulang.disabled = true;
+          btnBarcodeCardPulang.className = 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-not-allowed';
+        }
+        if (btnScanBarcodePulang) {
+          btnScanBarcodePulang.disabled = true;
+          btnScanBarcodePulang.className = 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-not-allowed';
+        }
+      } else if (hasMasuk && gate.reasonCode === 'OPEN_PULANG') {
+        badgePulang.textContent = 'Buka (11.00 - 24.00)';
+        badgePulang.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800';
+        txtPulang.innerHTML = `Waktu: <span class="font-bold text-sky-700">Jam Pulang Aktif (11.00 - 24.00 WIB)</span>`;
+        prevPulangBox.classList.add('hidden');
+
         btnPulang.disabled = false;
+        btnPulang.innerHTML = `<span>Foto Selfie Pulang</span>`;
         btnPulang.className = 'w-full py-2.5 bg-brand-blue hover:bg-sky-600 text-white font-bold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5';
 
         if (btnBarcodeCardPulang) {
@@ -8088,15 +8630,20 @@
           btnScanBarcodePulang.className = 'py-2 px-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 shadow-2xs cursor-pointer';
         }
       } else {
-        badgeMasuk.textContent = 'Belum';
-        badgeMasuk.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600';
-        txtMasuk.innerHTML = `Waktu: <span class="font-bold text-slate-700">-</span>`;
-        prevMasukBox.classList.add('hidden');
-        btnMasuk.disabled = false;
-        btnMasuk.className = 'w-full py-2.5 bg-brand-blue hover:bg-sky-600 text-white font-bold rounded-xl text-xs shadow-sm transition-custom flex items-center justify-center space-x-1.5';
+        badgePulang.textContent = hasMasuk ? 'Buka 11.00 WIB' : 'Belum';
+        badgePulang.className = hasMasuk
+          ? 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800'
+          : 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600';
+        txtPulang.innerHTML = hasMasuk
+          ? `Waktu: <span class="font-bold text-amber-700">Dibuka pukul 11.00 - 24.00 WIB</span>`
+          : `Waktu: <span class="font-bold text-slate-700">-</span>`;
+        prevPulangBox.classList.add('hidden');
 
         btnPulang.disabled = true;
-        btnPulang.className = 'w-full py-2.5 bg-slate-200 text-slate-400 font-bold rounded-xl text-xs cursor-not-allowed';
+        btnPulang.innerHTML = hasMasuk
+          ? `<span>🔒 Dibuka Pukul 11.00 - 24.00</span>`
+          : `<span>Foto Selfie Pulang</span>`;
+        btnPulang.className = 'w-full py-2.5 bg-slate-200 text-slate-400 font-bold rounded-xl text-xs cursor-not-allowed flex items-center justify-center';
 
         if (btnBarcodeCardPulang) {
           btnBarcodeCardPulang.disabled = true;
@@ -8105,27 +8652,6 @@
         if (btnScanBarcodePulang) {
           btnScanBarcodePulang.disabled = true;
           btnScanBarcodePulang.className = 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-not-allowed';
-        }
-      }
-
-      if (p && p.jamPulang) {
-        badgePulang.textContent = 'Selesai (Scan 2)';
-        badgePulang.className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
-        txtPulang.innerHTML = `Waktu: <span class="font-bold text-slate-800">${p.jamPulang} WIB</span>`;
-        if (p.fotoPulang) {
-          prevPulangBox.classList.remove('hidden');
-          imgPulang.src = p.fotoPulang;
-        }
-        btnPulang.disabled = true;
-        btnPulang.className = 'w-full py-2.5 bg-slate-100 text-slate-400 font-bold rounded-xl text-xs cursor-default';
-
-        if (btnBarcodeCardPulang) {
-          btnBarcodeCardPulang.disabled = true;
-          btnBarcodeCardPulang.className = 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-default';
-        }
-        if (btnScanBarcodePulang) {
-          btnScanBarcodePulang.disabled = true;
-          btnScanBarcodePulang.className = 'py-2 px-2 bg-slate-100 border border-slate-200 text-slate-400 font-bold rounded-xl text-[11px] transition-custom flex items-center justify-center space-x-1 cursor-default';
         }
       }
     }
@@ -9613,9 +10139,18 @@
 
     // Modal Scanner Kamera Siswa (Tanpa Mengetik NIS & Langsung Kirim)
     function openStudentScanner(type) {
+      const isMurid = Boolean(STATE.currentUser && STATE.currentUser.role === 'murid');
+      if (isMurid) {
+        const gate = evaluateStudentAttendanceGate_(type || 'auto');
+        if (!gate.canOpenCamera) {
+          if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
+        type = gate.allowedType || type || 'masuk';
+      }
       openModal('modalScanBarcodeGuru');
-      const p = (STATE.cache.dashboardData && STATE.cache.dashboardData.presensiSayaHariIni);
-      const isMurid = (STATE.currentUser && STATE.currentUser.role === 'murid');
+      const p = getCurrentStudentPresensiRecord_();
       let targetMode = type;
       if (!targetMode && isMurid) {
         targetMode = (p && p.jamMasuk && (!p.jamPulang || p.jamPulang === '-')) ? 'pulang' : 'masuk';
@@ -9650,6 +10185,14 @@
     }
 
     function triggerNativeBarcodeCamera() {
+      if (STATE.currentUser && STATE.currentUser.role === 'murid') {
+        const gate = evaluateStudentAttendanceGate_(currentScanMode || 'auto');
+        if (!gate.canOpenCamera) {
+          if (typeof stopAllAbsensiCameras_ === 'function') stopAllAbsensiCameras_({ closeBarcodeModal: true });
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
+      }
       const input = document.getElementById('nativeBarcodeCameraInput');
       if (input) {
         input.value = '';
@@ -9803,12 +10346,23 @@
 
     function isBarcodeScannerActive_() {
       const modal = document.getElementById('modalScanBarcodeGuru');
-      return Boolean(modal && !modal.classList.contains('hidden') && document.visibilityState !== 'hidden' && STATE.currentUser);
+      if (!modal || modal.classList.contains('hidden') || document.visibilityState === 'hidden' || !STATE.currentUser) {
+        return false;
+      }
+      if (STATE.currentUser.role !== 'guru') {
+        const gate = evaluateStudentAttendanceGate_(currentScanMode || 'auto');
+        if (!gate.canOpenCamera) return false;
+      }
+      return true;
     }
 
     function isQrisScannerActive_() {
       if (!STATE.currentUser || STATE.currentTab !== 'qris' || currentQrisSubTab !== 'scanner') return false;
       if (document.visibilityState === 'hidden') return false;
+      if (STATE.currentUser.role !== 'guru') {
+        const gate = evaluateStudentAttendanceGate_('auto');
+        if (!gate.canOpenCamera) return false;
+      }
       const tabEl = document.getElementById('tabContentQris');
       const subEl = document.getElementById('qrisSubViewScanner');
       if (!tabEl || tabEl.classList.contains('hidden') || !subEl || subEl.classList.contains('hidden')) return false;
@@ -10119,12 +10673,16 @@
           if (typeof loadGuruAttendanceList === 'function' && STATE.currentUser && STATE.currentUser.role === 'guru') { loadGuruAttendanceList(true); }
           if (typeof optimisticUpdateQrisList === 'function' && res.student) { optimisticUpdateQrisList(res.student, res.presensi, res.scanType); }
           if (isMurid) {
+            if (res.presensi) {
+              syncStudentPresensiRecord_(res.presensi);
+            }
             if (typeof loadDashboardData === 'function') loadDashboardData(true);
             if (typeof loadMuridPresensiDetail === 'function') loadMuridPresensiDetail();
-            // Otomatis tutup modal scanner setelah 1.5 detik untuk siswa
+            // Langsung matikan kamera barcode begitu absensi siswa berhasil
+            stopHtml5QrScanner();
             setTimeout(() => {
               closeModalScanBarcodeGuru();
-            }, 1500);
+            }, 1200);
           }
         } else {
           playScanBeep(false);
@@ -15696,6 +16254,84 @@
     var qrisClockInterval = null;
     var currentQrisSubTab = 'barcode';
 
+    function updateQrisStudentScannerGateUi_() {
+      const user = STATE.currentUser || {};
+      const isGuru = user.role === 'guru';
+      const lockBox = document.getElementById('qrisStudentLockNotice');
+      const lockIcon = document.getElementById('qrisStudentLockIcon');
+      const lockTitle = document.getElementById('qrisStudentLockTitle');
+      const lockSub = document.getElementById('qrisStudentLockSubtitle');
+      const btnPrimary = document.getElementById('btnQrisPrimaryOpenCamera');
+      const btnPrimaryLbl = document.getElementById('btnQrisPrimaryOpenCameraLabel');
+      const viewportBox = document.getElementById('qrisScannerViewportBox');
+      const secondaryBtns = document.getElementById('qrisSecondaryCameraBtns');
+
+      if (isGuru) {
+        if (lockBox) lockBox.classList.add('hidden');
+        if (btnPrimary) {
+          btnPrimary.disabled = false;
+          btnPrimary.classList.remove('hidden');
+        }
+        if (viewportBox) viewportBox.classList.remove('hidden');
+        if (secondaryBtns) secondaryBtns.classList.remove('hidden');
+        return { canOpenCamera: true, isGuru: true };
+      }
+
+      const gate = evaluateStudentAttendanceGate_('auto');
+      if (!gate.canOpenCamera) {
+        stopQrisCameraScanner();
+        if (lockBox) {
+          lockBox.classList.remove('hidden');
+          if (gate.reasonCode === 'COMPLETED_ALL') {
+            lockBox.className = 'p-5 rounded-3xl border-2 border-emerald-300 bg-emerald-50 text-center space-y-2 shadow-sm';
+            if (lockIcon) {
+              lockIcon.className = 'w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-2xl bg-emerald-200 text-emerald-800';
+              lockIcon.textContent = '✅';
+            }
+            if (lockTitle) lockTitle.textContent = 'Anda sudah absen masuk dan pulang';
+            if (lockSub) lockSub.textContent = `Masuk: ${gate.jamMasuk} WIB (${gate.statusMasukDisplay}) • Pulang: ${gate.jamPulang} WIB. Kamera absen dikunci sampai dibuka kembali pukul 06.30 WIB.`;
+          } else if (gate.reasonCode === 'WAIT_PULANG_WINDOW') {
+            lockBox.className = 'p-5 rounded-3xl border-2 border-amber-300 bg-amber-50 text-center space-y-2 shadow-sm';
+            if (lockIcon) {
+              lockIcon.className = 'w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-2xl bg-amber-200 text-amber-800';
+              lockIcon.textContent = '🔒';
+            }
+            if (lockTitle) lockTitle.textContent = 'Sudah Absen Masuk • Kamera Pulang Dikunci';
+            if (lockSub) lockSub.textContent = `Tercatat masuk pukul ${gate.jamMasuk} WIB (${gate.statusMasukDisplay}). Kamera scan absen pulang baru dapat dibuka mulai pukul 11.00 - 24.00 WIB.`;
+          } else {
+            lockBox.className = 'p-5 rounded-3xl border-2 border-slate-300 bg-slate-100 text-center space-y-2 shadow-sm';
+            if (lockIcon) {
+              lockIcon.className = 'w-12 h-12 rounded-2xl mx-auto flex items-center justify-center text-2xl bg-slate-200 text-slate-700';
+              lockIcon.textContent = '⏰';
+            }
+            if (lockTitle) lockTitle.textContent = gate.titleText || 'Absen Masuk Dibuka Pukul 06.30 WIB';
+            if (lockSub) lockSub.textContent = gate.messageText || 'Kamera scan absen masuk dibuka mulai pukul 06.30 WIB.';
+          }
+        }
+        if (btnPrimary) {
+          btnPrimary.disabled = true;
+          btnPrimary.classList.add('hidden');
+        }
+        if (viewportBox) viewportBox.classList.add('hidden');
+        if (secondaryBtns) secondaryBtns.classList.add('hidden');
+        return gate;
+      }
+
+      if (lockBox) lockBox.classList.add('hidden');
+      if (btnPrimary) {
+        btnPrimary.disabled = false;
+        btnPrimary.classList.remove('hidden');
+      }
+      if (btnPrimaryLbl) {
+        btnPrimaryLbl.textContent = gate.allowedType === 'pulang'
+          ? 'Buka Kamera Scan Absen Pulang (11.00 - 24.00)'
+          : (gate.isLateNow ? `Buka Kamera Scan Masuk (${gate.lateStatusNow})` : 'Buka Kamera Scan Barcode Masuk');
+      }
+      if (viewportBox) viewportBox.classList.remove('hidden');
+      if (secondaryBtns) secondaryBtns.classList.remove('hidden');
+      return gate;
+    }
+
     function handleNavQrisClick() {
       const user = STATE.currentUser || {};
       const isGuru = user.role === 'guru';
@@ -15703,6 +16339,11 @@
       switchTab('qris');
 
       if (!isGuru) {
+        const gate = updateQrisStudentScannerGateUi_();
+        if (!gate.canOpenCamera) {
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
         triggerQrisNativeCamera();
       } else {
         if (currentQrisSubTab === 'scanner') {
@@ -15714,6 +16355,15 @@
     }
 
     function triggerQrisNativeCamera() {
+      const user = STATE.currentUser || {};
+      if (user.role !== 'guru') {
+        const gate = updateQrisStudentScannerGateUi_();
+        if (!gate.canOpenCamera) {
+          stopQrisCameraScanner();
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
+      }
       const input = document.getElementById('inputScanQrNativeCamera');
       if (!input) return;
       input.value = '';
@@ -15783,7 +16433,13 @@
       callBackend('apiGetDailyQRISInfo', [role, userId, kelas], function (res) {
         if (res && res.success) {
           STATE.qrisData = res;
+          if (res.studentStatus && role !== 'guru') {
+            syncStudentPresensiRecord_(res.studentStatus);
+          }
           renderQrisView(res);
+          if (role !== 'guru') {
+            updateQrisStudentScannerGateUi_();
+          }
         } else {
           showToast(res && res.message ? res.message : 'Gagal memuat info QRIS.', 'error');
         }
@@ -15801,7 +16457,7 @@
       if (tokenEl) tokenEl.textContent = data.token;
 
       const shiftEl = document.getElementById('qrisShiftLimitText');
-      if (shiftEl) shiftEl.textContent = (data.jamMasuk || '07:15') + ' WIB (+' + (data.toleransi || 15) + 'm)';
+      if (shiftEl) shiftEl.textContent = 'Masuk 06:30 - 07:15 • Pulang 11:00 - 24:00 WIB';
 
       const qrImg = document.getElementById('qrisCodeImg');
       const qrFullImg = document.getElementById('qrisFullScreenImg');
@@ -16058,7 +16714,12 @@
         if (btnScanner) {
           btnScanner.className = 'flex-1 py-2 px-3 rounded-xl font-extrabold text-xs transition-custom flex items-center justify-center space-x-1.5 bg-white text-slate-800 shadow-xs';
         }
-        startQrisCameraScanner();
+        const gate = updateQrisStudentScannerGateUi_();
+        if (gate.canOpenCamera) {
+          startQrisCameraScanner();
+        } else {
+          stopQrisCameraScanner();
+        }
       }
     }
 
@@ -16066,6 +16727,13 @@
       const box = document.getElementById('qrisReaderBox');
       const loading = document.getElementById('qrisScannerLoading');
       if (!box) return;
+      if (STATE.currentUser && STATE.currentUser.role !== 'guru') {
+        const gate = updateQrisStudentScannerGateUi_();
+        if (!gate.canOpenCamera) {
+          stopQrisCameraScanner();
+          return;
+        }
+      }
       if (typeof isQrisScannerActive_ === 'function' && !isQrisScannerActive_()) {
         stopQrisCameraScanner();
         return;
@@ -16230,6 +16898,14 @@
     }
 
     function handleQrisNativeCapture(event) {
+      if (STATE.currentUser && STATE.currentUser.role !== 'guru') {
+        const gate = updateQrisStudentScannerGateUi_();
+        if (!gate.canOpenCamera) {
+          if (event && event.target) event.target.value = '';
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
+      }
       const file = event.target.files && event.target.files[0];
       if (!file) return;
 
@@ -16265,6 +16941,14 @@
     }
 
     function handleQrisFileSelected(event) {
+      if (STATE.currentUser && STATE.currentUser.role !== 'guru') {
+        const gate = updateQrisStudentScannerGateUi_();
+        if (!gate.canOpenCamera) {
+          if (event && event.target) event.target.value = '';
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          return;
+        }
+      }
       const file = event.target.files && event.target.files[0];
       if (!file) return;
 
@@ -16523,6 +17207,17 @@
         return;
       }
 
+      if (user.role !== 'guru') {
+        const gate = evaluateStudentAttendanceGate_('auto');
+        if (!gate.canOpenCamera) {
+          stopQrisCameraScanner();
+          updateQrisStudentScannerGateUi_();
+          showToast(gate.messageText || gate.titleText, gate.reasonCode === 'COMPLETED_ALL' ? 'info' : 'warning');
+          setTimeout(function () { isProcessingQrisScan = false; }, 1500);
+          return;
+        }
+      }
+
       showToast('Memverifikasi Kode QR Presensi...', 'info');
 
       const payload = {
@@ -16536,11 +17231,15 @@
       callBackend('apiSubmitPresensiQRIS', [payload], function (res) {
         if (res && res.success) {
           stopQrisCameraScanner();
+          if (res.presensi && user.role !== 'guru') {
+            syncStudentPresensiRecord_(res.presensi);
+          }
           playQrisSuccessChime();
           showQrisSuccessModal(res);
           loadQrisData();
           if (typeof loadDashboardData === 'function') loadDashboardData();
         } else {
+          if (user.role !== 'guru') updateQrisStudentScannerGateUi_();
           showToast(res && res.message ? res.message : 'Presensi QR gagal.', 'error');
           setTimeout(function () { isProcessingQrisScan = false; }, 3000);
         }
@@ -16563,11 +17262,12 @@
 
       const statusEl = document.getElementById('qrisSuccessStatus');
       if (isPulang) {
-        statusEl.textContent = 'Pulang Tercatat (Scan ke-2)';
-        statusEl.className = 'font-bold text-sky-600';
+        statusEl.textContent = 'Anda sudah absen masuk dan pulang';
+        statusEl.className = 'font-bold text-emerald-600';
       } else {
-        const isLate = (presensi.statusKeterlambatan || '').toLowerCase().indexOf('terlambat') > -1;
-        statusEl.textContent = presensi.statusKeterlambatan || 'Tepat Waktu';
+        const statusTxt = formatStatusKeterlambatanDisplay_(presensi.statusKeterlambatan || presensi.statusTerlambat, presensi.jamMasuk);
+        const isLate = statusTxt.toLowerCase().indexOf('terlambat') > -1;
+        statusEl.textContent = statusTxt;
         statusEl.className = 'font-bold ' + (isLate ? 'text-amber-600' : 'text-emerald-600');
       }
 
